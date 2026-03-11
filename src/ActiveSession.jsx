@@ -8,9 +8,9 @@ const tasksData = [
 ];
 
 const PRIORITY_COLORS = {
-  HIGH:   { color: "#FF453A", border: "#FF453A", bg: "rgba(255,69,58,0.07)"   },
-  NORMAL: { color: "#4A9EFF", border: "#4A9EFF", bg: "rgba(74,158,255,0.07)"  },
-  LOW:    { color: "#555",    border: "#3a3a3a",  bg: "transparent"            },
+  HIGH:   { color: "#FF453A", border: "#FF453A", bg: "rgba(255,69,58,0.07)" },
+  NORMAL: { color: "#666",    border: "#2e2e2e", bg: "transparent"           },
+  LOW:    { color: "#383838", border: "#222",    bg: "transparent"           },
 };
 const PRIORITY_WEIGHT = { HIGH: 3, NORMAL: 2, LOW: 1 };
 const FILTERS = ["HIGH", "NORMAL", "LOW"];
@@ -22,19 +22,15 @@ const SETTINGS_SECTIONS = [
 ];
 
 function getPctColor(pct) {
-  if (pct <= 50) {
-    const t = pct / 50;
-    return `rgb(255,${Math.round(69 + 111 * t)},${Math.round(58 - 58 * t)})`;
-  }
-  const t = (pct - 50) / 50;
-  return `rgb(${Math.round(255 - 203 * t)},${Math.round(180 + 19 * t)},${Math.round(89 * t)})`;
+  if (pct === 100) return "#34C759";
+  return "#4A9EFF";
 }
 
 const SHEET_STYLE = {
   position: "relative",
-  background: "#1a1a1a",
+  background: "#000000",
   borderRadius: "20px 20px 0 0",
-  border: "1px solid #2a2a2a",
+  border: "1px solid #1e1e1e",
   borderBottom: "none",
   padding: "20px 20px 36px",
   animation: "sheetUp 0.38s cubic-bezier(0.16,1,0.3,1) forwards",
@@ -42,12 +38,12 @@ const SHEET_STYLE = {
 const SHEET_HANDLE = { width: 36, height: 4, background: "#333", borderRadius: 2, margin: "0 auto 20px" };
 const SHEET_LABEL = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: "#555", letterSpacing: "0.1em", marginBottom: 16 };
 const BTN_PRIMARY = { width: "100%", padding: "13px", borderRadius: 12, background: "#4A9EFF", border: "none", color: "white", fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, cursor: "pointer" };
-const BTN_GHOST   = { flex: 1, padding: "13px", borderRadius: 12, background: "transparent", border: "1px solid #2e2e2e", color: "#666", fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, cursor: "pointer" };
+const BTN_GHOST   = { flex: 1, padding: "13px", borderRadius: 12, background: "transparent", border: "1px solid #222222", color: "#666", fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, cursor: "pointer" };
 const BTN_DANGER  = { flex: 1, padding: "13px", borderRadius: 12, background: "#FF453A", border: "none", color: "white", fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, cursor: "pointer" };
 
 // ── CHECK ICON ──
 const CheckIcon = ({ checked, locked }) => (
-  <div style={{ width: 20, height: 20, borderRadius: 5, border: checked ? "none" : "1.5px solid #3a3a3a", background: checked ? "#1a3a5c" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, opacity: locked ? 0.4 : 1, transition: "all 0.15s ease" }}>
+  <div style={{ width: 20, height: 20, borderRadius: 5, border: checked ? "none" : "1.5px solid #3a3a3a", background: checked ? "#1a3a5c" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s ease" }}>
     {checked && (
       <svg width="11" height="8" viewBox="0 0 12 9" fill="none">
         <path d="M1 4L4.5 7.5L11 1" stroke="#4A9EFF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -68,14 +64,15 @@ const PriorityBadge = ({ label }) => {
 
 // ── LOCK TOGGLE ──
 const LockToggle = ({ locked, onToggle }) => (
-  <button onClick={onToggle} style={{ display: "flex", alignItems: "center", gap: 5, padding: "4px 10px", borderRadius: 20, border: `1.5px solid ${locked ? "#3a3a3a" : "#4A9EFF"}`, background: locked ? "transparent" : "rgba(74,158,255,0.07)", color: locked ? "#555" : "#4A9EFF", fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, letterSpacing: "0.06em", cursor: "pointer", transition: "all 0.2s ease" }}>
-    {locked ? "🔒" : "🔓"} {locked ? "LOCKED" : "UNLOCKED"}
+  <button onClick={onToggle} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 11px", borderRadius: 6, border: `1px solid ${locked ? "#252525" : "rgba(74,158,255,0.4)"}`, background: locked ? "transparent" : "rgba(74,158,255,0.07)", color: locked ? "#444" : "#4A9EFF", fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, letterSpacing: "0.08em", cursor: "pointer", transition: "all 0.2s ease" }}>
+    <div style={{ width: 5, height: 5, borderRadius: "50%", background: locked ? "#333" : "#4A9EFF", transition: "background 0.2s ease" }} />
+    {locked ? "LOCKED" : "EDIT"}
   </button>
 );
 
 // ── SETTINGS LAYER ──
 const SettingsLayer = ({ onClose, onAction }) => (
-  <div style={{ position: "absolute", inset: 0, background: "#161616", borderRadius: "inherit", animation: "slideInRight 0.52s cubic-bezier(0.16,1,0.3,1) forwards", display: "flex", flexDirection: "column", zIndex: 10 }}>
+  <div style={{ position: "absolute", inset: 0, background: "#080808", borderRadius: "inherit", animation: "slideInRight 0.52s cubic-bezier(0.16,1,0.3,1) forwards", display: "flex", flexDirection: "column", zIndex: 10 }}>
     <div style={{ position: "relative", height: 52, flexShrink: 0, display: "flex", alignItems: "center", padding: "0 18px", borderBottom: "1px solid #222" }}>
       <button onClick={onClose} style={{ background: "none", border: "none", color: "#444", fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, letterSpacing: "0.04em", padding: 0 }}>
         ‹ <span style={{ color: "#383838" }}>back</span>
@@ -91,9 +88,9 @@ const SettingsLayer = ({ onClose, onAction }) => (
               <div
                 key={ii}
                 onClick={() => onAction(item)}
-                style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 14px", borderBottom: ii < section.items.length - 1 ? "1px solid #1e1e1e" : "none", cursor: "pointer", background: "#1a1a1a", transition: "background 0.15s ease" }}
-                onMouseEnter={e => e.currentTarget.style.background = "#1f1f1f"}
-                onMouseLeave={e => e.currentTarget.style.background = "#1a1a1a"}
+                style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 14px", borderBottom: ii < section.items.length - 1 ? "1px solid #111111" : "none", cursor: "pointer", background: "#000000", transition: "background 0.15s ease" }}
+                onMouseEnter={e => e.currentTarget.style.background = "#131313"}
+                onMouseLeave={e => e.currentTarget.style.background = "#000000"}
               >
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: "#bbb", fontWeight: 400 }}>{item}</span>
                 <span style={{ color: "#333", fontSize: 16 }}>›</span>
@@ -120,7 +117,7 @@ const RenameSheet = ({ currentName, onSave, onClose }) => {
           value={value}
           onChange={e => setValue(e.target.value)}
           onKeyDown={e => { if (e.key === "Enter" && value.trim()) onSave(value.trim()); }}
-          style={{ width: "100%", background: "#232323", border: "1.5px solid #4A9EFF", borderRadius: 9, color: "#f0f0f0", fontFamily: "'DM Serif Display', serif", fontSize: 22, padding: "12px 14px", outline: "none", marginBottom: 16 }}
+          style={{ width: "100%", background: "#161616", border: "1.5px solid #4A9EFF", borderRadius: 9, color: "#f0f0f0", fontFamily: "'DM Serif Display', serif", fontSize: 22, padding: "12px 14px", outline: "none", marginBottom: 16 }}
         />
         <button onClick={() => value.trim() && onSave(value.trim())} style={BTN_PRIMARY}>Save</button>
       </div>
@@ -141,20 +138,21 @@ const EditSheet = ({ task, onSave, onClose }) => {
         <div style={SHEET_LABEL}>EDIT TASK</div>
         <div style={{ marginBottom: 14 }}>
           <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: "#444", letterSpacing: "0.08em", marginBottom: 6 }}>LABEL</div>
-          <input value={label} onChange={e => setLabel(e.target.value)} style={{ width: "100%", background: "#232323", border: "1.5px solid #2e2e2e", borderRadius: 9, color: "#ccc", fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: "10px 12px", outline: "none" }} />
+          <input value={label} onChange={e => setLabel(e.target.value)} style={{ width: "100%", background: "#161616", border: "1.5px solid #222222", borderRadius: 9, color: "#ccc", fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: "10px 12px", outline: "none" }} />
         </div>
         <div style={{ marginBottom: 14 }}>
           <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: "#444", letterSpacing: "0.08em", marginBottom: 6 }}>TIME</div>
-          <input value={time} onChange={e => setTime(e.target.value)} style={{ width: "100%", background: "#232323", border: "1.5px solid #2e2e2e", borderRadius: 9, color: "#ccc", fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: "10px 12px", outline: "none" }} />
+          <input value={time} onChange={e => setTime(e.target.value)} style={{ width: "100%", background: "#161616", border: "1.5px solid #222222", borderRadius: 9, color: "#ccc", fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: "10px 12px", outline: "none" }} />
         </div>
         <div style={{ marginBottom: 22 }}>
           <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: "#444", letterSpacing: "0.08em", marginBottom: 8 }}>PRIORITY</div>
           <div style={{ display: "flex", gap: 8 }}>
             {FILTERS.map(f => {
-              const c = PRIORITY_COLORS[f];
               const active = priority === f;
+              const activeColor = f === "HIGH" ? "#FF453A" : "#4A9EFF";
+              const activeBg    = f === "HIGH" ? "rgba(255,69,58,0.07)" : "rgba(74,158,255,0.07)";
               return (
-                <button key={f} onClick={() => setPriority(f)} style={{ padding: "6px 16px", borderRadius: 20, border: `1.5px solid ${active ? c.border : "#2e2e2e"}`, background: active ? c.bg : "transparent", color: active ? c.color : "#555", fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, cursor: "pointer", transition: "all 0.15s ease" }}>
+                <button key={f} onClick={() => setPriority(f)} style={{ padding: "6px 16px", borderRadius: 20, border: `1px solid ${active ? activeColor : "#222"}`, background: active ? activeBg : "transparent", color: active ? activeColor : "#444", fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, cursor: "pointer", transition: "all 0.15s ease" }}>
                   {f}
                 </button>
               );
@@ -211,7 +209,7 @@ function SwipeRow({ task, locked, onTap, onToggle, onDelete, isDragging, isOver 
   const reveal = Math.min(Math.abs(offset), 110);
 
   return (
-    <div style={{ position: "relative", overflow: "hidden", borderBottom: "1px solid #222" }}>
+    <div style={{ position: "relative", overflow: "hidden", borderBottom: "1px solid #2a2a2a" }}>
       <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: reveal, background: "#FF453A", display: "flex", alignItems: "center", justifyContent: "center", transition: isDragging ? "none" : "width 0.1s ease" }}>
         {reveal > 20 && <span style={{ fontSize: 12, color: "white", fontFamily: "'IBM Plex Mono', monospace", letterSpacing: "0.06em" }}>DELETE</span>}
       </div>
@@ -224,10 +222,10 @@ function SwipeRow({ task, locked, onTap, onToggle, onDelete, isDragging, isOver 
           padding: isDragging ? "9px 10px" : "9px 0",
           marginLeft: isDragging ? -10 : 0,
           marginRight: isDragging ? -10 : 0,
-          cursor: locked ? "not-allowed" : "pointer",
-          opacity: isOver ? 0.25 : isDragging ? 1 : locked ? 0.5 : 1,
+          cursor: "default",
+          opacity: isOver ? 0.25 : 1,
           transform: isDragging ? "scale(1.04)" : `translateX(${offset}px)`,
-          background: isDragging ? "#2e2e2e" : "#1e1e1e",
+          background: isDragging ? "#222222" : "#111111",
           borderRadius: isDragging ? 12 : 0,
           boxShadow: isDragging ? "0 16px 48px rgba(0,0,0,0.8), 0 4px 12px rgba(0,0,0,0.5)" : "none",
           zIndex: isDragging ? 100 : 1,
@@ -243,7 +241,7 @@ function SwipeRow({ task, locked, onTap, onToggle, onDelete, isDragging, isOver 
             {task.label}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: "#3a3a3a" }}>@ {task.time}</span>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: "#4a4a4a" }}>@ {task.time}</span>
             <PriorityBadge label={task.priority} />
           </div>
         </div>
@@ -282,7 +280,7 @@ export default function ActiveSession({ onNavigate }) {
   const weightedColor   = getPctColor(weightedPct);
 
   const toggleTask = id => {
-    if (locked || dragIdRef.current) return;
+    if (dragIdRef.current) return;
     setTaskList(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t));
   };
   const openEdit  = id => {
@@ -361,7 +359,7 @@ export default function ActiveSession({ onNavigate }) {
   const onContainerPointerLeave = useCallback(() => { clearTimeout(holdTimer.current); }, []);
 
   return (
-    <div style={{ height: "100vh", background: "#1a1a1a", display: "flex", justifyContent: "center", fontFamily: "'DM Sans', sans-serif", overflow: "hidden" }}>
+    <div style={{ height: "100vh", background: "#000000", display: "flex", justifyContent: "center", fontFamily: "'DM Sans', sans-serif", overflow: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -369,6 +367,10 @@ export default function ActiveSession({ onNavigate }) {
         .nsb:hover span { color: #4A9EFF !important; }
         @keyframes slideInRight { from { transform: translateX(100%); opacity: 0.7; } to { transform: translateX(0); opacity: 1; } }
         @keyframes sheetUp      { from { transform: translateY(100%); opacity: 0.8; } to { transform: translateY(0);   opacity: 1; } }
+        @keyframes glowHalo  { 0%, 100% { opacity: 0.5;  r: 180px; } 50% { opacity: 0.85; r: 183px; } }
+        @keyframes outerRing { 0%, 100% { r: 168px; stroke-opacity: 0.9;  } 50% { r: 171px; stroke-opacity: 1;    } }
+        @keyframes innerRing { 0%, 100% { r: 122px; stroke-opacity: 0.85; } 50% { r: 125px; stroke-opacity: 1;    } }
+        @keyframes dotGlow   { 0%, 100% { opacity: 0.12; r: 22px; } 50% { opacity: 0.4;  r: 28px; } }
       `}</style>
 
       <div style={{ width: "100%", maxWidth: 420, display: "flex", flexDirection: "column", height: "100vh", position: "relative", overflow: "hidden" }}>
@@ -380,9 +382,29 @@ export default function ActiveSession({ onNavigate }) {
 
         {/* HERO */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 10, flexShrink: 0, gap: 6 }}>
-          <div style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px solid #4A9EFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#4A9EFF" }} />
-          </div>
+          <svg width="52" height="52" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ overflow: "visible" }}>
+            <defs>
+              <radialGradient id="hGlowGrad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#4A9EFF" stopOpacity="0.2"/>
+                <stop offset="100%" stopColor="#4A9EFF" stopOpacity="0"/>
+              </radialGradient>
+              <filter id="hDotBlur" x="-150%" y="-150%" width="400%" height="400%">
+                <feGaussianBlur stdDeviation="7"/>
+              </filter>
+            </defs>
+            {/* Glow halo */}
+            <circle cx="256" cy="256" r="180" fill="url(#hGlowGrad)" style={{ animation: "glowHalo 3s ease-in-out infinite" }}/>
+            {/* Outer white ring */}
+            <circle cx="256" cy="256" r="168" stroke="white" strokeWidth="10" style={{ animation: "outerRing 3s ease-in-out infinite" }}/>
+            {/* Inner blue ring */}
+            <circle cx="256" cy="256" r="122" stroke="#4A9EFF" strokeWidth="8" style={{ animation: "innerRing 3s ease-in-out infinite" }}/>
+            {/* Center glow */}
+            <circle cx="256" cy="256" r="22" fill="#4A9EFF" filter="url(#hDotBlur)" style={{ animation: "dotGlow 3s ease-in-out infinite" }}/>
+            {/* Center dot */}
+            <circle cx="256" cy="256" r="22" fill="#4A9EFF"/>
+            {/* Center dot highlight */}
+            <circle cx="256" cy="256" r="14" fill="white" fillOpacity="0.25"/>
+          </svg>
           <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 28, fontWeight: 400, color: "#f0f0f0", letterSpacing: "-0.01em", lineHeight: 1.1 }}>
             {sessionName}
           </h1>
@@ -390,12 +412,15 @@ export default function ActiveSession({ onNavigate }) {
 
         {/* STATUS CHIPS */}
         <div style={{ display: "flex", justifyContent: "center", gap: 6, marginBottom: 4, flexShrink: 0 }}>
-          <span style={{ padding: "3px 9px", borderRadius: 20, fontSize: 10, fontFamily: "'IBM Plex Mono', monospace", color: "#383838", border: "1px solid #2a2a2a" }}>Active Session</span>
-          <span style={{ padding: "3px 9px", borderRadius: 20, fontSize: 10, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, color: "#34C759", border: "1px solid rgba(52,199,89,0.4)" }}>Complete</span>
+          <span style={{ padding: "3px 9px", borderRadius: 20, fontSize: 10, fontFamily: "'IBM Plex Mono', monospace", color: "#555", border: "1px solid #2a2a2a" }}>Active Session</span>
+          {completionPct === 100
+            ? <span style={{ padding: "3px 9px", borderRadius: 20, fontSize: 10, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, color: "#34C759", border: "1px solid rgba(52,199,89,0.35)" }}>Complete</span>
+            : <span style={{ padding: "3px 9px", borderRadius: 20, fontSize: 10, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, color: "#4A9EFF", border: "1px solid rgba(74,158,255,0.3)" }}>In Progress</span>
+          }
         </div>
 
         {/* META */}
-        <div style={{ textAlign: "center", fontSize: 10, color: "#333", marginBottom: 10, flexShrink: 0, letterSpacing: "0.02em" }}>
+        <div style={{ textAlign: "center", fontSize: 10, color: "#4a4a4a", marginBottom: 10, flexShrink: 0, letterSpacing: "0.02em" }}>
           {total} tasks&nbsp;&nbsp;·&nbsp;&nbsp;{taskList.filter(t => t.priority === "HIGH").length} high priority&nbsp;&nbsp;·&nbsp;&nbsp;{total} scheduled
         </div>
 
@@ -410,31 +435,32 @@ export default function ActiveSession({ onNavigate }) {
         </div>
 
         {/* WORK STACK CARD */}
-        <div style={{ margin: "0 14px 0", background: "#1e1e1e", borderRadius: 16, padding: "14px 16px 16px", border: "1px solid #272727", flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: dragId ? "visible" : "hidden" }}>
+        <div style={{ margin: "0 14px 0", background: "#111111", borderRadius: 16, padding: "14px 16px 16px", border: "1px solid #1a1a1a", flexShrink: 0, display: "flex", flexDirection: "column", overflow: dragId ? "visible" : "hidden" }}>
 
           <div style={{ marginBottom: 12, flexShrink: 0 }}>
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, color: "#555", letterSpacing: "0.1em" }}>WORK STACK</span>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, color: "#666", letterSpacing: "0.1em" }}>WORK STACK</span>
           </div>
 
-          <div style={{ display: "flex", gap: 7, marginBottom: 10, flexShrink: 0 }}>
+          <div style={{ display: "flex", gap: 6, marginBottom: 10, flexShrink: 0 }}>
             <input
-              style={{ background: "#232323", border: `1.5px solid ${locked ? "#222" : "#2e2e2e"}`, borderRadius: 9, color: locked ? "#333" : "#ccc", fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: "9px 12px", flex: 1, outline: "none", transition: "all 0.15s ease" }}
+              style={{ background: "#0d0d0d", border: `1px solid ${locked ? "#1a1a1a" : "#222"}`, borderRadius: 8, color: locked ? "#333" : "#bbb", fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: "8px 11px", flex: 1, outline: "none", transition: "all 0.15s ease" }}
               placeholder={locked ? "Unlock to add tasks..." : "What's next?"}
               value={quickAdd}
               disabled={locked}
               onChange={e => setQuickAdd(e.target.value)}
               onKeyDown={e => e.key === "Enter" && addTask()}
             />
-            <button onClick={addTask} style={{ width: 38, height: 38, borderRadius: 9, background: locked ? "#222" : "#4A9EFF", border: "none", color: locked ? "#333" : "white", fontSize: 20, display: "flex", alignItems: "center", justifyContent: "center", cursor: locked ? "not-allowed" : "pointer", flexShrink: 0, transition: "all 0.15s ease" }}>+</button>
+            <button onClick={addTask} style={{ width: 34, height: 34, borderRadius: 8, background: locked ? "transparent" : "rgba(74,158,255,0.1)", border: `1px solid ${locked ? "#1a1a1a" : "rgba(74,158,255,0.35)"}`, color: locked ? "#2e2e2e" : "#4A9EFF", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", cursor: locked ? "not-allowed" : "pointer", flexShrink: 0, transition: "all 0.15s ease" }}>+</button>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, flexShrink: 0 }}>
             <div style={{ display: "flex", gap: 6 }}>
               {FILTERS.map(f => {
-                const c = PRIORITY_COLORS[f];
                 const active = activeFilter === f;
+                const activeColor = f === "HIGH" ? "#FF453A" : "#4A9EFF";
+                const activeBg    = f === "HIGH" ? "rgba(255,69,58,0.07)" : "rgba(74,158,255,0.07)";
                 return (
-                  <button key={f} onClick={() => setActiveFilter(f)} style={{ padding: "5px 13px", borderRadius: 20, border: `1.5px solid ${active ? c.border : "#2e2e2e"}`, background: active ? c.bg : "transparent", color: active ? c.color : "#555", fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, letterSpacing: "0.08em", cursor: "pointer", transition: "all 0.15s ease" }}>
+                  <button key={f} onClick={() => setActiveFilter(f)} style={{ padding: "5px 13px", borderRadius: 20, border: `1px solid ${active ? activeColor : "#222"}`, background: active ? activeBg : "transparent", color: active ? activeColor : "#444", fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, letterSpacing: "0.08em", cursor: "pointer", transition: "all 0.15s ease" }}>
                     {f}
                   </button>
                 );
@@ -446,7 +472,7 @@ export default function ActiveSession({ onNavigate }) {
           {/* TASK LIST */}
           <div
             ref={listRef}
-            style={{ flex: 1, overflowY: dragId ? "visible" : "auto", touchAction: dragId ? "none" : "pan-y" }}
+            style={{ maxHeight: "calc(100vh - 420px)", overflowY: dragId ? "visible" : "auto", touchAction: dragId ? "none" : "pan-y" }}
             onPointerDown={onContainerPointerDown}
             onPointerMove={onContainerPointerMove}
             onPointerUp={onContainerPointerUp}
@@ -467,8 +493,10 @@ export default function ActiveSession({ onNavigate }) {
           </div>
         </div>
 
+        <div style={{ flex: 1 }} />
+
         {/* NEW SESSION FOOTER */}
-        <div style={{ margin: "0 14px 14px", borderTop: "1px solid #242424", paddingTop: 11, flexShrink: 0 }}>
+        <div style={{ margin: "0 14px 14px", borderTop: "1px solid #181818", paddingTop: 11, flexShrink: 0 }}>
           <button className="nsb" style={{ width: "100%", display: "flex", alignItems: "center", gap: 8, background: "transparent", border: "none", cursor: "pointer", padding: "4px 2px" }}>
             <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: "#383838", letterSpacing: "0.08em", transition: "color 0.15s ease" }}>+ New Session</span>
           </button>
