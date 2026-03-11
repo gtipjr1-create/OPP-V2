@@ -16,7 +16,7 @@ const PRIORITY_WEIGHT = { HIGH: 3, NORMAL: 2, LOW: 1 };
 const FILTERS = ["HIGH", "NORMAL", "LOW"];
 
 const SETTINGS_SECTIONS = [
-  { title: "SESSION",  items: ["Duplicate", "Export", "Archive / Close", "Rename"] },
+  { title: "SESSION",  items: ["Duplicate", "Export", "Archive", "Rename"] },
   { title: "PERSONAL", items: ["Themes", "Profile", "Preferences"] },
   { title: "VIEW",     items: ["Display Options", "Layout Adjustments", "Motion Intensity"] },
 ];
@@ -301,7 +301,7 @@ export default function ActiveSession({ onNavigate }) {
 
   const handleSettingsAction = item => {
     if (item === "Rename")          { setSettingsOpen(false); setRenameOpen(true); }
-    if (item === "Archive / Close") { setSettingsOpen(false); onNavigate?.("archived"); }
+    if (item === "Archive") { setSettingsOpen(false); onNavigate?.("archived"); }
   };
 
   const getIndexAtY = useCallback(clientY => {
