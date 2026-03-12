@@ -182,11 +182,7 @@ export default function ArchivedSessions({ onNavigate }) {
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         *:not(input) { -webkit-user-select: none; user-select: none; }
-        @keyframes sheetUp   { from { transform: translateY(100%); opacity: 0.8; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes glowHalo  { 0%, 100% { opacity: 0.5;  r: 180px; } 50% { opacity: 0.85; r: 183px; } }
-        @keyframes outerRing { 0%, 100% { r: 168px; stroke-opacity: 0.9;  } 50% { r: 171px; stroke-opacity: 1;    } }
-        @keyframes innerRing { 0%, 100% { r: 122px; stroke-opacity: 0.85; } 50% { r: 125px; stroke-opacity: 1;    } }
-        @keyframes dotGlow   { 0%, 100% { opacity: 0.12; r: 22px; } 50% { opacity: 0.4;  r: 28px; } }
+        @keyframes sheetUp { from { transform: translateY(100%); opacity: 0.8; } to { transform: translateY(0); opacity: 1; } }
       `}</style>
 
       <div style={{ width: "100%", maxWidth: 420, display: "flex", flexDirection: "column", height: "100vh", position: "relative", overflow: "hidden" }}>
@@ -195,30 +191,7 @@ export default function ArchivedSessions({ onNavigate }) {
         <div style={{ position: "relative", height: 36, flexShrink: 0 }} />
 
         {/* HERO */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 10, flexShrink: 0, gap: 6 }}>
-          <svg width="52" height="52" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ overflow: "visible" }}>
-            <defs>
-              <radialGradient id="hGlowGrad" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#4A9EFF" stopOpacity="0.2"/>
-                <stop offset="100%" stopColor="#4A9EFF" stopOpacity="0"/>
-              </radialGradient>
-              <filter id="hDotBlur" x="-150%" y="-150%" width="400%" height="400%">
-                <feGaussianBlur stdDeviation="7"/>
-              </filter>
-            </defs>
-            {/* Glow halo */}
-            <circle cx="256" cy="256" r="180" fill="url(#hGlowGrad)" style={{ animation: "glowHalo 3s ease-in-out infinite" }}/>
-            {/* Outer white ring */}
-            <circle cx="256" cy="256" r="168" stroke="white" strokeWidth="10" style={{ animation: "outerRing 3s ease-in-out infinite" }}/>
-            {/* Inner blue ring */}
-            <circle cx="256" cy="256" r="122" stroke="#4A9EFF" strokeWidth="8" style={{ animation: "innerRing 3s ease-in-out infinite" }}/>
-            {/* Center glow */}
-            <circle cx="256" cy="256" r="22" fill="#4A9EFF" filter="url(#hDotBlur)" style={{ animation: "dotGlow 3s ease-in-out infinite" }}/>
-            {/* Center dot */}
-            <circle cx="256" cy="256" r="22" fill="#4A9EFF"/>
-            {/* Center dot highlight */}
-            <circle cx="256" cy="256" r="14" fill="white" fillOpacity="0.25"/>
-          </svg>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 10, flexShrink: 0 }}>
           <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 28, fontWeight: 400, color: "#f0f0f0", letterSpacing: "-0.01em", lineHeight: 1.1 }}>
             Archive
           </h1>
@@ -226,7 +199,7 @@ export default function ArchivedSessions({ onNavigate }) {
 
         {/* STATUS CHIPS */}
         <div style={{ display: "flex", justifyContent: "center", gap: 6, marginBottom: 4, flexShrink: 0 }}>
-          <span style={{ padding: "3px 9px", borderRadius: 20, fontSize: 10, fontFamily: "'IBM Plex Mono', monospace", color: "#383838", border: "1px solid #1e1e1e" }}>Past Sessions</span>
+          <span style={{ padding: "3px 9px", borderRadius: 20, fontSize: 10, fontFamily: "'IBM Plex Mono', monospace", color: "#4a4a4a", border: "1px solid #1e1e1e" }}>Past Sessions</span>
           <span style={{ padding: "3px 9px", borderRadius: 20, fontSize: 10, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, color: "#555", border: "1px solid #1e1e1e" }}>{totalSessions} archived</span>
         </div>
 
@@ -239,7 +212,7 @@ export default function ArchivedSessions({ onNavigate }) {
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 10, flexShrink: 0 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 16px", borderRadius: 20, background: `${avgColor}18`, border: `1.5px solid ${avgColor}55` }}>
             <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 15, fontWeight: 700, color: avgColor }}>{avgCompletion}%</span>
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, fontWeight: 500, color: avgColor, opacity: 0.6, letterSpacing: "0.08em" }}>AVG COMPLETION</span>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, color: avgColor, opacity: 0.6, letterSpacing: "0.08em" }}>AVG COMPLETION</span>
           </div>
         </div>
 
@@ -273,7 +246,7 @@ export default function ArchivedSessions({ onNavigate }) {
             onMouseEnter={e => e.currentTarget.querySelector("span").style.color = "#4A9EFF"}
             onMouseLeave={e => e.currentTarget.querySelector("span").style.color = "#383838"}
           >
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: "#383838", letterSpacing: "0.08em", transition: "color 0.15s ease" }}>← Active Session</span>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: "#4a4a4a", letterSpacing: "0.08em", transition: "color 0.15s ease" }}>← Active Session</span>
           </button>
         </div>
 

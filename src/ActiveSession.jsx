@@ -126,7 +126,7 @@ const PriorityBadge = ({ label }) => {
   return (
     <span
       style={{
-        fontSize: 9,
+        fontSize: 10,
         fontFamily: "'IBM Plex Mono', monospace",
         fontWeight: 500,
         letterSpacing: "0.06em",
@@ -240,7 +240,7 @@ const SettingsLayer = ({ onClose, onAction }) => (
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
+              fontSize: 10,
               fontWeight: 500,
               color: "#383838",
               letterSpacing: "0.14em",
@@ -369,7 +369,7 @@ const EditSheet = ({ task, onSave, onClose }) => {
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
+              fontSize: 10,
               color: "#444",
               letterSpacing: "0.08em",
               marginBottom: 6,
@@ -398,7 +398,7 @@ const EditSheet = ({ task, onSave, onClose }) => {
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
+              fontSize: 10,
               color: "#444",
               letterSpacing: "0.08em",
               marginBottom: 6,
@@ -427,7 +427,7 @@ const EditSheet = ({ task, onSave, onClose }) => {
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
+              fontSize: 10,
               color: "#444",
               letterSpacing: "0.08em",
               marginBottom: 8,
@@ -586,7 +586,7 @@ function SwipeRow({ task, onTap, onToggle, onDelete, isDragging, isOver }) {
           display: "flex",
           alignItems: "center",
           gap: 10,
-          padding: isDragging ? "9px 10px" : "9px 0",
+          padding: isDragging ? "12px 10px" : "12px 0",
           marginLeft: isDragging ? -10 : 0,
           marginRight: isDragging ? -10 : 0,
           cursor: "default",
@@ -638,7 +638,7 @@ function SwipeRow({ task, onTap, onToggle, onDelete, isDragging, isOver }) {
               style={{
                 fontFamily: "'IBM Plex Mono', monospace",
                 fontSize: 10,
-                color: "#4a4a4a",
+                color: "#606060",
               }}
             >
               @ {task.time}
@@ -651,7 +651,7 @@ function SwipeRow({ task, onTap, onToggle, onDelete, isDragging, isOver }) {
   );
 }
 
-export default function ActiveSession({ onNavigate }) {
+export default function ActiveSession({ onNavigate, sessionName, setSessionName }) {
   const [activeFilter, setActiveFilter] = useState("NORMAL");
   const [taskList, setTaskList] = useState(tasksData);
   const [quickAdd, setQuickAdd] = useState("");
@@ -661,7 +661,6 @@ export default function ActiveSession({ onNavigate }) {
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [dragId, setDragId] = useState(null);
   const [overIndex, setOverIndex] = useState(null);
-  const [sessionName, setSessionName] = useState("Monday / 3·9·26");
   const [renameOpen, setRenameOpen] = useState(false);
 
   const listRef = useRef(null);
@@ -680,6 +679,7 @@ export default function ActiveSession({ onNavigate }) {
   const weightedPct = totalPoints > 0 ? Math.round((earnedPoints / totalPoints) * 100) : 0;
   const completionColor = getPctColor(completionPct);
   const weightedColor = getPctColor(weightedPct);
+  const isComplete = total > 0 && completionPct === 100;
 
   const toggleTask = (id) => {
     if (dragIdRef.current) return;
@@ -717,6 +717,21 @@ export default function ActiveSession({ onNavigate }) {
       },
     ]);
     setQuickAdd("");
+  };
+
+  const handleNewSession = () => {
+    const now = new Date();
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const day = days[now.getDay()];
+    const m = now.getMonth() + 1;
+    const d = now.getDate();
+    const yy = String(now.getFullYear()).slice(-2);
+    setSessionName?.(`${day} / ${m}·${d}·${yy}`);
+    setTaskList([]);
+    setSettingsOpen(false);
+    setRenameOpen(false);
+    setEditTask(null);
+    setConfirmDeleteId(null);
   };
 
   const handleSettingsAction = (item) => {
@@ -846,6 +861,25 @@ export default function ActiveSession({ onNavigate }) {
       >
         <div style={{ position: "relative", height: 40, flexShrink: 0 }}>
           <button
+            onClick={() => onNavigate?.("home")}
+            style={{
+              position: "absolute",
+              top: 10,
+              left: 16,
+              background: "none",
+              border: "none",
+              color: "#4a4a4a",
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 11,
+              fontWeight: 500,
+              letterSpacing: "0.06em",
+              cursor: "pointer",
+              padding: "4px 2px",
+            }}
+          >
+            ‹
+          </button>
+          <button
             onClick={() => setSettingsOpen(true)}
             style={{
               position: "absolute",
@@ -853,7 +887,7 @@ export default function ActiveSession({ onNavigate }) {
               right: 16,
               background: "none",
               border: "none",
-              color: "#383838",
+              color: "#4a4a4a",
               fontSize: 17,
               cursor: "pointer",
               letterSpacing: "3px",
@@ -990,8 +1024,8 @@ export default function ActiveSession({ onNavigate }) {
         <div
           style={{
             textAlign: "center",
-            fontSize: 10,
-            color: "#4a4a4a",
+            fontSize: 12,
+            color: "#606060",
             marginBottom: 10,
             flexShrink: 0,
             letterSpacing: "0.02em",
@@ -1044,7 +1078,7 @@ export default function ActiveSession({ onNavigate }) {
               <span
                 style={{
                   fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 9,
+                  fontSize: 10,
                   fontWeight: 500,
                   color,
                   opacity: 0.6,
@@ -1083,92 +1117,96 @@ export default function ActiveSession({ onNavigate }) {
               </span>
             </div>
 
-            <div style={{ display: "flex", gap: 6, marginBottom: 10, flexShrink: 0 }}>
-              <input
-                style={{
-                  background: "#0d0d0d",
-                  border: `1px solid ${locked ? "#1a1a1a" : "#222"}`,
-                  borderRadius: 8,
-                  color: locked ? "#333" : "#bbb",
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 13,
-                  padding: "8px 11px",
-                  flex: 1,
-                  outline: "none",
-                  transition: "all 0.15s ease",
-                }}
-                placeholder={locked ? "Unlock to add tasks..." : "What's next?"}
-                value={quickAdd}
-                disabled={locked}
-                onChange={(e) => setQuickAdd(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && addTask()}
-              />
+            {!isComplete && (
+              <div style={{ display: "flex", gap: 6, marginBottom: 10, flexShrink: 0 }}>
+                <input
+                  style={{
+                    background: "#0d0d0d",
+                    border: `1px solid ${locked ? "#1a1a1a" : "#222"}`,
+                    borderRadius: 8,
+                    color: locked ? "#333" : "#bbb",
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: 13,
+                    padding: "8px 11px",
+                    flex: 1,
+                    outline: "none",
+                    transition: "all 0.15s ease",
+                  }}
+                  placeholder={locked ? "Unlock to add tasks..." : "What's next?"}
+                  value={quickAdd}
+                  disabled={locked}
+                  onChange={(e) => setQuickAdd(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addTask()}
+                />
 
-              <button
-                onClick={addTask}
+                <button
+                  onClick={addTask}
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: 8,
+                    background: locked ? "transparent" : "rgba(74,158,255,0.1)",
+                    border: `1px solid ${locked ? "#1a1a1a" : "rgba(74,158,255,0.35)"}`,
+                    color: locked ? "#2e2e2e" : "#4A9EFF",
+                    fontSize: 18,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: locked ? "not-allowed" : "pointer",
+                    flexShrink: 0,
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  +
+                </button>
+              </div>
+            )}
+
+            {!isComplete && (
+              <div
                 style={{
-                  width: 34,
-                  height: 34,
-                  borderRadius: 8,
-                  background: locked ? "transparent" : "rgba(74,158,255,0.1)",
-                  border: `1px solid ${locked ? "#1a1a1a" : "rgba(74,158,255,0.35)"}`,
-                  color: locked ? "#2e2e2e" : "#4A9EFF",
-                  fontSize: 18,
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
-                  cursor: locked ? "not-allowed" : "pointer",
+                  justifyContent: "space-between",
+                  gap: 10,
+                  marginBottom: 10,
                   flexShrink: 0,
-                  transition: "all 0.15s ease",
+                  flexWrap: "wrap",
                 }}
               >
-                +
-              </button>
-            </div>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {FILTERS.map((f) => {
+                    const active = activeFilter === f;
+                    const activeColor = f === "HIGH" ? "#FF453A" : "#4A9EFF";
+                    const activeBg = f === "HIGH" ? "rgba(255,69,58,0.07)" : "rgba(74,158,255,0.07)";
 
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 10,
-                marginBottom: 10,
-                flexShrink: 0,
-                flexWrap: "wrap",
-              }}
-            >
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {FILTERS.map((f) => {
-                  const active = activeFilter === f;
-                  const activeColor = f === "HIGH" ? "#FF453A" : "#4A9EFF";
-                  const activeBg = f === "HIGH" ? "rgba(255,69,58,0.07)" : "rgba(74,158,255,0.07)";
+                    return (
+                      <button
+                        key={f}
+                        onClick={() => setActiveFilter(f)}
+                        style={{
+                          padding: "5px 13px",
+                          borderRadius: 20,
+                          border: `1px solid ${active ? activeColor : "#222"}`,
+                          background: active ? activeBg : "transparent",
+                          color: active ? activeColor : "#444",
+                          fontFamily: "'IBM Plex Mono', monospace",
+                          fontSize: 10,
+                          fontWeight: 500,
+                          letterSpacing: "0.08em",
+                          cursor: "pointer",
+                          transition: "all 0.15s ease",
+                        }}
+                      >
+                        {f}
+                      </button>
+                    );
+                  })}
+                </div>
 
-                  return (
-                    <button
-                      key={f}
-                      onClick={() => setActiveFilter(f)}
-                      style={{
-                        padding: "5px 13px",
-                        borderRadius: 20,
-                        border: `1px solid ${active ? activeColor : "#222"}`,
-                        background: active ? activeBg : "transparent",
-                        color: active ? activeColor : "#444",
-                        fontFamily: "'IBM Plex Mono', monospace",
-                        fontSize: 10,
-                        fontWeight: 500,
-                        letterSpacing: "0.08em",
-                        cursor: "pointer",
-                        transition: "all 0.15s ease",
-                      }}
-                    >
-                      {f}
-                    </button>
-                  );
-                })}
+                <LockToggle locked={locked} onToggle={() => setLocked(!locked)} />
               </div>
-
-              <LockToggle locked={locked} onToggle={() => setLocked(!locked)} />
-            </div>
+            )}
 
             <div
               ref={listRef}
@@ -1182,27 +1220,48 @@ export default function ActiveSession({ onNavigate }) {
               onPointerUp={onContainerPointerUp}
               onPointerLeave={onContainerPointerLeave}
             >
-              {taskList.map((task, index) => (
-                <SwipeRow
-                  key={task.id}
-                  task={task}
-                  onTap={openEdit}
-                  onToggle={toggleTask}
-                  onDelete={deleteTask}
-                  isDragging={dragId === task.id}
-                  isOver={overIndex === index && dragId !== task.id}
-                />
-              ))}
+              {taskList.length === 0 ? (
+                <div
+                  style={{
+                    padding: "36px 0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 13,
+                      color: "#444",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    What is this session for?
+                  </span>
+                </div>
+              ) : (
+                taskList.map((task, index) => (
+                  <SwipeRow
+                    key={task.id}
+                    task={task}
+                    onTap={openEdit}
+                    onToggle={toggleTask}
+                    onDelete={deleteTask}
+                    isDragging={dragId === task.id}
+                    isOver={overIndex === index && dragId !== task.id}
+                  />
+                ))
+              )}
             </div>
           </div>
         </div>
 
         <div style={{ marginTop: "auto", paddingInline: 14, paddingTop: 14, flexShrink: 0 }}>
-          <div style={{ borderTop: "1px solid #181818", paddingTop: 11 }}>
+          <div style={{ borderTop: "1px solid #181818", paddingTop: 11, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <button
-              className="nsb"
+              onClick={handleNewSession}
               style={{
-                width: "100%",
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
@@ -1211,19 +1270,41 @@ export default function ActiveSession({ onNavigate }) {
                 cursor: "pointer",
                 padding: "4px 2px",
               }}
+              onMouseEnter={(e) => (e.currentTarget.querySelector("span").style.color = "#4A9EFF")}
+              onMouseLeave={(e) => (e.currentTarget.querySelector("span").style.color = isComplete ? "#4A9EFF" : "#4a4a4a")}
             >
               <span
                 style={{
                   fontFamily: "'IBM Plex Mono', monospace",
                   fontSize: 11,
                   fontWeight: 500,
-                  color: "#383838",
+                  color: isComplete ? "#4A9EFF" : "#4a4a4a",
                   letterSpacing: "0.08em",
                   transition: "color 0.15s ease",
                 }}
               >
                 + New Session
               </span>
+            </button>
+
+            <button
+              onClick={() => onNavigate?.("domains")}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#4a4a4a",
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 11,
+                fontWeight: 500,
+                letterSpacing: "0.08em",
+                cursor: "pointer",
+                padding: "4px 2px",
+                transition: "color 0.15s ease",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#4A9EFF")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#4a4a4a")}
+            >
+              Domains →
             </button>
           </div>
         </div>

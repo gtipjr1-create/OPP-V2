@@ -1,38 +1,108 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Project context imports
+@docs/MASTER_CONTEXT.md
+@docs/ACTIVE_WORK.md
+@docs/ARCHIVE_IDEAS.md
+
+This file provides guidance to Claude Code when working in this repository.
+
+---
+
+## Read This First
+
+The imported docs in `docs/` are the source of truth for:
+- product identity
+- current execution
+- deferred ideas
+
+Before making recommendations or editing code, align with:
+- `docs/MASTER_CONTEXT.md` — stable product identity, philosophy, and long-term guardrails
+- `docs/ACTIVE_WORK.md` — current focus, current phase, and what is actively being shaped
+- `docs/ARCHIVE_IDEAS.md` — preserved ideas and deferred directions; do not treat these as active scope unless explicitly asked
+
+Code decisions should align with these docs.
+
+---
+
+## Product Identity
+
+OPP is a personal operating system built to reduce noise and help me live, build, train, and think with clarity, discipline, and control.
+
+It is not:
+- a generic productivity app
+- a gamified habit tracker
+- a social product
+- a cluttered life dashboard
+- a feature-heavy experimentation playground
+
+It is:
+- a structured personal operating framework
+- a calm control system
+- a low-noise command layer for life organization
+- a disciplined environment for clarity and self-direction
+
+---
+
+## Working Style
+
+This project should be developed with a slow, deliberate, quality-first approach.
+
+Priorities:
+- clarity over cleverness
+- structure over speed
+- stability over unnecessary rewrites
+- signal over clutter
+- strong hierarchy over excessive options
+- maintainability over novelty
+
+Do not:
+- overcomplicate the architecture
+- introduce trendy patterns without clear value
+- add speculative features just because they sound useful
+- create visual noise
+- drift from the product identity in `docs/MASTER_CONTEXT.md`
+
+---
+
+## Execution Rules
+
+When making changes:
+
+1. Align with the docs first.
+2. Respect current active scope in `docs/ACTIVE_WORK.md`.
+3. Do not pull deferred ideas from `docs/ARCHIVE_IDEAS.md` into implementation unless explicitly requested.
+4. Prefer focused, understandable edits over broad refactors.
+5. Preserve a calm, structured, premium feel in both code and UI.
+6. Keep the system cognitively light.
+7. Avoid duplication in logic, views, or state ownership.
+8. If a change increases complexity, it should provide meaningful clarity or capability in return.
+
+When suggesting features or UI:
+- prioritize usefulness
+- reduce noise
+- avoid dashboard bloat
+- avoid over-tracking
+- avoid productivity theater
+
+---
+
+## Documentation Role
+
+Use the `docs/` folder as the source of truth for direction:
+
+- `MASTER_CONTEXT.md` = what the product is
+- `ACTIVE_WORK.md` = what matters now
+- `ARCHIVE_IDEAS.md` = what is preserved but inactive
+
+If code and docs conflict, prefer the docs unless they have been explicitly updated.
+
+---
 
 ## Commands
 
 ```bash
-npm run dev       # Start dev server (Vite HMR)
-npm run build     # Production build
-npm run lint      # ESLint
-npm run preview   # Preview production build
-```
-
-No test runner is configured yet.
-
-## Architecture
-
-React 19 + Vite app — a mobile-first task session manager UI.
-
-**Entry point:** `src/main.jsx` renders `<ActiveSession />` directly (no router, no global state library).
-
-**`src/ActiveSession.jsx`** is the entire application in one file:
-- All styles are inline JS objects (no CSS modules, no Tailwind)
-- All state lives in the top-level `ActiveSession` component via `useState`/`useRef`/`useCallback`
-- Sub-components (`CheckIcon`, `PriorityBadge`, `LockToggle`, `SettingsLayer`, `RenameSheet`, `EditSheet`, `ConfirmDeleteSheet`, `SwipeRow`) are defined in the same file
-- Task data is hardcoded in `tasksData` (no backend/API)
-
-**Key state:**
-- `taskList` — source of truth for all tasks
-- `locked` — prevents edits/adds when true
-- `dragId` / `overIndex` — pointer-based drag-to-reorder (activates after 280ms hold)
-- `editTask`, `confirmDeleteId`, `renameOpen`, `settingsOpen` — controls which overlay/sheet is visible
-
-**Completion metrics:** `completionPct` (raw) and `weightedPct` (by `PRIORITY_WEIGHT: HIGH=3, NORMAL=2, LOW=1`) both drive color via `getPctColor` (red → orange → green).
-
-**Gesture system:** `SwipeRow` handles left-swipe-to-delete via touch events. The parent container handles pointer events for drag-to-reorder. These must not conflict — swipe only activates when `isDragging` is false.
-
-**Fonts:** `DM Sans`, `DM Serif Display`, `IBM Plex Mono` — loaded from Google Fonts via an inline `<style>` tag inside the component.
+npm run dev
+npm run build
+npm run lint
+npm run preview
