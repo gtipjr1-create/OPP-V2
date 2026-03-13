@@ -1,31 +1,10 @@
 import { useState } from "react";
+import BottomNav from "./BottomNav";
 
-
-const STATUS_STYLES = {
-  Active: {
-    color: "#4A9EFF",
-    border: "rgba(74,158,255,0.35)",
-    bg: "rgba(74,158,255,0.07)",
-  },
-  Steady: {
-    color: "#555",
-    border: "#2a2a2a",
-    bg: "transparent",
-  },
-  Quiet: {
-    color: "#333",
-    border: "#1e1e1e",
-    bg: "transparent",
-  },
-};
-
-const FOCUS_COLOR = { Active: "#bbb", Steady: "#606060", Quiet: "#3a3a3a" };
-const CARD_OPACITY = { Active: 1, Steady: 1, Quiet: 0.5 };
-
-const STATUSES = ["Active", "Steady", "Quiet"];
+const STATUSES = ["Active", "Steady"];
 
 const EditSheet = ({ domain, onSave, onClose }) => {
-  const [status, setStatus] = useState(domain.status);
+  const [status, setStatus] = useState(domain.status === "Active" ? "Active" : "Steady");
   const [focus, setFocus] = useState(domain.focus);
 
   return (
@@ -68,7 +47,6 @@ const EditSheet = ({ domain, onSave, onClose }) => {
           {domain.name.toUpperCase()}
         </div>
 
-        {/* Status picker */}
         <div
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
@@ -82,8 +60,10 @@ const EditSheet = ({ domain, onSave, onClose }) => {
         </div>
         <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
           {STATUSES.map((s) => {
-            const active = status === s;
-            const st = STATUS_STYLES[s];
+            const isSelected = status === s;
+            const color = s === "Active" ? "#4A9EFF" : "#555";
+            const bg = s === "Active" ? "rgba(74,158,255,0.07)" : "transparent";
+            const border = s === "Active" ? "rgba(74,158,255,0.35)" : "#2a2a2a";
             return (
               <button
                 key={s}
@@ -91,9 +71,9 @@ const EditSheet = ({ domain, onSave, onClose }) => {
                 style={{
                   padding: "6px 16px",
                   borderRadius: 20,
-                  border: `1px solid ${active ? st.color : "#222"}`,
-                  background: active ? st.bg : "transparent",
-                  color: active ? st.color : "#444",
+                  border: `1px solid ${isSelected ? border : "#222"}`,
+                  background: isSelected ? bg : "transparent",
+                  color: isSelected ? color : "#444",
                   fontFamily: "'IBM Plex Mono', monospace",
                   fontSize: 10,
                   fontWeight: 500,
@@ -107,7 +87,6 @@ const EditSheet = ({ domain, onSave, onClose }) => {
           })}
         </div>
 
-        {/* Focus line */}
         <div
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
@@ -123,7 +102,9 @@ const EditSheet = ({ domain, onSave, onClose }) => {
           autoFocus
           value={focus}
           onChange={(e) => setFocus(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && onSave({ ...domain, status, focus: focus.trim() })}
+          onKeyDown={(e) =>
+            e.key === "Enter" && onSave({ ...domain, status, focus: focus.trim() })
+          }
           placeholder="What are you pointed at right now?"
           style={{
             width: "100%",
@@ -132,7 +113,7 @@ const EditSheet = ({ domain, onSave, onClose }) => {
             borderRadius: 9,
             color: "#ccc",
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: 14,
+            fontSize: 16,
             padding: "10px 12px",
             outline: "none",
             marginBottom: 18,
@@ -161,11 +142,7 @@ const EditSheet = ({ domain, onSave, onClose }) => {
   );
 };
 
-function DomainCard({ domain, onTap }) {
-  const st = STATUS_STYLES[domain.status];
-  const focusColor = FOCUS_COLOR[domain.status];
-  const opacity = CARD_OPACITY[domain.status];
-
+function ActiveDomainCard({ domain, onTap }) {
   return (
     <div
       onClick={() => onTap(domain.id)}
@@ -175,8 +152,6 @@ function DomainCard({ domain, onTap }) {
         padding: "14px 16px",
         border: "1px solid #1a1a1a",
         cursor: "pointer",
-        opacity,
-        transition: "opacity 0.2s ease",
       }}
     >
       <div
@@ -189,30 +164,30 @@ function DomainCard({ domain, onTap }) {
       >
         <span
           style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 10,
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 15,
             fontWeight: 500,
-            color: "#555",
-            letterSpacing: "0.12em",
+            color: "#c8c8c8",
+            letterSpacing: "-0.01em",
           }}
         >
-          {domain.name.toUpperCase()}
+          {domain.name}
         </span>
-
         <span
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 10,
+            fontSize: 9,
             fontWeight: 500,
-            color: st.color,
-            background: st.bg,
-            border: `1px solid ${st.border}`,
+            color: "#4A9EFF",
+            background: "rgba(74,158,255,0.07)",
+            border: "1px solid rgba(74,158,255,0.3)",
             borderRadius: 4,
             padding: "2px 7px",
             letterSpacing: "0.06em",
+            flexShrink: 0,
           }}
         >
-          {domain.status.toUpperCase()}
+          ACTIVE
         </span>
       </div>
 
@@ -221,7 +196,7 @@ function DomainCard({ domain, onTap }) {
           style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: 13,
-            color: focusColor,
+            color: "#888",
             lineHeight: 1.4,
           }}
         >
@@ -232,13 +207,56 @@ function DomainCard({ domain, onTap }) {
           style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: 12,
-            color: "#444",
+            color: "#333",
             fontStyle: "italic",
           }}
         >
           No focus set
         </div>
       )}
+    </div>
+  );
+}
+
+function SteadyDomainRow({ domain, onTap, isLast }) {
+  return (
+    <div
+      onClick={() => onTap(domain.id)}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "12px 0",
+        borderBottom: isLast ? "none" : "1px solid #161616",
+        cursor: "pointer",
+      }}
+    >
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 14,
+            fontWeight: 400,
+            color: "#3a3a3a",
+            marginBottom: domain.focus ? 3 : 0,
+          }}
+        >
+          {domain.name}
+        </div>
+        {domain.focus && (
+          <div
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 12,
+              color: "#2e2e2e",
+              lineHeight: 1.35,
+            }}
+          >
+            {domain.focus}
+          </div>
+        )}
+      </div>
+      <span style={{ color: "#222", fontSize: 14, flexShrink: 0 }}>›</span>
     </div>
   );
 }
@@ -253,12 +271,20 @@ export default function Domains({ onNavigate, domains, setDomains }) {
     setEditId(null);
   };
 
-  const activeDomains = domains.filter((d) => d.status === "Active").length;
+  const activeDomains = domains.filter((d) => d.status === "Active");
+  const steadyDomains = domains.filter((d) => d.status !== "Active");
+
+  const summaryText = [
+    activeDomains.length > 0 ? `${activeDomains.length} active` : null,
+    steadyDomains.length > 0 ? `${steadyDomains.length} steady` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <div
       style={{
-        minHeight: "100dvh",
+        height: "100dvh",
         background: "#000000",
         display: "flex",
         justifyContent: "center",
@@ -277,13 +303,12 @@ export default function Domains({ onNavigate, domains, setDomains }) {
         style={{
           width: "100%",
           maxWidth: 430,
-          minHeight: "100dvh",
+          height: "100%",
           display: "flex",
           flexDirection: "column",
           position: "relative",
           overflow: "hidden",
           paddingTop: "max(10px, env(safe-area-inset-top))",
-          paddingBottom: "max(12px, env(safe-area-inset-bottom))",
         }}
       >
         {/* Top bar spacer */}
@@ -295,7 +320,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: 10,
+            marginBottom: 8,
             flexShrink: 0,
             paddingInline: 14,
           }}
@@ -309,26 +334,32 @@ export default function Domains({ onNavigate, domains, setDomains }) {
               letterSpacing: "-0.01em",
               lineHeight: 1.1,
               textAlign: "center",
+              marginBottom: 6,
             }}
           >
             Domains
           </h1>
-        </div>
-
-        {/* Status chips */}
-        <div style={{ display: "flex", justifyContent: "center", gap: 6, marginBottom: 10, flexShrink: 0 }}>
           <span
             style={{
-              padding: "3px 9px",
-              borderRadius: 20,
-              fontSize: 10,
               fontFamily: "'IBM Plex Mono', monospace",
-              color: "#555",
-              border: "1px solid #2a2a2a",
+              fontSize: 10,
+              color: "#383838",
+              letterSpacing: "0.06em",
             }}
           >
-            Life Structure
+            Life structure
           </span>
+        </div>
+
+        {/* Summary chip */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: 14,
+            flexShrink: 0,
+          }}
+        >
           <span
             style={{
               padding: "3px 9px",
@@ -336,84 +367,112 @@ export default function Domains({ onNavigate, domains, setDomains }) {
               fontSize: 10,
               fontFamily: "'IBM Plex Mono', monospace",
               fontWeight: 500,
-              color: "#4A9EFF",
-              border: "1px solid rgba(74,158,255,0.3)",
+              color: activeDomains.length > 0 ? "#4A9EFF" : "#333",
+              border: `1px solid ${activeDomains.length > 0 ? "rgba(74,158,255,0.3)" : "#1e1e1e"}`,
+              letterSpacing: "0.06em",
             }}
           >
-            {activeDomains} active
+            {summaryText || "No domains defined"}
           </span>
         </div>
 
-        {/* Domain list */}
-        <div
-          style={{
-            paddingInline: 14,
-            flex: 1,
-            overflowY: "auto",
-            display: "flex",
-            flexDirection: "column",
-            gap: 8,
-          }}
-        >
-          {domains.map((domain) => (
-            <DomainCard key={domain.id} domain={domain} onTap={setEditId} />
-          ))}
-        </div>
+        {/* Scrollable content */}
+        <div style={{ flex: 1, overflowY: "auto", paddingInline: 14 }}>
 
-        {/* Footer */}
-        <div style={{ paddingInline: 14, paddingTop: 14, flexShrink: 0 }}>
-          <div
-            style={{
-              borderTop: "1px solid #181818",
-              paddingTop: 11,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <button
-              onClick={() => onNavigate?.("active")}
+          {/* Active section */}
+          <div style={{ marginBottom: 20 }}>
+            <div
               style={{
-                background: "none",
-                border: "none",
-                color: "#4a4a4a",
                 fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: 500,
-                letterSpacing: "0.08em",
-                cursor: "pointer",
-                padding: "4px 2px",
-                transition: "color 0.15s ease",
+                color: activeDomains.length > 0 ? "#555" : "#333",
+                letterSpacing: "0.1em",
+                marginBottom: 10,
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#4A9EFF")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#4a4a4a")}
             >
-              ← Active Session
-            </button>
+              ACTIVE
+            </div>
 
-            <button
-              onClick={() => onNavigate?.("priorities")}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#4a4a4a",
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 11,
-                fontWeight: 500,
-                letterSpacing: "0.08em",
-                cursor: "pointer",
-                padding: "4px 2px",
-                transition: "color 0.15s ease",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#4A9EFF")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#4a4a4a")}
-            >
-              Priorities →
-            </button>
+            {activeDomains.length === 0 ? (
+              <div
+                style={{
+                  background: "#0d0d0d",
+                  borderRadius: 14,
+                  padding: "22px 16px",
+                  border: "1px solid #161616",
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: 13,
+                    color: "#2e2e2e",
+                    fontStyle: "italic",
+                    marginBottom: 4,
+                  }}
+                >
+                  No active domains set
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'IBM Plex Mono', monospace",
+                    fontSize: 10,
+                    color: "#222",
+                    letterSpacing: "0.06em",
+                  }}
+                >
+                  Tap a domain to mark it active
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {activeDomains.map((domain) => (
+                  <ActiveDomainCard key={domain.id} domain={domain} onTap={setEditId} />
+                ))}
+              </div>
+            )}
           </div>
+
+          {/* Steady section */}
+          {steadyDomains.length > 0 && (
+            <div style={{ marginBottom: 10 }}>
+              <div
+                style={{
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: "#333",
+                  letterSpacing: "0.1em",
+                  marginBottom: 10,
+                }}
+              >
+                STEADY
+              </div>
+              <div
+                style={{
+                  background: "#0d0d0d",
+                  borderRadius: 14,
+                  padding: "2px 16px",
+                  border: "1px solid #161616",
+                }}
+              >
+                {steadyDomains.map((domain, i) => (
+                  <SteadyDomainRow
+                    key={domain.id}
+                    domain={domain}
+                    onTap={setEditId}
+                    isLast={i === steadyDomains.length - 1}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
         </div>
 
-        {/* Edit sheet */}
+        <BottomNav current="domains" onNavigate={onNavigate} />
+
         {editDomain && (
           <EditSheet
             domain={editDomain}

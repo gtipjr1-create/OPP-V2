@@ -1,3 +1,5 @@
+import BottomNav from "./BottomNav";
+
 const STANDARDS = [
   { id: 1, text: "Train regardless of mood." },
   { id: 2, text: "Build for the long term." },
@@ -11,7 +13,7 @@ export default function Standards({ onNavigate }) {
   return (
     <div
       style={{
-        minHeight: "100dvh",
+        height: "100dvh",
         background: "#000000",
         display: "flex",
         justifyContent: "center",
@@ -29,13 +31,12 @@ export default function Standards({ onNavigate }) {
         style={{
           width: "100%",
           maxWidth: 430,
-          minHeight: "100dvh",
+          height: "100%",
           display: "flex",
           flexDirection: "column",
           position: "relative",
           overflow: "hidden",
           paddingTop: "max(10px, env(safe-area-inset-top))",
-          paddingBottom: "max(12px, env(safe-area-inset-bottom))",
         }}
       >
         {/* Top bar spacer */}
@@ -84,14 +85,13 @@ export default function Standards({ onNavigate }) {
         </div>
 
         {/* Standards list */}
-        <div style={{ paddingInline: 14, flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+        <div style={{ paddingInline: 14, flexShrink: 0 }}>
           <div
             style={{
               background: "#111111",
               borderRadius: 16,
               padding: "14px 16px 8px",
               border: "1px solid #1a1a1a",
-              flex: 1,
             }}
           >
             <div style={{ marginBottom: 12 }}>
@@ -133,30 +133,7 @@ export default function Standards({ onNavigate }) {
           </div>
         </div>
 
-        {/* Footer */}
-        <div style={{ paddingInline: 14, paddingTop: 14, flexShrink: 0 }}>
-          <div style={{ borderTop: "1px solid #181818", paddingTop: 11 }}>
-            <button
-              onClick={() => onNavigate?.("priorities")}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#4a4a4a",
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 11,
-                fontWeight: 500,
-                letterSpacing: "0.08em",
-                cursor: "pointer",
-                padding: "4px 2px",
-                transition: "color 0.15s ease",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#4A9EFF")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#4a4a4a")}
-            >
-              ← Priorities
-            </button>
-          </div>
-        </div>
+        <BottomNav current="standards" onNavigate={onNavigate} />
       </div>
     </div>
   );

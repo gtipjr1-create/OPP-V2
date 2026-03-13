@@ -1,6 +1,9 @@
 import { useState, useRef, useCallback } from "react";
+import BottomNav from "./BottomNav";
 
 const DOMAINS = ["Health", "Work", "Build", "Mind", "Write", "Life"];
+const HORIZONS = ["Today", "This week", "Ongoing", "Season"];
+const IDEAL = 3;
 const MAX = 5;
 
 const SHEET_STYLE = {
@@ -32,11 +35,25 @@ const SHEET_LABEL = {
 const AddSheet = ({ onAdd, onClose }) => {
   const [label, setLabel] = useState("");
   const [domain, setDomain] = useState("Build");
+  const [horizon, setHorizon] = useState("This week");
 
   const handleAdd = () => {
     if (!label.trim()) return;
-    onAdd({ label: label.trim(), domain });
+    onAdd({ label: label.trim(), domain, horizon });
   };
+
+  const chip = (active) => ({
+    padding: "5px 13px",
+    borderRadius: 20,
+    border: `1px solid ${active ? "#4A9EFF" : "#222"}`,
+    background: active ? "rgba(74,158,255,0.07)" : "transparent",
+    color: active ? "#4A9EFF" : "#444",
+    fontFamily: "'IBM Plex Mono', monospace",
+    fontSize: 10,
+    fontWeight: 500,
+    cursor: "pointer",
+    transition: "all 0.15s ease",
+  });
 
   return (
     <div
@@ -62,7 +79,7 @@ const AddSheet = ({ onAdd, onClose }) => {
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-          placeholder="What are you pushing toward?"
+          placeholder="What deserves attention now?"
           style={{
             width: "100%",
             background: "#161616",
@@ -70,7 +87,7 @@ const AddSheet = ({ onAdd, onClose }) => {
             borderRadius: 9,
             color: "#ccc",
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: 14,
+            fontSize: 16,
             padding: "10px 12px",
             outline: "none",
             marginBottom: 18,
@@ -88,30 +105,31 @@ const AddSheet = ({ onAdd, onClose }) => {
         >
           DOMAIN
         </div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+          {DOMAINS.map((d) => (
+            <button key={d} onClick={() => setDomain(d)} style={chip(domain === d)}>
+              {d.toUpperCase()}
+            </button>
+          ))}
+        </div>
+
+        <div
+          style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 10,
+            color: "#444",
+            letterSpacing: "0.08em",
+            marginBottom: 8,
+          }}
+        >
+          HORIZON
+        </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 20 }}>
-          {DOMAINS.map((d) => {
-            const active = domain === d;
-            return (
-              <button
-                key={d}
-                onClick={() => setDomain(d)}
-                style={{
-                  padding: "5px 13px",
-                  borderRadius: 20,
-                  border: `1px solid ${active ? "#4A9EFF" : "#222"}`,
-                  background: active ? "rgba(74,158,255,0.07)" : "transparent",
-                  color: active ? "#4A9EFF" : "#444",
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 10,
-                  fontWeight: 500,
-                  cursor: "pointer",
-                  transition: "all 0.15s ease",
-                }}
-              >
-                {d.toUpperCase()}
-              </button>
-            );
-          })}
+          {HORIZONS.map((h) => (
+            <button key={h} onClick={() => setHorizon(h)} style={chip(horizon === h)}>
+              {h.toUpperCase()}
+            </button>
+          ))}
         </div>
 
         <button
@@ -137,7 +155,7 @@ const AddSheet = ({ onAdd, onClose }) => {
   );
 };
 
-function PriorityRow({ priority, onDelete, isDragging, isOver }) {
+function PriorityRow({ priority, onPark, onDelete, isDragging, isOver }) {
   const swipeX = useRef(0);
   const startX = useRef(0);
   const [offset, setOffset] = useState(0);
@@ -164,7 +182,7 @@ function PriorityRow({ priority, onDelete, isDragging, isOver }) {
   const reveal = Math.min(Math.abs(offset), 110);
 
   return (
-    <div style={{ position: "relative", overflow: "hidden", borderBottom: "1px solid #2a2a2a" }}>
+    <div style={{ position: "relative", overflow: "hidden", borderBottom: "1px solid #1e1e1e" }}>
       <div
         style={{
           position: "absolute",
@@ -201,14 +219,16 @@ function PriorityRow({ priority, onDelete, isDragging, isOver }) {
           display: "flex",
           alignItems: "center",
           gap: 10,
-          padding: isDragging ? "11px 10px" : "11px 0",
+          padding: isDragging ? "13px 10px" : "13px 0",
           marginLeft: isDragging ? -10 : 0,
           marginRight: isDragging ? -10 : 0,
           opacity: isOver ? 0.25 : 1,
           transform: isDragging ? "scale(1.03)" : `translateX(${offset}px)`,
           background: isDragging ? "#222222" : "#111111",
           borderRadius: isDragging ? 12 : 0,
-          boxShadow: isDragging ? "0 16px 48px rgba(0,0,0,0.8), 0 4px 12px rgba(0,0,0,0.5)" : "none",
+          boxShadow: isDragging
+            ? "0 16px 48px rgba(0,0,0,0.8), 0 4px 12px rgba(0,0,0,0.5)"
+            : "none",
           zIndex: isDragging ? 100 : 1,
           position: "relative",
           transition: isDragging
@@ -225,7 +245,7 @@ function PriorityRow({ priority, onDelete, isDragging, isOver }) {
             flexDirection: "column",
             gap: 3,
             flexShrink: 0,
-            opacity: 0.25,
+            opacity: 0.2,
           }}
         >
           {[0, 1, 2].map((i) => (
@@ -236,6 +256,7 @@ function PriorityRow({ priority, onDelete, isDragging, isOver }) {
           ))}
         </div>
 
+        {/* Content */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
@@ -243,19 +264,101 @@ function PriorityRow({ priority, onDelete, isDragging, isOver }) {
               fontWeight: 400,
               color: "#d0d0d0",
               fontFamily: "'DM Sans', sans-serif",
-              marginBottom: 4,
+              marginBottom: 5,
               lineHeight: 1.35,
             }}
           >
             {priority.label}
           </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span
+              style={{
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 9,
+                fontWeight: 500,
+                color: "#444",
+                border: "1px solid #2a2a2a",
+                borderRadius: 4,
+                padding: "2px 6px",
+                letterSpacing: "0.06em",
+              }}
+            >
+              {priority.domain.toUpperCase()}
+            </span>
+            {priority.horizon && (
+              <span
+                style={{
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: 9,
+                  color: "#383838",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                {priority.horizon.toLowerCase()}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Park action */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onPark(priority.id);
+          }}
+          style={{
+            background: "none",
+            border: "none",
+            color: "#252525",
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 13,
+            cursor: "pointer",
+            padding: "4px 6px",
+            flexShrink: 0,
+            transition: "color 0.15s ease",
+            lineHeight: 1,
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#555")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#252525")}
+        >
+          —
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function NotNowRow({ priority, onActivate }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "11px 0",
+        borderBottom: "1px solid #161616",
+      }}
+    >
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          style={{
+            fontSize: 13,
+            fontWeight: 400,
+            color: "#2e2e2e",
+            fontFamily: "'DM Sans', sans-serif",
+            marginBottom: 4,
+            lineHeight: 1.35,
+          }}
+        >
+          {priority.label}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <span
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 10,
-              fontWeight: 500,
-              color: "#444",
-              border: "1px solid #2a2a2a",
+              fontSize: 9,
+              color: "#222",
+              border: "1px solid #1e1e1e",
               borderRadius: 4,
               padding: "2px 6px",
               letterSpacing: "0.06em",
@@ -263,8 +366,40 @@ function PriorityRow({ priority, onDelete, isDragging, isOver }) {
           >
             {priority.domain.toUpperCase()}
           </span>
+          {priority.horizon && (
+            <span
+              style={{
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 9,
+                color: "#252525",
+                letterSpacing: "0.04em",
+              }}
+            >
+              {priority.horizon.toLowerCase()}
+            </span>
+          )}
         </div>
       </div>
+
+      <button
+        onClick={() => onActivate(priority.id)}
+        style={{
+          background: "none",
+          border: "none",
+          color: "#2a2a2a",
+          fontFamily: "'IBM Plex Mono', monospace",
+          fontSize: 13,
+          cursor: "pointer",
+          padding: "4px 6px",
+          flexShrink: 0,
+          transition: "color 0.15s ease",
+          lineHeight: 1,
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = "#4A9EFF")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "#2a2a2a")}
+      >
+        +
+      </button>
     </div>
   );
 }
@@ -277,22 +412,39 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
   const listRef = useRef(null);
   const holdTimer = useRef(null);
   const dragIdRef = useRef(null);
-  const prioritiesRef = useRef(priorities);
-  prioritiesRef.current = priorities;
+  const activeRef = useRef([]);
 
-  const atCap = priorities.length >= MAX;
+  const active = priorities.filter((p) => !p.deferred);
+  const notNow = priorities.filter((p) => p.deferred);
+  activeRef.current = active;
 
-  const addPriority = ({ label, domain }) => {
+  const atCap = active.length >= MAX;
+  const crowded = active.length > IDEAL;
+
+  const addPriority = ({ label, domain, horizon }) => {
     if (atCap) return;
     setPriorities((prev) => [
       ...prev,
-      { id: Date.now(), label, domain },
+      { id: Date.now(), label, domain, horizon, deferred: false },
     ]);
     setAddOpen(false);
   };
 
   const removePriority = (id) => {
     setPriorities((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const parkPriority = (id) => {
+    setPriorities((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, deferred: true } : p))
+    );
+  };
+
+  const activatePriority = (id) => {
+    if (atCap) return;
+    setPriorities((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, deferred: false } : p))
+    );
   };
 
   const getIndexAtY = useCallback((clientY) => {
@@ -303,7 +455,8 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
       if (clientY >= r.top && clientY <= r.bottom) return i;
     }
     if (rows.length > 0) {
-      if (clientY > rows[rows.length - 1].getBoundingClientRect().bottom) return rows.length - 1;
+      if (clientY > rows[rows.length - 1].getBoundingClientRect().bottom)
+        return rows.length - 1;
       if (clientY < rows[0].getBoundingClientRect().top) return 0;
     }
     return null;
@@ -313,10 +466,13 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
     const rows = Array.from(listRef.current?.children || []);
     let idx = null;
     for (let i = 0; i < rows.length; i++) {
-      if (rows[i].contains(e.target)) { idx = i; break; }
+      if (rows[i].contains(e.target)) {
+        idx = i;
+        break;
+      }
     }
     if (idx === null) return;
-    const id = prioritiesRef.current[idx]?.id;
+    const id = activeRef.current[idx]?.id;
     if (!id) return;
     holdTimer.current = setTimeout(() => {
       dragIdRef.current = id;
@@ -325,23 +481,28 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
     }, 280);
   }, []);
 
-  const onContainerPointerMove = useCallback((e) => {
-    if (!dragIdRef.current) return;
-    e.preventDefault();
-    const idx = getIndexAtY(e.clientY);
-    if (idx === null) return;
-    const from = prioritiesRef.current.findIndex((p) => p.id === dragIdRef.current);
-    if (idx === from) return;
-    setOverIndex(idx);
-    setPriorities((prev) => {
-      const next = [...prev];
-      const f = next.findIndex((p) => p.id === dragIdRef.current);
-      if (f === -1) return prev;
-      const [moved] = next.splice(f, 1);
-      next.splice(idx, 0, moved);
-      return next;
-    });
-  }, [getIndexAtY]);
+  const onContainerPointerMove = useCallback(
+    (e) => {
+      if (!dragIdRef.current) return;
+      e.preventDefault();
+      const idx = getIndexAtY(e.clientY);
+      if (idx === null) return;
+      const from = activeRef.current.findIndex((p) => p.id === dragIdRef.current);
+      if (idx === from) return;
+      setOverIndex(idx);
+      setPriorities((prev) => {
+        const act = prev.filter((p) => !p.deferred);
+        const def = prev.filter((p) => p.deferred);
+        const f = act.findIndex((p) => p.id === dragIdRef.current);
+        if (f === -1) return prev;
+        const next = [...act];
+        const [moved] = next.splice(f, 1);
+        next.splice(idx, 0, moved);
+        return [...next, ...def];
+      });
+    },
+    [getIndexAtY, setPriorities]
+  );
 
   const onContainerPointerUp = useCallback(() => {
     clearTimeout(holdTimer.current);
@@ -354,10 +515,20 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
     clearTimeout(holdTimer.current);
   }, []);
 
+  let capacityColor = "#4A9EFF";
+  let capacityText = `${active.length} active`;
+  if (atCap) {
+    capacityColor = "#FF453A";
+    capacityText = `${active.length} active · at capacity`;
+  } else if (crowded) {
+    capacityColor = "#FF9F0A";
+    capacityText = `${active.length} active · focus is crowded`;
+  }
+
   return (
     <div
       style={{
-        minHeight: "100dvh",
+        height: "100dvh",
         background: "#000000",
         display: "flex",
         justifyContent: "center",
@@ -376,13 +547,12 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
         style={{
           width: "100%",
           maxWidth: 430,
-          minHeight: "100dvh",
+          height: "100%",
           display: "flex",
           flexDirection: "column",
           position: "relative",
           overflow: "hidden",
           paddingTop: "max(10px, env(safe-area-inset-top))",
-          paddingBottom: "max(12px, env(safe-area-inset-bottom))",
         }}
       >
         {/* Top bar spacer */}
@@ -394,7 +564,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: 10,
+            marginBottom: 8,
             flexShrink: 0,
             paddingInline: 14,
           }}
@@ -408,26 +578,32 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
               letterSpacing: "-0.01em",
               lineHeight: 1.1,
               textAlign: "center",
+              marginBottom: 6,
             }}
           >
             Priorities
           </h1>
-        </div>
-
-        {/* Status chips */}
-        <div style={{ display: "flex", justifyContent: "center", gap: 6, marginBottom: 10, flexShrink: 0 }}>
           <span
             style={{
-              padding: "3px 9px",
-              borderRadius: 20,
-              fontSize: 10,
               fontFamily: "'IBM Plex Mono', monospace",
-              color: "#555",
-              border: "1px solid #2a2a2a",
+              fontSize: 10,
+              color: "#383838",
+              letterSpacing: "0.06em",
             }}
           >
-            Current Focus
+            What matters now
           </span>
+        </div>
+
+        {/* Capacity chip */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: 14,
+            flexShrink: 0,
+          }}
+        >
           <span
             style={{
               padding: "3px 9px",
@@ -435,27 +611,30 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
               fontSize: 10,
               fontFamily: "'IBM Plex Mono', monospace",
               fontWeight: 500,
-              color: atCap ? "#FF453A" : "#4A9EFF",
-              border: `1px solid ${atCap ? "rgba(255,69,58,0.35)" : "rgba(74,158,255,0.3)"}`,
-              transition: "all 0.2s ease",
+              color: active.length === 0 ? "#333" : capacityColor,
+              border: `1px solid ${active.length === 0 ? "#1e1e1e" : `${capacityColor}44`}`,
+              letterSpacing: "0.06em",
+              transition: "all 0.3s ease",
             }}
           >
-            {priorities.length} / {MAX}
+            {active.length === 0 ? "No focus locked" : capacityText}
           </span>
         </div>
 
-        {/* Priority list */}
-        <div style={{ paddingInline: 14, flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+        {/* Scrollable content */}
+        <div style={{ flex: 1, overflowY: "auto", paddingInline: 14 }}>
+
+          {/* Active priorities card */}
           <div
             style={{
               background: "#111111",
               borderRadius: 16,
               padding: "14px 16px 4px",
               border: "1px solid #1a1a1a",
-              flex: 1,
               display: "flex",
               flexDirection: "column",
               overflow: dragId ? "visible" : "hidden",
+              marginBottom: 10,
             }}
           >
             <div style={{ marginBottom: 12, flexShrink: 0 }}>
@@ -468,14 +647,14 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
                   letterSpacing: "0.1em",
                 }}
               >
-                WHAT MATTERS NOW
+                IN FOCUS
               </span>
             </div>
 
             <div
               ref={listRef}
               style={{
-                flex: 1,
+                maxHeight: "42dvh",
                 overflowY: dragId ? "visible" : "auto",
                 touchAction: dragId ? "none" : "pan-y",
               }}
@@ -484,31 +663,36 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
               onPointerUp={onContainerPointerUp}
               onPointerLeave={onContainerPointerLeave}
             >
-              {priorities.length === 0 ? (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "40px 0",
-                  }}
-                >
-                  <span
+              {active.length === 0 ? (
+                <div style={{ padding: "28px 0 20px" }}>
+                  <div
                     style={{
-                      fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: 11,
-                      color: "#444",
-                      letterSpacing: "0.08em",
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 13,
+                      color: "#333",
+                      fontStyle: "italic",
+                      marginBottom: 6,
                     }}
                   >
-                    Nothing set yet
-                  </span>
+                    No focus locked
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "'IBM Plex Mono', monospace",
+                      fontSize: 10,
+                      color: "#2a2a2a",
+                      letterSpacing: "0.06em",
+                    }}
+                  >
+                    Set 1–3 priorities that deserve attention now
+                  </div>
                 </div>
               ) : (
-                priorities.map((p, index) => (
+                active.map((p, index) => (
                   <PriorityRow
                     key={p.id}
                     priority={p}
+                    onPark={parkPriority}
                     onDelete={removePriority}
                     isDragging={dragId === p.id}
                     isOver={overIndex === index && dragId !== p.id}
@@ -527,75 +711,59 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
                   fontFamily: "'IBM Plex Mono', monospace",
                   fontSize: 11,
                   fontWeight: 500,
-                  color: atCap ? "#2a2a2a" : "#383838",
+                  color: atCap ? "#252525" : "#383838",
                   letterSpacing: "0.08em",
                   cursor: atCap ? "default" : "pointer",
                   padding: "4px 0",
                   transition: "color 0.15s ease",
                 }}
-                onMouseEnter={(e) => { if (!atCap) e.currentTarget.style.color = "#4A9EFF"; }}
-                onMouseLeave={(e) => { if (!atCap) e.currentTarget.style.color = "#4a4a4a"; }}
+                onMouseEnter={(e) => {
+                  if (!atCap) e.currentTarget.style.color = "#4A9EFF";
+                }}
+                onMouseLeave={(e) => {
+                  if (!atCap) e.currentTarget.style.color = "#383838";
+                }}
               >
                 {atCap ? "— at capacity" : "+ Add Priority"}
               </button>
             </div>
           </div>
+
+          {/* Not Now section */}
+          {notNow.length > 0 && (
+            <div
+              style={{
+                background: "#0d0d0d",
+                borderRadius: 16,
+                padding: "14px 16px 4px",
+                border: "1px solid #161616",
+                marginBottom: 10,
+              }}
+            >
+              <div style={{ marginBottom: 12 }}>
+                <span
+                  style={{
+                    fontFamily: "'IBM Plex Mono', monospace",
+                    fontSize: 10,
+                    fontWeight: 500,
+                    color: "#2e2e2e",
+                    letterSpacing: "0.1em",
+                  }}
+                >
+                  NOT NOW
+                </span>
+              </div>
+              {notNow.map((p) => (
+                <NotNowRow key={p.id} priority={p} onActivate={activatePriority} />
+              ))}
+              <div style={{ height: 6 }} />
+            </div>
+          )}
+
         </div>
 
-        {/* Footer */}
-        <div style={{ paddingInline: 14, paddingTop: 14, flexShrink: 0 }}>
-          <div
-            style={{
-              borderTop: "1px solid #181818",
-              paddingTop: 11,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <button
-              onClick={() => onNavigate?.("domains")}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#4a4a4a",
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 11,
-                fontWeight: 500,
-                letterSpacing: "0.08em",
-                cursor: "pointer",
-                padding: "4px 2px",
-                transition: "color 0.15s ease",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#4A9EFF")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#4a4a4a")}
-            >
-              ← Domains
-            </button>
+        <BottomNav current="priorities" onNavigate={onNavigate} />
 
-            <button
-              onClick={() => onNavigate?.("standards")}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#4a4a4a",
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 11,
-                fontWeight: 500,
-                letterSpacing: "0.08em",
-                cursor: "pointer",
-                padding: "4px 2px",
-                transition: "color 0.15s ease",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#4A9EFF")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#4a4a4a")}
-            >
-              Standards →
-            </button>
-          </div>
-        </div>
-
-        {/* Add sheet */}
         {addOpen && (
           <AddSheet onAdd={addPriority} onClose={() => setAddOpen(false)} />
         )}

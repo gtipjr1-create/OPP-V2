@@ -1,0 +1,26 @@
+# SESSION LOG
+
+## March 12, 2026
+
+### Session Focus
+System cleanup and project continuity setup.
+
+### What I Completed
+- decided to standardize on VS Code
+- clarified that project separation will happen by folder, not editor
+- committed to creating ongoing project docs and session logs
+- added continuity work into the schedule
+
+### Key Decisions
+- VS Code is now the default editor
+- each project will have its own docs on PC
+- session logs will become part of the system
+- PT study is paused until Monday
+
+### What Still Feels Weak / Open
+- docs still need to be created and filled out
+- session logging habit still needs to be established
+- project folders may still need cleanup
+
+### Next Session Start Point
+- create project folders and docs in VS Code, then begin moving over active context

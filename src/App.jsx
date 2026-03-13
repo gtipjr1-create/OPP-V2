@@ -29,6 +29,7 @@ export default function App() {
   const [screen, setScreen] = useState("home");
   const [domains, setDomains] = useState(DOMAINS_DEFAULT);
   const [priorities, setPriorities] = useState([]);
+  const [weekAnchors, setWeekAnchors] = useState([]);
   const [sessionName, setSessionName] = useState(todaySessionName());
 
   if (screen === "archived") return <ArchivedSessions onNavigate={setScreen} />;
@@ -36,5 +37,5 @@ export default function App() {
   if (screen === "priorities") return <Priorities onNavigate={setScreen} priorities={priorities} setPriorities={setPriorities} />;
   if (screen === "standards") return <Standards onNavigate={setScreen} />;
   if (screen === "active") return <ActiveSession onNavigate={setScreen} sessionName={sessionName} setSessionName={setSessionName} />;
-  return <Home onNavigate={setScreen} sessionName={sessionName} domains={domains} priorities={priorities} />;
+  return <Home onNavigate={setScreen} sessionName={sessionName} domains={domains} priorities={priorities} weekAnchors={weekAnchors} setWeekAnchors={setWeekAnchors} />;
 }

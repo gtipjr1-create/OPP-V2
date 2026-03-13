@@ -387,7 +387,7 @@ const EditSheet = ({ task, onSave, onClose }) => {
               borderRadius: 9,
               color: "#ccc",
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: 14,
+              fontSize: 16,
               padding: "10px 12px",
               outline: "none",
             }}
@@ -416,7 +416,7 @@ const EditSheet = ({ task, onSave, onClose }) => {
               borderRadius: 9,
               color: "#ccc",
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: 14,
+              fontSize: 16,
               padding: "10px 12px",
               outline: "none",
             }}
@@ -825,7 +825,7 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
   return (
     <div
       style={{
-        minHeight: "100dvh",
+        height: "100dvh",
         background: "#000000",
         display: "flex",
         justifyContent: "center",
@@ -850,7 +850,7 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
         style={{
           width: "100%",
           maxWidth: 430,
-          minHeight: "100dvh",
+          height: "100%",
           display: "flex",
           flexDirection: "column",
           position: "relative",
@@ -859,13 +859,13 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
           paddingBottom: "max(12px, env(safe-area-inset-bottom))",
         }}
       >
-        <div style={{ position: "relative", height: 40, flexShrink: 0 }}>
+        <div style={{ position: "relative", height: 44, flexShrink: 0 }}>
           <button
             onClick={() => onNavigate?.("home")}
             style={{
               position: "absolute",
-              top: 10,
-              left: 16,
+              top: 0,
+              left: 0,
               background: "none",
               border: "none",
               color: "#4a4a4a",
@@ -874,10 +874,16 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
               fontWeight: 500,
               letterSpacing: "0.06em",
               cursor: "pointer",
-              padding: "4px 2px",
+              padding: "14px 16px",
+              transition: "color 0.15s ease",
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#888")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "#4a4a4a")}
           >
-            ‹
+            ← Today
           </button>
           <button
             onClick={() => setSettingsOpen(true)}
@@ -1257,8 +1263,8 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
           </div>
         </div>
 
-        <div style={{ marginTop: "auto", paddingInline: 14, paddingTop: 14, flexShrink: 0 }}>
-          <div style={{ borderTop: "1px solid #181818", paddingTop: 11, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ paddingInline: 14, paddingTop: 14, paddingBottom: "max(12px, env(safe-area-inset-bottom))", flexShrink: 0 }}>
+          <div style={{ borderTop: "1px solid #181818", paddingTop: 11 }}>
             <button
               onClick={handleNewSession}
               style={{
@@ -1285,26 +1291,6 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
               >
                 + New Session
               </span>
-            </button>
-
-            <button
-              onClick={() => onNavigate?.("domains")}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#4a4a4a",
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 11,
-                fontWeight: 500,
-                letterSpacing: "0.08em",
-                cursor: "pointer",
-                padding: "4px 2px",
-                transition: "color 0.15s ease",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#4A9EFF")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#4a4a4a")}
-            >
-              Domains →
             </button>
           </div>
         </div>

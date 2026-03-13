@@ -177,7 +177,7 @@ export default function ArchivedSessions({ onNavigate }) {
   const avgColor = getPctColor(avgCompletion);
 
   return (
-    <div style={{ height: "100vh", background: "#0d0d0d", display: "flex", justifyContent: "center", fontFamily: "'DM Sans', sans-serif", overflow: "hidden" }}>
+    <div style={{ height: "100dvh", background: "#0d0d0d", display: "flex", justifyContent: "center", fontFamily: "'DM Sans', sans-serif", overflow: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -185,10 +185,33 @@ export default function ArchivedSessions({ onNavigate }) {
         @keyframes sheetUp { from { transform: translateY(100%); opacity: 0.8; } to { transform: translateY(0); opacity: 1; } }
       `}</style>
 
-      <div style={{ width: "100%", maxWidth: 420, display: "flex", flexDirection: "column", height: "100vh", position: "relative", overflow: "hidden" }}>
+      <div style={{ width: "100%", maxWidth: 420, display: "flex", flexDirection: "column", height: "100dvh", position: "relative", overflow: "hidden" }}>
 
         {/* TOP NAV */}
-        <div style={{ position: "relative", height: 36, flexShrink: 0 }} />
+        <div style={{ position: "relative", height: 44, flexShrink: 0 }}>
+          <button
+            onClick={() => onNavigate?.("home")}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              background: "none",
+              border: "none",
+              color: "#4a4a4a",
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 11,
+              fontWeight: 500,
+              letterSpacing: "0.06em",
+              cursor: "pointer",
+              padding: "14px 16px",
+              transition: "color 0.15s ease",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#888")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "#4a4a4a")}
+          >
+            ← Today
+          </button>
+        </div>
 
         {/* HERO */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 10, flexShrink: 0 }}>
@@ -217,7 +240,7 @@ export default function ArchivedSessions({ onNavigate }) {
         </div>
 
         {/* SESSION LIST CARD */}
-        <div style={{ margin: "0 14px 0", background: "#111111", borderRadius: 16, padding: "14px 16px 16px", border: "1px solid #1a1a1a", flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
+        <div style={{ margin: "0 14px", marginBottom: "max(14px, env(safe-area-inset-bottom))", background: "#111111", borderRadius: 16, padding: "14px 16px 16px", border: "1px solid #1a1a1a", flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
 
           <div style={{ marginBottom: 12, flexShrink: 0 }}>
             <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, color: "#555", letterSpacing: "0.1em" }}>SESSION HISTORY</span>
@@ -240,15 +263,6 @@ export default function ArchivedSessions({ onNavigate }) {
           </div>
         </div>
 
-        {/* FOOTER */}
-        <div style={{ margin: "0 14px 14px", borderTop: "1px solid #181818", paddingTop: 11, flexShrink: 0 }}>
-          <button onClick={() => onNavigate?.("active")} style={{ width: "100%", display: "flex", alignItems: "center", gap: 8, background: "transparent", border: "none", cursor: "pointer", padding: "4px 2px" }}
-            onMouseEnter={e => e.currentTarget.querySelector("span").style.color = "#4A9EFF"}
-            onMouseLeave={e => e.currentTarget.querySelector("span").style.color = "#383838"}
-          >
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: "#4a4a4a", letterSpacing: "0.08em", transition: "color 0.15s ease" }}>← Active Session</span>
-          </button>
-        </div>
 
         {/* CONFIRM DELETE */}
         {confirmDeleteId && confirmSession && (
