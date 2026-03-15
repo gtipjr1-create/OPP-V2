@@ -1,11 +1,20 @@
 import { useState } from "react";
+import { supabase } from "./lib/supabase";
 import BottomNav from "./BottomNav";
 
 const STATUSES = ["Active", "Steady"];
 
-const EditSheet = ({ domain, onSave, onClose }) => {
+const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage }) => {
   const [status, setStatus] = useState(domain.status === "Active" ? "Active" : "Steady");
-  const [focus, setFocus] = useState(domain.focus);
+  const [focus, setFocus] = useState(domain.focus || "");
+
+  const handleSave = () => {
+    onSave({
+      ...domain,
+      status,
+      focus: focus.trim(),
+    });
+  };
 
   return (
     <div
@@ -19,7 +28,7 @@ const EditSheet = ({ domain, onSave, onClose }) => {
       }}
     >
       <div
-        onClick={onClose}
+        onClick={isSaving ? undefined : onClose}
         style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)" }}
       />
       <div
@@ -58,16 +67,19 @@ const EditSheet = ({ domain, onSave, onClose }) => {
         >
           STATUS
         </div>
+
         <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
           {STATUSES.map((s) => {
             const isSelected = status === s;
             const color = s === "Active" ? "#4A9EFF" : "#555";
             const bg = s === "Active" ? "rgba(74,158,255,0.07)" : "transparent";
             const border = s === "Active" ? "rgba(74,158,255,0.35)" : "#2a2a2a";
+
             return (
               <button
                 key={s}
-                onClick={() => setStatus(s)}
+                onClick={() => !isSaving && setStatus(s)}
+                disabled={isSaving}
                 style={{
                   padding: "6px 16px",
                   borderRadius: 20,
@@ -77,8 +89,9 @@ const EditSheet = ({ domain, onSave, onClose }) => {
                   fontFamily: "'IBM Plex Mono', monospace",
                   fontSize: 10,
                   fontWeight: 500,
-                  cursor: "pointer",
+                  cursor: isSaving ? "default" : "pointer",
                   transition: "all 0.15s ease",
+                  opacity: isSaving ? 0.7 : 1,
                 }}
               >
                 {s}
@@ -98,14 +111,14 @@ const EditSheet = ({ domain, onSave, onClose }) => {
         >
           CURRENT FOCUS
         </div>
+
         <input
           autoFocus
           value={focus}
           onChange={(e) => setFocus(e.target.value)}
-          onKeyDown={(e) =>
-            e.key === "Enter" && onSave({ ...domain, status, focus: focus.trim() })
-          }
+          onKeyDown={(e) => e.key === "Enter" && !isSaving && handleSave()}
           placeholder="What are you pointed at right now?"
+          disabled={isSaving}
           style={{
             width: "100%",
             background: "#161616",
@@ -116,12 +129,28 @@ const EditSheet = ({ domain, onSave, onClose }) => {
             fontSize: 16,
             padding: "10px 12px",
             outline: "none",
-            marginBottom: 18,
+            marginBottom: 12,
+            opacity: isSaving ? 0.7 : 1,
           }}
         />
 
+        {errorMessage ? (
+          <div
+            style={{
+              marginBottom: 12,
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 13,
+              color: "#d27d7d",
+              lineHeight: 1.4,
+            }}
+          >
+            {errorMessage}
+          </div>
+        ) : null}
+
         <button
-          onClick={() => onSave({ ...domain, status, focus: focus.trim() })}
+          onClick={handleSave}
+          disabled={isSaving}
           style={{
             width: "100%",
             padding: "13px",
@@ -132,10 +161,11 @@ const EditSheet = ({ domain, onSave, onClose }) => {
             fontFamily: "'DM Sans', sans-serif",
             fontSize: 14,
             fontWeight: 600,
-            cursor: "pointer",
+            cursor: isSaving ? "default" : "pointer",
+            opacity: isSaving ? 0.7 : 1,
           }}
         >
-          Save
+          {isSaving ? "Saving..." : "Save"}
         </button>
       </div>
     </div>
@@ -263,12 +293,49 @@ function SteadyDomainRow({ domain, onTap, isLast }) {
 
 export default function Domains({ onNavigate, domains, setDomains }) {
   const [editId, setEditId] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   const editDomain = domains.find((d) => d.id === editId) || null;
 
-  const saveDomain = (updated) => {
-    setDomains((prev) => prev.map((d) => (d.id === updated.id ? updated : d)));
-    setEditId(null);
+  const saveDomain = async (updated) => {
+    try {
+      setIsSaving(true);
+      setSaveError("");
+
+      const { data, error } = await supabase
+        .from("domains")
+        .update({
+          status: updated.status,
+          focus: updated.focus,
+        })
+        .eq("id", updated.id)
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      setDomains((prev) =>
+        prev.map((d) =>
+          d.id === updated.id
+            ? {
+                ...d,
+                status: data.status || updated.status,
+                focus: data.focus || "",
+              }
+            : d
+        )
+      );
+
+      setEditId(null);
+    } catch (error) {
+      console.error("Failed to save domain:", error);
+      setSaveError(error.message || "Could not save domain.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const activeDomains = domains.filter((d) => d.status === "Active");
@@ -311,10 +378,8 @@ export default function Domains({ onNavigate, domains, setDomains }) {
           paddingTop: "max(10px, env(safe-area-inset-top))",
         }}
       >
-        {/* Top bar spacer */}
         <div style={{ height: 40, flexShrink: 0 }} />
 
-        {/* Header */}
         <div
           style={{
             display: "flex",
@@ -351,7 +416,6 @@ export default function Domains({ onNavigate, domains, setDomains }) {
           </span>
         </div>
 
-        {/* Summary chip */}
         <div
           style={{
             display: "flex",
@@ -376,10 +440,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
           </span>
         </div>
 
-        {/* Scrollable content */}
         <div style={{ flex: 1, overflowY: "auto", paddingInline: 14 }}>
-
-          {/* Active section */}
           <div style={{ marginBottom: 20 }}>
             <div
               style={{
@@ -434,7 +495,6 @@ export default function Domains({ onNavigate, domains, setDomains }) {
             )}
           </div>
 
-          {/* Steady section */}
           {steadyDomains.length > 0 && (
             <div style={{ marginBottom: 10 }}>
               <div
@@ -468,7 +528,6 @@ export default function Domains({ onNavigate, domains, setDomains }) {
               </div>
             </div>
           )}
-
         </div>
 
         <BottomNav current="domains" onNavigate={onNavigate} />
@@ -477,7 +536,14 @@ export default function Domains({ onNavigate, domains, setDomains }) {
           <EditSheet
             domain={editDomain}
             onSave={saveDomain}
-            onClose={() => setEditId(null)}
+            onClose={() => {
+              if (!isSaving) {
+                setSaveError("");
+                setEditId(null);
+              }
+            }}
+            isSaving={isSaving}
+            errorMessage={saveError}
           />
         )}
       </div>
