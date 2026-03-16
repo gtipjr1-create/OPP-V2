@@ -6,6 +6,7 @@ import Domains from "./Domains";
 import Priorities from "./Priorities";
 import Standards from "./Standards";
 import Home from "./Home";
+import Settings from "./Settings";
 
 const DOMAINS_DEFAULT = [
   { name: "Health", slug: "health" },
@@ -825,6 +826,13 @@ export default function OPPApp() {
         domains={domains}
       />
     );
+  } else if (screen === "settings") {
+    content = (
+      <Settings
+        onNavigate={setScreen}
+        onSignOut={async () => { await supabase.auth.signOut(); }}
+      />
+    );
   } else if (screen === "standards") {
     content = (
       <Standards
@@ -863,7 +871,6 @@ export default function OPPApp() {
         onAddWeeklyAnchor={addWeeklyAnchor}
         onUpdateWeeklyAnchor={updateWeeklyAnchor}
         onRemoveWeeklyAnchor={removeWeeklyAnchor}
-        onSignOut={async () => { await supabase.auth.signOut(); }}
       />
     );
   }

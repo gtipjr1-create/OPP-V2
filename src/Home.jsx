@@ -248,7 +248,6 @@ export default function Home({
   onAddWeeklyAnchor,
   onUpdateWeeklyAnchor,
   onRemoveWeeklyAnchor,
-  onSignOut,
 }) {
   const [weekOpen, setWeekOpen] = useState(false);
   const activeDomains = domains.filter((dom) => dom.status === "Active");
@@ -595,23 +594,6 @@ export default function Home({
             )}
           </div>
 
-          <div style={{ paddingBottom: 20, display: "flex", justifyContent: "center" }}>
-            <button
-              onClick={onSignOut}
-              style={{
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 10,
-                color: "#252525",
-                letterSpacing: "0.08em",
-                padding: "8px 16px",
-                transition: "color 0.15s ease",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#444")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#252525")}
-            >
-              SIGN OUT
-            </button>
-          </div>
         </div>
 
         <BottomNav current="home" onNavigate={onNavigate} />
