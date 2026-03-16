@@ -317,10 +317,8 @@ export default function Home({
               >
                 {sessionName}
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 14, flexShrink: 0, paddingTop: 3 }}>
-                <img src="/opp-icon.svg" style={{ width: 22, height: 22, opacity: 0.4 }} />
-                <span style={{ color: "#555", fontSize: 18 }}>›</span>
-              </div>
+              <img src="/opp-icon.svg" style={{ width: 22, height: 22, opacity: 0.4, flexShrink: 0, marginTop: 3 }} />
+              <span style={{ color: "#555", fontSize: 18, flexShrink: 0, paddingTop: 3 }}>›</span>
             </div>
 
             <div
