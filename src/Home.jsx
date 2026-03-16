@@ -265,11 +265,8 @@ export default function Home({
     .join(" · ");
 
   const CARD = {
-    background: "#111111",
-    border: "1px solid #1e1e1e",
-    borderRadius: 14,
-    padding: "13px 16px",
-    marginBottom: 10,
+    padding: "16px 0",
+    borderBottom: "1px solid #1a1a1a",
   };
 
   return (
@@ -514,7 +511,7 @@ export default function Home({
           <div
             onClick={() => onNavigate("domains")}
             className="tappable"
-            style={{ ...CARD, cursor: "pointer", marginBottom: 16 }}
+            style={{ ...CARD, cursor: "pointer", borderBottom: "none" }}
           >
             <div
               style={{
