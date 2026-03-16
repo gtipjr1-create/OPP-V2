@@ -176,6 +176,7 @@ function ActiveDomainCard({ domain, onTap }) {
   return (
     <div
       onClick={() => onTap(domain.id)}
+      className="tappable"
       style={{
         background: "#111111",
         borderRadius: 14,
@@ -252,6 +253,7 @@ function SteadyDomainRow({ domain, onTap, isLast }) {
   return (
     <div
       onClick={() => onTap(domain.id)}
+      className="tappable"
       style={{
         display: "flex",
         alignItems: "center",
@@ -359,12 +361,6 @@ export default function Domains({ onNavigate, domains, setDomains }) {
         overflow: "hidden",
       }}
     >
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        *:not(input) { -webkit-user-select: none; user-select: none; }
-        @keyframes sheetUp { from { transform: translateY(100%); opacity: 0.8; } to { transform: translateY(0); opacity: 1; } }
-      `}</style>
 
       <div
         style={{

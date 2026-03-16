@@ -159,22 +159,6 @@ export default function Standards({
         overflow: "hidden",
       }}
     >
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        * { -webkit-user-select: none; user-select: none; }
-        input, textarea { -webkit-user-select: text; user-select: text; }
-        button {
-          background: none;
-          border: none;
-          outline: none;
-          cursor: pointer;
-          font: inherit;
-        }
-        input::placeholder {
-          color: #4f4f4f;
-        }
-      `}</style>
 
       <div
         style={{

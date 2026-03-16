@@ -28,7 +28,23 @@ export default function App() {
   }, []);
 
   if (session === undefined) {
-    return <div style={{ padding: 24 }}>Loading...</div>;
+    return (
+      <div
+        style={{
+          height: "100dvh",
+          background: "#000",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontFamily: "'IBM Plex Mono', monospace",
+          fontSize: 11,
+          letterSpacing: "0.12em",
+          color: "#2a2a2a",
+        }}
+      >
+        OPP
+      </div>
+    );
   }
 
   if (!session) {

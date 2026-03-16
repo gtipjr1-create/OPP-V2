@@ -33,14 +33,27 @@ export default function BottomNav({ current, onNavigate }) {
               fontWeight: isActive ? 500 : 400,
               letterSpacing: "0.06em",
               cursor: "pointer",
-              padding: "10px 14px",
+              padding: "10px 14px 8px",
               transition: "color 0.15s ease",
               textAlign: "center",
               flex: 1,
               minWidth: 0,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 5,
             }}
           >
             {label}
+            <div
+              style={{
+                width: 3,
+                height: 2,
+                borderRadius: 99,
+                background: isActive ? "#e0e0e0" : "transparent",
+                transition: "background 0.15s ease",
+              }}
+            />
           </button>
         );
       })}

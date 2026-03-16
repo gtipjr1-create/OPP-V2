@@ -749,12 +749,6 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
         overflow: "hidden",
       }}
     >
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        *:not(input) { -webkit-user-select: none; user-select: none; }
-        @keyframes sheetUp { from { transform: translateY(100%); opacity: 0.8; } to { transform: translateY(0); opacity: 1; } }
-      `}</style>
 
       <div
         style={{

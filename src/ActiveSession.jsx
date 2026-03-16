@@ -897,12 +897,8 @@ export default function ActiveSession({
       }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        *:not(input) { -webkit-user-select: none; user-select: none; }
         .nsb:hover span { color: #4A9EFF !important; }
         @keyframes slideInRight { from { transform: translateX(100%); opacity: 0.7; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes sheetUp { from { transform: translateY(100%); opacity: 0.8; } to { transform: translateY(0); opacity: 1; } }
         @keyframes glowHalo { 0%, 100% { opacity: 0.5; r: 180px; } 50% { opacity: 0.85; r: 183px; } }
         @keyframes outerRing { 0%, 100% { r: 168px; stroke-opacity: 0.9; } 50% { r: 171px; stroke-opacity: 1; } }
         @keyframes innerRing { 0%, 100% { r: 122px; stroke-opacity: 0.85; } 50% { r: 125px; stroke-opacity: 1; } }

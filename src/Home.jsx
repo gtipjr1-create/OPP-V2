@@ -14,7 +14,7 @@ const SHEET_STYLE = {
   border: "1px solid #1e1e1e",
   borderBottom: "none",
   padding: "20px 20px 36px",
-  animation: "sheetUp 0.38s cubic-bezier(0.16,1,0.3,1) forwards",
+  animation: "sheetUpFixed 0.38s cubic-bezier(0.16,1,0.3,1) forwards",
 };
 
 const SHEET_HANDLE = {
@@ -248,6 +248,7 @@ export default function Home({
   onAddWeeklyAnchor,
   onUpdateWeeklyAnchor,
   onRemoveWeeklyAnchor,
+  onSignOut,
 }) {
   const [weekOpen, setWeekOpen] = useState(false);
   const activeDomains = domains.filter((dom) => dom.status === "Active");
@@ -282,15 +283,6 @@ export default function Home({
         overflow: "hidden",
       }}
     >
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        *:not(input, textarea) { -webkit-user-select: none; user-select: none; }
-        @keyframes sheetUp {
-          from { transform: translateX(-50%) translateY(100%); opacity: 0.8; }
-          to { transform: translateX(-50%) translateY(0); opacity: 1; }
-        }
-      `}</style>
 
       <div
         style={{
@@ -307,7 +299,7 @@ export default function Home({
         <div style={{ height: 20, flexShrink: 0 }} />
 
         <div style={{ flex: 1, overflowY: "auto", paddingInline: 20 }}>
-          <div onClick={() => onNavigate("active")} style={{ ...CARD, cursor: "pointer" }}>
+          <div onClick={() => onNavigate("active")} className="tappable" style={{ ...CARD, cursor: "pointer" }}>
             <div
               style={{
                 display: "flex",
@@ -329,7 +321,7 @@ export default function Home({
               >
                 {sessionName}
               </div>
-              <span style={{ color: "#2a2a2a", fontSize: 18, flexShrink: 0, paddingTop: 3 }}>›</span>
+              <span style={{ color: "#555", fontSize: 18, flexShrink: 0, paddingTop: 3 }}>›</span>
             </div>
 
             <div
@@ -359,7 +351,7 @@ export default function Home({
             ) : null}
           </div>
 
-          <div onClick={() => onNavigate("priorities")} style={{ ...CARD, cursor: "pointer" }}>
+          <div onClick={() => onNavigate("priorities")} className="tappable" style={{ ...CARD, cursor: "pointer" }}>
             <div
               style={{
                 display: "flex",
@@ -379,7 +371,7 @@ export default function Home({
               >
                 CURRENT FOCUS
               </span>
-              <span style={{ color: "#333", fontSize: 18 }}>›</span>
+              <span style={{ color: "#444", fontSize: 18 }}>›</span>
             </div>
 
             {topPriorities.length === 0 ? (
@@ -453,7 +445,7 @@ export default function Home({
             )}
           </div>
 
-          <div onClick={() => setWeekOpen(true)} style={{ ...CARD, cursor: "pointer" }}>
+          <div onClick={() => setWeekOpen(true)} className="tappable" style={{ ...CARD, cursor: "pointer" }}>
             <div
               style={{
                 display: "flex",
@@ -473,7 +465,7 @@ export default function Home({
               >
                 THIS WEEK
               </span>
-              <span style={{ color: "#333", fontSize: 18 }}>›</span>
+              <span style={{ color: "#444", fontSize: 18 }}>›</span>
             </div>
 
             {weekAnchors.length === 0 ? (
@@ -521,7 +513,8 @@ export default function Home({
 
           <div
             onClick={() => onNavigate("domains")}
-            style={{ ...CARD, cursor: "pointer", marginBottom: 20 }}
+            className="tappable"
+            style={{ ...CARD, cursor: "pointer", marginBottom: 16 }}
           >
             <div
               style={{
@@ -603,6 +596,24 @@ export default function Home({
                 ))}
               </div>
             )}
+          </div>
+
+          <div style={{ paddingBottom: 20, display: "flex", justifyContent: "center" }}>
+            <button
+              onClick={onSignOut}
+              style={{
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 10,
+                color: "#252525",
+                letterSpacing: "0.08em",
+                padding: "8px 16px",
+                transition: "color 0.15s ease",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#444")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#252525")}
+            >
+              SIGN OUT
+            </button>
           </div>
         </div>
 

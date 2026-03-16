@@ -863,23 +863,10 @@ export default function OPPApp() {
         onAddWeeklyAnchor={addWeeklyAnchor}
         onUpdateWeeklyAnchor={updateWeeklyAnchor}
         onRemoveWeeklyAnchor={removeWeeklyAnchor}
+        onSignOut={async () => { await supabase.auth.signOut(); }}
       />
     );
   }
 
-  return (
-    <div>
-      {content}
-
-      <div style={{ padding: 24, display: "flex", justifyContent: "center" }}>
-        <button
-          onClick={async () => {
-            await supabase.auth.signOut();
-          }}
-        >
-          Sign Out
-        </button>
-      </div>
-    </div>
-  );
+  return <div>{content}</div>;
 }
