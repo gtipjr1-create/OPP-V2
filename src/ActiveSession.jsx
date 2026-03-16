@@ -320,7 +320,7 @@ const RenameSheet = ({ currentName, onSave, onClose, isSaving }) => {
             border: "1.5px solid #4A9EFF",
             borderRadius: 9,
             color: "#f0f0f0",
-            fontFamily: "'DM Serif Display', serif",
+            fontFamily: "'Halant', serif",
             fontSize: 22,
             padding: "12px 14px",
             outline: "none",
@@ -501,7 +501,7 @@ const ConfirmDeleteSheet = ({ taskLabel, onConfirm, onClose, isSaving }) => (
       <div style={SHEET_HANDLE} />
       <div
         style={{
-          fontFamily: "'DM Serif Display', serif",
+          fontFamily: "'Halant', serif",
           fontSize: 20,
           color: "#f0f0f0",
           marginBottom: 8,
@@ -1051,7 +1051,7 @@ export default function ActiveSession({
             <span
               style={{
                 display: "block",
-                fontFamily: "'DM Serif Display', serif",
+                fontFamily: "'Halant', serif",
                 fontSize: 28,
                 fontWeight: 400,
                 color: "#f0f0f0",

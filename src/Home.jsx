@@ -311,7 +311,7 @@ export default function Home({
             >
               <div
                 style={{
-                  fontFamily: "'DM Serif Display', serif",
+                  fontFamily: "'Halant', serif",
                   fontSize: 24,
                   fontWeight: 400,
                   color: "#f0f0f0",

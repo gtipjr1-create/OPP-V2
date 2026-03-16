@@ -1,3 +1,43 @@
+@font-face {
+  font-family: 'Halant';
+  src: url('/fonts/Halant/Halant-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Halant';
+  src: url('/fonts/Halant/Halant-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Halant';
+  src: url('/fonts/Halant/Halant-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Halant';
+  src: url('/fonts/Halant/Halant-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Halant';
+  src: url('/fonts/Halant/Halant-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 *,
 *::before,
 *::after {

@@ -60,7 +60,8 @@ export default function LoginPage() {
       <div style={{ width: "100%", maxWidth: 380 }}>
         <div
           style={{
-            fontFamily: "'DM Serif Display', serif",
+            fontFamily: "'Halant', serif",
+            fontWeight: 300,
             fontSize: 34,
             color: "#f0f0f0",
             letterSpacing: "-0.01em",

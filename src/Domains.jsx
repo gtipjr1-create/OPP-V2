@@ -388,7 +388,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
         >
           <h1
             style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Halant', serif",
               fontSize: 28,
               fontWeight: 400,
               color: "#f0f0f0",

@@ -84,7 +84,7 @@ const ConfirmDeleteSheet = ({ sessionName, onConfirm, onClose }) => (
     <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.65)" }} />
     <div style={{ position: "relative", background: "#0d0d0d", borderRadius: "20px 20px 0 0", border: "1px solid #1e1e1e", borderBottom: "none", padding: "20px 20px 36px", animation: "sheetUp 0.38s cubic-bezier(0.16,1,0.3,1) forwards" }}>
       <div style={{ width: 36, height: 4, background: "#333", borderRadius: 2, margin: "0 auto 20px" }} />
-      <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 20, color: "#f0f0f0", marginBottom: 8 }}>Delete session?</div>
+      <div style={{ fontFamily: "'Halant', serif", fontSize: 20, color: "#f0f0f0", marginBottom: 8 }}>Delete session?</div>
       <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#555", marginBottom: 24 }}>
         "{sessionName}" will be permanently removed.
       </div>
@@ -135,7 +135,7 @@ function SessionRow({ session, onDelete }) {
       >
         {/* Left: name + date + task count */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 400, color: "#d0d0d0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 4, fontFamily: "'DM Serif Display', serif" }}>
+          <div style={{ fontSize: 14, fontWeight: 400, color: "#d0d0d0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 4, fontFamily: "'Halant', serif" }}>
             {session.name}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -215,7 +215,7 @@ export default function ArchivedSessions({ onNavigate }) {
 
         {/* HERO */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 10, flexShrink: 0 }}>
-          <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 28, fontWeight: 400, color: "#f0f0f0", letterSpacing: "-0.01em", lineHeight: 1.1 }}>
+          <h1 style={{ fontFamily: "'Halant', serif", fontSize: 28, fontWeight: 400, color: "#f0f0f0", letterSpacing: "-0.01em", lineHeight: 1.1 }}>
             Archive
           </h1>
         </div>
