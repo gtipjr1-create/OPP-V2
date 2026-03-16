@@ -3,7 +3,6 @@ const NAV_ITEMS = [
   { id: "domains",    label: "Domains"    },
   { id: "priorities", label: "Priorities" },
   { id: "standards",  label: "Standards"  },
-  { id: "settings",   label: "Settings"   },
 ];
 
 export default function BottomNav({ current, onNavigate }) {
