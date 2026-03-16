@@ -13,7 +13,6 @@ export default function BottomNav({ current, onNavigate }) {
         borderTop: "1px solid #181818",
         background: "#000",
         display: "flex",
-        justifyContent: "space-around",
         paddingTop: 6,
         paddingBottom: "max(16px, env(safe-area-inset-bottom))",
       }}
@@ -33,7 +32,7 @@ export default function BottomNav({ current, onNavigate }) {
               fontWeight: isActive ? 500 : 400,
               letterSpacing: "0.06em",
               cursor: "pointer",
-              padding: "10px 14px 8px",
+              padding: "10px 0 8px",
               transition: "color 0.15s ease",
               textAlign: "center",
               flex: 1,
