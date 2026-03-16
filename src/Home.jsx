@@ -339,7 +339,7 @@ export default function Home({
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: 11,
-                  color: "#3a3a3a",
+                  color: "#888",
                   letterSpacing: "0.01em",
                 }}
               >
@@ -377,7 +377,7 @@ export default function Home({
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: 13,
-                    color: "#333",
+                    color: "#888",
                     fontStyle: "italic",
                     marginBottom: 6,
                   }}
@@ -388,7 +388,7 @@ export default function Home({
                   style={{
                     fontFamily: "'IBM Plex Mono', monospace",
                     fontSize: 10,
-                    color: "#2a2a2a",
+                    color: "#555",
                     letterSpacing: "0.06em",
                   }}
                 >
@@ -411,7 +411,7 @@ export default function Home({
                       style={{
                         fontFamily: "'DM Sans', sans-serif",
                         fontSize: 14,
-                        color: "#c0c0c0",
+                        color: "#e0e0e0",
                         lineHeight: 1.35,
                         flex: 1,
                         minWidth: 0,
@@ -471,7 +471,7 @@ export default function Home({
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: 13,
-                    color: "#333",
+                    color: "#888",
                     fontStyle: "italic",
                     marginBottom: 6,
                   }}
@@ -482,7 +482,7 @@ export default function Home({
                   style={{
                     fontFamily: "'IBM Plex Mono', monospace",
                     fontSize: 10,
-                    color: "#2a2a2a",
+                    color: "#555",
                     letterSpacing: "0.06em",
                   }}
                 >
@@ -497,7 +497,7 @@ export default function Home({
                     style={{
                       fontFamily: "'DM Sans', sans-serif",
                       fontSize: 14,
-                      color: "#c0c0c0",
+                      color: "#e0e0e0",
                       lineHeight: 1.35,
                     }}
                   >
@@ -550,7 +550,7 @@ export default function Home({
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: 13,
-                    color: "#2e2e2e",
+                    color: "#888",
                     fontStyle: "italic",
                   }}
                 >
@@ -566,7 +566,7 @@ export default function Home({
                         fontFamily: "'IBM Plex Mono', monospace",
                         fontSize: 10,
                         fontWeight: 500,
-                        color: "#4a4a4a",
+                        color: "#777",
                         letterSpacing: "0.08em",
                         flexShrink: 0,
                         minWidth: 50,
@@ -578,7 +578,7 @@ export default function Home({
                       style={{
                         fontFamily: "'DM Sans', sans-serif",
                         fontSize: 13,
-                        color: dom.focus ? "#555" : "#2e2e2e",
+                        color: dom.focus ? "#aaa" : "#777",
                         fontStyle: dom.focus ? "normal" : "italic",
                         flex: 1,
                         minWidth: 0,

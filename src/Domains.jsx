@@ -178,10 +178,8 @@ function ActiveDomainCard({ domain, onTap }) {
       onClick={() => onTap(domain.id)}
       className="tappable"
       style={{
-        background: "#111111",
-        borderRadius: 14,
-        padding: "10px 14px",
-        border: "1px solid #1a1a1a",
+        padding: "10px 0",
+        borderBottom: "1px solid #1a1a1a",
         cursor: "pointer",
       }}
     >
@@ -269,7 +267,7 @@ function SteadyDomainRow({ domain, onTap, isLast }) {
             fontFamily: "'DM Sans', sans-serif",
             fontSize: 14,
             fontWeight: 400,
-            color: "#3a3a3a",
+            color: "#bbb",
             marginBottom: domain.focus ? 3 : 0,
           }}
         >
@@ -280,7 +278,7 @@ function SteadyDomainRow({ domain, onTap, isLast }) {
             style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: 12,
-              color: "#2e2e2e",
+              color: "#777",
               lineHeight: 1.35,
             }}
           >
@@ -452,14 +450,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
             </div>
 
             {activeDomains.length === 0 ? (
-              <div
-                style={{
-                  background: "#0d0d0d",
-                  borderRadius: 14,
-                  padding: "22px 16px",
-                  border: "1px solid #161616",
-                }}
-              >
+              <div style={{ padding: "12px 0" }}>
                 <div
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
@@ -505,14 +496,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
               >
                 STEADY
               </div>
-              <div
-                style={{
-                  background: "#0d0d0d",
-                  borderRadius: 14,
-                  padding: "2px 16px",
-                  border: "1px solid #161616",
-                }}
-              >
+              <div>
                 {steadyDomains.map((domain, i) => (
                   <SteadyDomainRow
                     key={domain.id}

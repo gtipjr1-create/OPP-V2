@@ -295,7 +295,7 @@ function PriorityRow({ priority, onPark, onDelete, isDragging, isOver }) {
             style={{
               fontSize: 14,
               fontWeight: 400,
-              color: "#d0d0d0",
+              color: "#e8e8e8",
               fontFamily: "'DM Sans', sans-serif",
               marginBottom: 5,
               lineHeight: 1.35,
@@ -376,7 +376,7 @@ function NotNowRow({ priority, onActivate }) {
           style={{
             fontSize: 13,
             fontWeight: 400,
-            color: "#2e2e2e",
+            color: "#888",
             fontFamily: "'DM Sans', sans-serif",
             marginBottom: 4,
             lineHeight: 1.35,
@@ -845,14 +845,10 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
         <div style={{ flex: 1, overflowY: "auto", paddingInline: 14 }}>
           <div
             style={{
-              background: "#111111",
-              borderRadius: 16,
-              padding: "14px 16px 4px",
-              border: "1px solid #1a1a1a",
               display: "flex",
               flexDirection: "column",
               overflow: dragId ? "visible" : "hidden",
-              marginBottom: 10,
+              marginBottom: 16,
             }}
           >
             <div style={{ marginBottom: 12, flexShrink: 0 }}>
@@ -887,7 +883,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                     style={{
                       fontFamily: "'DM Sans', sans-serif",
                       fontSize: 13,
-                      color: "#333",
+                      color: "#888",
                       fontStyle: "italic",
                       marginBottom: 6,
                     }}
@@ -898,7 +894,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                     style={{
                       fontFamily: "'IBM Plex Mono', monospace",
                       fontSize: 10,
-                      color: "#2a2a2a",
+                      color: "#555",
                       letterSpacing: "0.06em",
                     }}
                   >
@@ -947,15 +943,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
           </div>
 
           {notNow.length > 0 && (
-            <div
-              style={{
-                background: "#0d0d0d",
-                borderRadius: 16,
-                padding: "14px 16px 4px",
-                border: "1px solid #161616",
-                marginBottom: 10,
-              }}
-            >
+            <div style={{ marginBottom: 10 }}>
               <div style={{ marginBottom: 12 }}>
                 <span
                   style={{

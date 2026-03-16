@@ -222,14 +222,6 @@ export default function Standards({
         </div>
 
         <div style={{ paddingInline: 14, paddingBottom: 14, flexShrink: 0 }}>
-          <div
-            style={{
-              background: "#111111",
-              borderRadius: 16,
-              padding: "14px 16px 16px",
-              border: "1px solid #1a1a1a",
-            }}
-          >
             <div style={{ marginBottom: 12 }}>
               <span
                 style={{
@@ -390,7 +382,7 @@ export default function Standards({
                                   fontFamily: "'DM Sans', sans-serif",
                                   fontSize: 14,
                                   fontWeight: 400,
-                                  color: "#c0c0c0",
+                                  color: "#e0e0e0",
                                   lineHeight: 1.55,
                                   margin: 0,
                                 }}
@@ -464,7 +456,6 @@ export default function Standards({
                 })}
               </div>
             )}
-          </div>
         </div>
 
         <BottomNav current="standards" onNavigate={onNavigate} />
