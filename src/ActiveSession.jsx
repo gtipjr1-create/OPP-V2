@@ -1,11 +1,4 @@
-import { useState, useRef, useCallback } from "react";
-
-const tasksData = [
-  { id: 1, label: "Work 8am to 4pm", time: "8:00 AM", priority: "NORMAL", done: true },
-  { id: 2, label: "Gym 5:30pm to 6:30pm", time: "5:30 PM", priority: "NORMAL", done: true },
-  { id: 3, label: "Publish Fragments at 8pm", time: "8:00 PM", priority: "NORMAL", done: true },
-  { id: 4, label: "Review OPP notes", time: "9:00 PM", priority: "HIGH", done: false },
-];
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const PRIORITY_COLORS = {
   HIGH: { color: "#FF453A", border: "#FF453A", bg: "rgba(255,69,58,0.07)" },
@@ -292,7 +285,7 @@ const SettingsLayer = ({ onClose, onAction }) => (
   </div>
 );
 
-const RenameSheet = ({ currentName, onSave, onClose }) => {
+const RenameSheet = ({ currentName, onSave, onClose, isSaving }) => {
   const [value, setValue] = useState(currentName);
 
   return (
@@ -307,7 +300,7 @@ const RenameSheet = ({ currentName, onSave, onClose }) => {
       }}
     >
       <div
-        onClick={onClose}
+        onClick={isSaving ? undefined : onClose}
         style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)" }}
       />
       <div style={SHEET_STYLE}>
@@ -316,9 +309,10 @@ const RenameSheet = ({ currentName, onSave, onClose }) => {
         <input
           autoFocus
           value={value}
+          disabled={isSaving}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && value.trim()) onSave(value.trim());
+            if (e.key === "Enter" && value.trim() && !isSaving) onSave(value.trim());
           }}
           style={{
             width: "100%",
@@ -331,9 +325,14 @@ const RenameSheet = ({ currentName, onSave, onClose }) => {
             padding: "12px 14px",
             outline: "none",
             marginBottom: 16,
+            opacity: isSaving ? 0.7 : 1,
           }}
         />
-        <button onClick={() => value.trim() && onSave(value.trim())} style={BTN_PRIMARY}>
+        <button
+          onClick={() => value.trim() && !isSaving && onSave(value.trim())}
+          disabled={isSaving}
+          style={{ ...BTN_PRIMARY, opacity: isSaving ? 0.7 : 1 }}
+        >
           Save
         </button>
       </div>
@@ -341,7 +340,7 @@ const RenameSheet = ({ currentName, onSave, onClose }) => {
   );
 };
 
-const EditSheet = ({ task, onSave, onClose }) => {
+const EditSheet = ({ task, onSave, onClose, isSaving }) => {
   const [label, setLabel] = useState(task.label);
   const [time, setTime] = useState(task.time);
   const [priority, setPriority] = useState(task.priority);
@@ -358,7 +357,7 @@ const EditSheet = ({ task, onSave, onClose }) => {
       }}
     >
       <div
-        onClick={onClose}
+        onClick={isSaving ? undefined : onClose}
         style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)" }}
       />
       <div style={SHEET_STYLE}>
@@ -379,6 +378,7 @@ const EditSheet = ({ task, onSave, onClose }) => {
           </div>
           <input
             value={label}
+            disabled={isSaving}
             onChange={(e) => setLabel(e.target.value)}
             style={{
               width: "100%",
@@ -390,6 +390,7 @@ const EditSheet = ({ task, onSave, onClose }) => {
               fontSize: 16,
               padding: "10px 12px",
               outline: "none",
+              opacity: isSaving ? 0.7 : 1,
             }}
           />
         </div>
@@ -408,6 +409,7 @@ const EditSheet = ({ task, onSave, onClose }) => {
           </div>
           <input
             value={time}
+            disabled={isSaving}
             onChange={(e) => setTime(e.target.value)}
             style={{
               width: "100%",
@@ -419,6 +421,7 @@ const EditSheet = ({ task, onSave, onClose }) => {
               fontSize: 16,
               padding: "10px 12px",
               outline: "none",
+              opacity: isSaving ? 0.7 : 1,
             }}
           />
         </div>
@@ -444,7 +447,8 @@ const EditSheet = ({ task, onSave, onClose }) => {
               return (
                 <button
                   key={f}
-                  onClick={() => setPriority(f)}
+                  onClick={() => !isSaving && setPriority(f)}
+                  disabled={isSaving}
                   style={{
                     padding: "6px 16px",
                     borderRadius: 20,
@@ -454,8 +458,9 @@ const EditSheet = ({ task, onSave, onClose }) => {
                     fontFamily: "'IBM Plex Mono', monospace",
                     fontSize: 10,
                     fontWeight: 500,
-                    cursor: "pointer",
+                    cursor: isSaving ? "default" : "pointer",
                     transition: "all 0.15s ease",
+                    opacity: isSaving ? 0.7 : 1,
                   }}
                 >
                   {f}
@@ -465,7 +470,11 @@ const EditSheet = ({ task, onSave, onClose }) => {
           </div>
         </div>
 
-        <button onClick={() => onSave({ ...task, label, time, priority })} style={BTN_PRIMARY}>
+        <button
+          onClick={() => !isSaving && onSave({ ...task, label, time, priority })}
+          disabled={isSaving}
+          style={{ ...BTN_PRIMARY, opacity: isSaving ? 0.7 : 1 }}
+        >
           Save
         </button>
       </div>
@@ -473,7 +482,7 @@ const EditSheet = ({ task, onSave, onClose }) => {
   );
 };
 
-const ConfirmDeleteSheet = ({ taskLabel, onConfirm, onClose }) => (
+const ConfirmDeleteSheet = ({ taskLabel, onConfirm, onClose, isSaving }) => (
   <div
     style={{
       position: "absolute",
@@ -485,7 +494,7 @@ const ConfirmDeleteSheet = ({ taskLabel, onConfirm, onClose }) => (
     }}
   >
     <div
-      onClick={onClose}
+      onClick={isSaving ? undefined : onClose}
       style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.65)" }}
     />
     <div style={SHEET_STYLE}>
@@ -511,10 +520,10 @@ const ConfirmDeleteSheet = ({ taskLabel, onConfirm, onClose }) => (
         "{taskLabel}" will be permanently removed.
       </div>
       <div style={{ display: "flex", gap: 10 }}>
-        <button onClick={onClose} style={BTN_GHOST}>
+        <button onClick={onClose} disabled={isSaving} style={BTN_GHOST}>
           Cancel
         </button>
-        <button onClick={onConfirm} style={BTN_DANGER}>
+        <button onClick={onConfirm} disabled={isSaving} style={BTN_DANGER}>
           Delete
         </button>
       </div>
@@ -522,18 +531,18 @@ const ConfirmDeleteSheet = ({ taskLabel, onConfirm, onClose }) => (
   </div>
 );
 
-function SwipeRow({ task, onTap, onToggle, onDelete, isDragging, isOver }) {
+function SwipeRow({ task, onTap, onToggle, onDelete, isDragging, isOver, isSaving }) {
   const swipeX = useRef(0);
   const startX = useRef(0);
   const [offset, setOffset] = useState(0);
   const THRESHOLD = -90;
 
   const onTouchStart = (e) => {
-    if (!isDragging) startX.current = e.touches[0].clientX;
+    if (!isDragging && !isSaving) startX.current = e.touches[0].clientX;
   };
 
   const onTouchMove = (e) => {
-    if (isDragging) return;
+    if (isDragging || isSaving) return;
     const dx = e.touches[0].clientX - startX.current;
     if (dx > 0) return;
     swipeX.current = Math.max(dx, -110);
@@ -541,7 +550,7 @@ function SwipeRow({ task, onTap, onToggle, onDelete, isDragging, isOver }) {
   };
 
   const onTouchEnd = () => {
-    if (swipeX.current < THRESHOLD) onDelete(task.id);
+    if (swipeX.current < THRESHOLD && !isSaving) onDelete(task.id);
     setOffset(0);
     swipeX.current = 0;
   };
@@ -590,7 +599,7 @@ function SwipeRow({ task, onTap, onToggle, onDelete, isDragging, isOver }) {
           marginLeft: isDragging ? -10 : 0,
           marginRight: isDragging ? -10 : 0,
           cursor: "default",
-          opacity: isOver ? 0.25 : 1,
+          opacity: isOver ? 0.25 : isSaving ? 0.7 : 1,
           transform: isDragging ? "scale(1.04)" : `translateX(${offset}px)`,
           background: isDragging ? "#222222" : "#111111",
           borderRadius: isDragging ? 12 : 0,
@@ -607,14 +616,14 @@ function SwipeRow({ task, onTap, onToggle, onDelete, isDragging, isOver }) {
         <div
           onClick={(e) => {
             e.stopPropagation();
-            if (offset === 0 && !isDragging) onToggle(task.id);
+            if (offset === 0 && !isDragging && !isSaving) onToggle(task.id);
           }}
         >
           <CheckIcon checked={task.done} />
         </div>
 
         <div
-          onClick={() => offset === 0 && !isDragging && onTap(task.id)}
+          onClick={() => offset === 0 && !isDragging && !isSaving && onTap(task.id)}
           style={{ flex: 1, minWidth: 0 }}
         >
           <div
@@ -651,9 +660,20 @@ function SwipeRow({ task, onTap, onToggle, onDelete, isDragging, isOver }) {
   );
 }
 
-export default function ActiveSession({ onNavigate, sessionName, setSessionName }) {
+export default function ActiveSession({
+  onNavigate,
+  sessionName,
+  tasks,
+  onRenameSession,
+  onAddTask,
+  onToggleTask,
+  onUpdateTask,
+  onDeleteTask,
+  onReorderTasks,
+  onCreateNewSession,
+}) {
   const [activeFilter, setActiveFilter] = useState("NORMAL");
-  const [taskList, setTaskList] = useState(tasksData);
+  const [displayTasks, setDisplayTasks] = useState(tasks || []);
   const [quickAdd, setQuickAdd] = useState("");
   const [locked, setLocked] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -662,18 +682,25 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
   const [dragId, setDragId] = useState(null);
   const [overIndex, setOverIndex] = useState(null);
   const [renameOpen, setRenameOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const listRef = useRef(null);
   const holdTimer = useRef(null);
   const dragIdRef = useRef(null);
-  const taskListRef = useRef(taskList);
-  taskListRef.current = taskList;
+  const displayTasksRef = useRef(displayTasks);
+  displayTasksRef.current = displayTasks;
 
-  const completedCount = taskList.filter((t) => t.done).length;
-  const total = taskList.length;
+  useEffect(() => {
+    if (!dragIdRef.current) {
+      setDisplayTasks(tasks || []);
+    }
+  }, [tasks]);
+
+  const completedCount = displayTasks.filter((t) => t.done).length;
+  const total = displayTasks.length;
   const completionPct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
-  const totalPoints = taskList.reduce((s, t) => s + (PRIORITY_WEIGHT[t.priority] || 2), 0);
-  const earnedPoints = taskList
+  const totalPoints = displayTasks.reduce((s, t) => s + (PRIORITY_WEIGHT[t.priority] || 2), 0);
+  const earnedPoints = displayTasks
     .filter((t) => t.done)
     .reduce((s, t) => s + (PRIORITY_WEIGHT[t.priority] || 2), 0);
   const weightedPct = totalPoints > 0 ? Math.round((earnedPoints / totalPoints) * 100) : 0;
@@ -681,57 +708,76 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
   const weightedColor = getPctColor(weightedPct);
   const isComplete = total > 0 && completionPct === 100;
 
-  const toggleTask = (id) => {
+  async function runMutation(work) {
+    if (isSaving) return;
+    try {
+      setIsSaving(true);
+      await work();
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Action failed.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  const toggleTask = async (id) => {
     if (dragIdRef.current) return;
-    setTaskList((prev) => prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
+    await runMutation(async () => {
+      await onToggleTask(id);
+    });
   };
 
   const openEdit = (id) => {
-    if (locked || dragIdRef.current) return;
-    const t = taskList.find((t) => t.id === id);
-    if (t) setEditTask(t);
+    if (locked || dragIdRef.current || isSaving) return;
+    const task = displayTasks.find((t) => t.id === id);
+    if (task) setEditTask(task);
   };
 
-  const saveEdit = (updated) => {
-    setTaskList((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
-    setEditTask(null);
+  const saveEdit = async (updated) => {
+    await runMutation(async () => {
+      await onUpdateTask(updated);
+      setEditTask(null);
+    });
   };
 
-  const deleteTask = (id) => setConfirmDeleteId(id);
-
-  const confirmDelete = () => {
-    setTaskList((prev) => prev.filter((t) => t.id !== confirmDeleteId));
-    setConfirmDeleteId(null);
+  const deleteTask = (id) => {
+    if (isSaving) return;
+    setConfirmDeleteId(id);
   };
 
-  const addTask = () => {
+  const confirmDelete = async () => {
+    await runMutation(async () => {
+      await onDeleteTask(confirmDeleteId);
+      setConfirmDeleteId(null);
+    });
+  };
+
+  const addTask = async () => {
     if (!quickAdd.trim() || locked) return;
-    setTaskList((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        label: quickAdd.trim(),
-        time: "—",
+
+    const value = quickAdd.trim();
+
+    await runMutation(async () => {
+      await onAddTask({
+        label: value,
         priority: activeFilter,
-        done: false,
-      },
-    ]);
-    setQuickAdd("");
+      });
+      setQuickAdd("");
+    });
   };
 
-  const handleNewSession = () => {
-    const now = new Date();
-    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const day = days[now.getDay()];
-    const m = now.getMonth() + 1;
-    const d = now.getDate();
-    const yy = String(now.getFullYear()).slice(-2);
-    setSessionName?.(`${day} / ${m}·${d}·${yy}`);
-    setTaskList([]);
-    setSettingsOpen(false);
-    setRenameOpen(false);
-    setEditTask(null);
-    setConfirmDeleteId(null);
+  const handleNewSession = async () => {
+    await runMutation(async () => {
+      await onCreateNewSession();
+      setQuickAdd("");
+      setSettingsOpen(false);
+      setRenameOpen(false);
+      setEditTask(null);
+      setConfirmDeleteId(null);
+      setLocked(false);
+      setActiveFilter("NORMAL");
+    });
   };
 
   const handleSettingsAction = (item) => {
@@ -764,7 +810,7 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
 
   const onContainerPointerDown = useCallback(
     (e) => {
-      if (locked) return;
+      if (locked || isSaving) return;
       const rows = Array.from(listRef.current?.children || []);
       let idx = null;
 
@@ -776,7 +822,7 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
       }
 
       if (idx === null) return;
-      const id = taskListRef.current[idx]?.id;
+      const id = displayTasksRef.current[idx]?.id;
       if (!id) return;
 
       holdTimer.current = setTimeout(() => {
@@ -785,38 +831,55 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
         if (navigator.vibrate) navigator.vibrate(30);
       }, 280);
     },
-    [locked]
+    [locked, isSaving]
   );
 
   const onContainerPointerMove = useCallback(
     (e) => {
-      if (!dragIdRef.current) return;
+      if (!dragIdRef.current || isSaving) return;
       e.preventDefault();
       const idx = getIndexAtY(e.clientY);
       if (idx === null) return;
 
-      const from = taskListRef.current.findIndex((t) => t.id === dragIdRef.current);
+      const from = displayTasksRef.current.findIndex((t) => t.id === dragIdRef.current);
       if (idx === from) return;
 
       setOverIndex(idx);
-      setTaskList((prev) => {
+      setDisplayTasks((prev) => {
         const next = [...prev];
-        const f = next.findIndex((t) => t.id === dragIdRef.current);
-        if (f === -1) return prev;
-        const [moved] = next.splice(f, 1);
+        const fromIndex = next.findIndex((t) => t.id === dragIdRef.current);
+        if (fromIndex === -1) return prev;
+        const [moved] = next.splice(fromIndex, 1);
         next.splice(idx, 0, moved);
         return next;
       });
     },
-    [getIndexAtY]
+    [getIndexAtY, isSaving]
   );
 
-  const onContainerPointerUp = useCallback(() => {
+  const onContainerPointerUp = useCallback(async () => {
     clearTimeout(holdTimer.current);
+
+    const dragged = dragIdRef.current;
     dragIdRef.current = null;
     setDragId(null);
+
+    const reorderedIds = displayTasksRef.current.map((task) => task.id);
     setOverIndex(null);
-  }, []);
+
+    if (!dragged || isSaving) return;
+
+    try {
+      setIsSaving(true);
+      await onReorderTasks(reorderedIds);
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Task reorder failed.");
+      setDisplayTasks(tasks || []);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [isSaving, onReorderTasks, tasks]);
 
   const onContainerPointerLeave = useCallback(() => {
     clearTimeout(holdTimer.current);
@@ -861,7 +924,7 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
       >
         <div style={{ position: "relative", height: 44, flexShrink: 0 }}>
           <button
-            onClick={() => onNavigate?.("home")}
+            onClick={() => !isSaving && onNavigate?.("home")}
             style={{
               position: "absolute",
               top: 0,
@@ -873,12 +936,13 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
               fontSize: 11,
               fontWeight: 500,
               letterSpacing: "0.06em",
-              cursor: "pointer",
+              cursor: isSaving ? "default" : "pointer",
               padding: "14px 16px",
               transition: "color 0.15s ease",
               display: "flex",
               alignItems: "center",
               gap: 5,
+              opacity: isSaving ? 0.7 : 1,
             }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "#888")}
             onMouseLeave={(e) => (e.currentTarget.style.color = "#4a4a4a")}
@@ -886,7 +950,7 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
             ← Today
           </button>
           <button
-            onClick={() => setSettingsOpen(true)}
+            onClick={() => !isSaving && setSettingsOpen(true)}
             style={{
               position: "absolute",
               top: 10,
@@ -895,9 +959,10 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
               border: "none",
               color: "#4a4a4a",
               fontSize: 17,
-              cursor: "pointer",
+              cursor: isSaving ? "default" : "pointer",
               letterSpacing: "3px",
               padding: "4px 2px",
+              opacity: isSaving ? 0.7 : 1,
             }}
           >
             ···
@@ -967,19 +1032,42 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
             <circle cx="256" cy="256" r="14" fill="white" fillOpacity="0.25" />
           </svg>
 
-          <h1
+          <button
+            type="button"
+            onClick={() => !isSaving && setRenameOpen(true)}
+            disabled={isSaving}
             style={{
-              fontFamily: "'DM Serif Display', serif",
-              fontSize: 28,
-              fontWeight: 400,
-              color: "#f0f0f0",
-              letterSpacing: "-0.01em",
-              lineHeight: 1.1,
-              textAlign: "center",
+              background: "none",
+              border: "none",
+              padding: 0,
+              cursor: isSaving ? "default" : "pointer",
+              opacity: isSaving ? 0.7 : 1,
+            }}
+            onMouseEnter={(e) => {
+              const heading = e.currentTarget.querySelector("span");
+              if (heading) heading.style.color = "#ffffff";
+            }}
+            onMouseLeave={(e) => {
+              const heading = e.currentTarget.querySelector("span");
+              if (heading) heading.style.color = "#f0f0f0";
             }}
           >
-            {sessionName}
-          </h1>
+            <span
+              style={{
+                display: "block",
+                fontFamily: "'DM Serif Display', serif",
+                fontSize: 28,
+                fontWeight: 400,
+                color: "#f0f0f0",
+                letterSpacing: "-0.01em",
+                lineHeight: 1.1,
+                textAlign: "center",
+                transition: "color 0.15s ease",
+              }}
+            >
+              {sessionName}
+            </span>
+          </button>
         </div>
 
         <div style={{ display: "flex", justifyContent: "center", gap: 6, marginBottom: 4, flexShrink: 0 }}>
@@ -1038,7 +1126,7 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
             paddingInline: 14,
           }}
         >
-          {total} tasks&nbsp;&nbsp;·&nbsp;&nbsp;{taskList.filter((t) => t.priority === "HIGH").length} high
+          {total} tasks&nbsp;&nbsp;·&nbsp;&nbsp;{displayTasks.filter((t) => t.priority === "HIGH").length} high
           priority&nbsp;&nbsp;·&nbsp;&nbsp;{total} scheduled
         </div>
 
@@ -1137,16 +1225,18 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
                     flex: 1,
                     outline: "none",
                     transition: "all 0.15s ease",
+                    opacity: isSaving ? 0.7 : 1,
                   }}
                   placeholder={locked ? "Unlock to add tasks..." : "What's next?"}
                   value={quickAdd}
-                  disabled={locked}
+                  disabled={locked || isSaving}
                   onChange={(e) => setQuickAdd(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && addTask()}
                 />
 
                 <button
                   onClick={addTask}
+                  disabled={locked || isSaving}
                   style={{
                     width: 34,
                     height: 34,
@@ -1158,9 +1248,10 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    cursor: locked ? "not-allowed" : "pointer",
+                    cursor: locked || isSaving ? "default" : "pointer",
                     flexShrink: 0,
                     transition: "all 0.15s ease",
+                    opacity: isSaving ? 0.7 : 1,
                   }}
                 >
                   +
@@ -1189,7 +1280,8 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
                     return (
                       <button
                         key={f}
-                        onClick={() => setActiveFilter(f)}
+                        onClick={() => !isSaving && setActiveFilter(f)}
+                        disabled={isSaving}
                         style={{
                           padding: "5px 13px",
                           borderRadius: 20,
@@ -1200,8 +1292,9 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
                           fontSize: 10,
                           fontWeight: 500,
                           letterSpacing: "0.08em",
-                          cursor: "pointer",
+                          cursor: isSaving ? "default" : "pointer",
                           transition: "all 0.15s ease",
+                          opacity: isSaving ? 0.7 : 1,
                         }}
                       >
                         {f}
@@ -1210,7 +1303,7 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
                   })}
                 </div>
 
-                <LockToggle locked={locked} onToggle={() => setLocked(!locked)} />
+                <LockToggle locked={locked} onToggle={() => !isSaving && setLocked(!locked)} />
               </div>
             )}
 
@@ -1226,7 +1319,7 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
               onPointerUp={onContainerPointerUp}
               onPointerLeave={onContainerPointerLeave}
             >
-              {taskList.length === 0 ? (
+              {displayTasks.length === 0 ? (
                 <div
                   style={{
                     padding: "36px 0",
@@ -1247,7 +1340,7 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
                   </span>
                 </div>
               ) : (
-                taskList.map((task, index) => (
+                displayTasks.map((task, index) => (
                   <SwipeRow
                     key={task.id}
                     task={task}
@@ -1256,6 +1349,7 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
                     onDelete={deleteTask}
                     isDragging={dragId === task.id}
                     isOver={overIndex === index && dragId !== task.id}
+                    isSaving={isSaving}
                   />
                 ))
               )}
@@ -1267,14 +1361,16 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
           <div style={{ borderTop: "1px solid #181818", paddingTop: 11 }}>
             <button
               onClick={handleNewSession}
+              disabled={isSaving}
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
                 background: "transparent",
                 border: "none",
-                cursor: "pointer",
+                cursor: isSaving ? "default" : "pointer",
                 padding: "4px 2px",
+                opacity: isSaving ? 0.7 : 1,
               }}
               onMouseEnter={(e) => (e.currentTarget.querySelector("span").style.color = "#4A9EFF")}
               onMouseLeave={(e) => (e.currentTarget.querySelector("span").style.color = isComplete ? "#4A9EFF" : "#4a4a4a")}
@@ -1302,19 +1398,30 @@ export default function ActiveSession({ onNavigate, sessionName, setSessionName 
         {renameOpen && (
           <RenameSheet
             currentName={sessionName}
-            onSave={(name) => {
-              setSessionName(name);
-              setRenameOpen(false);
-            }}
+            isSaving={isSaving}
+            onSave={(name) =>
+              runMutation(async () => {
+                await onRenameSession(name);
+                setRenameOpen(false);
+              })
+            }
             onClose={() => setRenameOpen(false)}
           />
         )}
 
-        {editTask && <EditSheet task={editTask} onSave={saveEdit} onClose={() => setEditTask(null)} />}
+        {editTask && (
+          <EditSheet
+            task={editTask}
+            isSaving={isSaving}
+            onSave={saveEdit}
+            onClose={() => setEditTask(null)}
+          />
+        )}
 
         {confirmDeleteId && (
           <ConfirmDeleteSheet
-            taskLabel={taskList.find((t) => t.id === confirmDeleteId)?.label || ""}
+            taskLabel={displayTasks.find((t) => t.id === confirmDeleteId)?.label || ""}
+            isSaving={isSaving}
             onConfirm={confirmDelete}
             onClose={() => setConfirmDeleteId(null)}
           />

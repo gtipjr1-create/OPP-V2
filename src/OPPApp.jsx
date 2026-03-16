@@ -16,6 +16,8 @@ const DOMAINS_DEFAULT = [
   { name: "Life", slug: "life" },
 ];
 
+const MAX_STANDARDS = 6;
+
 function todaySessionName() {
   const now = new Date();
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -57,12 +59,47 @@ function formatWeeklyAnchorRow(row) {
   };
 }
 
+function formatStandardRow(row) {
+  return {
+    id: row.id,
+    text: row.text || "",
+    sortOrder: row.sort_order ?? 0,
+    createdAt: row.created_at || null,
+    updatedAt: row.updated_at || null,
+  };
+}
+
+function formatSessionRow(row) {
+  return {
+    id: row.id,
+    name: row.name || todaySessionName(),
+    status: row.status || "active",
+    createdAt: row.created_at || null,
+    updatedAt: row.updated_at || null,
+  };
+}
+
+function formatSessionTaskRow(row) {
+  return {
+    id: row.id,
+    label: row.label || "",
+    time: row.time_label || "—",
+    priority: row.priority || "NORMAL",
+    done: Boolean(row.done),
+    sortOrder: row.sort_order ?? 0,
+    createdAt: row.created_at || null,
+    updatedAt: row.updated_at || null,
+  };
+}
+
 export default function OPPApp() {
   const [screen, setScreen] = useState("home");
   const [domains, setDomains] = useState([]);
   const [priorities, setPriorities] = useState([]);
   const [weekAnchors, setWeekAnchors] = useState([]);
-  const [sessionName, setSessionName] = useState(todaySessionName());
+  const [standards, setStandards] = useState([]);
+  const [activeSession, setActiveSession] = useState(null);
+  const [activeSessionTasks, setActiveSessionTasks] = useState([]);
   const [appError, setAppError] = useState("");
   const [userId, setUserId] = useState(null);
 
@@ -139,6 +176,77 @@ export default function OPPApp() {
     return formattedAnchors;
   }
 
+  async function loadStandards(userIdValue) {
+    const { data, error } = await supabase
+      .from("standards")
+      .select("*")
+      .eq("user_id", userIdValue)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      throw new Error(`Standards load failed: ${error.message}`);
+    }
+
+    const formattedStandards = (data || []).map(formatStandardRow);
+    setStandards(formattedStandards);
+    return formattedStandards;
+  }
+
+  async function loadSessionTasks(sessionIdValue) {
+    const { data, error } = await supabase
+      .from("session_tasks")
+      .select("*")
+      .eq("session_id", sessionIdValue)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      throw new Error(`Session tasks load failed: ${error.message}`);
+    }
+
+    const formattedTasks = (data || []).map(formatSessionTaskRow);
+    setActiveSessionTasks(formattedTasks);
+    return formattedTasks;
+  }
+
+  async function ensureActiveSession(userIdValue) {
+    const { data, error } = await supabase
+      .from("sessions")
+      .select("*")
+      .eq("user_id", userIdValue)
+      .eq("status", "active")
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(`Active session lookup failed: ${error.message}`);
+    }
+
+    if (data) {
+      const formattedSession = formatSessionRow(data);
+      setActiveSession(formattedSession);
+      return formattedSession;
+    }
+
+    const { data: insertedSession, error: createError } = await supabase
+      .from("sessions")
+      .insert({
+        user_id: userIdValue,
+        name: todaySessionName(),
+        status: "active",
+      })
+      .select()
+      .single();
+
+    if (createError) {
+      throw new Error(`Active session create failed: ${createError.message}`);
+    }
+
+    const formattedSession = formatSessionRow(insertedSession);
+    setActiveSession(formattedSession);
+    return formattedSession;
+  }
+
   async function addWeeklyAnchor(text) {
     if (!userId) {
       throw new Error("No user found for weekly anchor create.");
@@ -169,6 +277,10 @@ export default function OPPApp() {
   }
 
   async function updateWeeklyAnchor(id, text) {
+    if (!userId) {
+      throw new Error("No user found for weekly anchor update.");
+    }
+
     const cleanText = text.trim();
     if (!cleanText) return;
 
@@ -176,6 +288,7 @@ export default function OPPApp() {
       .from("weekly_anchors")
       .update({ text: cleanText })
       .eq("id", id)
+      .eq("user_id", userId)
       .select()
       .single();
 
@@ -191,12 +304,17 @@ export default function OPPApp() {
   }
 
   async function removeWeeklyAnchor(id) {
+    if (!userId) {
+      throw new Error("No user found for weekly anchor delete.");
+    }
+
     const remainingAnchors = weekAnchors.filter((anchor) => anchor.id !== id);
 
     const { error: deleteError } = await supabase
       .from("weekly_anchors")
       .delete()
-      .eq("id", id);
+      .eq("id", id)
+      .eq("user_id", userId);
 
     if (deleteError) {
       throw new Error(`Weekly anchor delete failed: ${deleteError.message}`);
@@ -209,7 +327,8 @@ export default function OPPApp() {
         const { error: reorderError } = await supabase
           .from("weekly_anchors")
           .update({ sort_order: index })
-          .eq("id", anchor.id);
+          .eq("id", anchor.id)
+          .eq("user_id", userId);
 
         if (reorderError) {
           throw new Error(`Weekly anchor reorder failed: ${reorderError.message}`);
@@ -223,6 +342,414 @@ export default function OPPApp() {
         sortOrder: index,
       }))
     );
+  }
+
+  async function addStandard(text) {
+    if (!userId) {
+      throw new Error("No user found for standard create.");
+    }
+
+    const cleanText = text.trim();
+    if (!cleanText) return;
+    if (standards.length >= MAX_STANDARDS) return;
+
+    const nextSortOrder = standards.length;
+
+    const { data, error } = await supabase
+      .from("standards")
+      .insert({
+        user_id: userId,
+        text: cleanText,
+        sort_order: nextSortOrder,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Standard create failed: ${error.message}`);
+    }
+
+    const newStandard = formatStandardRow(data);
+    setStandards((prev) => [...prev, newStandard]);
+  }
+
+  async function updateStandard(id, text) {
+    if (!userId) {
+      throw new Error("No user found for standard update.");
+    }
+
+    const cleanText = text.trim();
+    if (!cleanText) return;
+
+    const { data, error } = await supabase
+      .from("standards")
+      .update({
+        text: cleanText,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .eq("user_id", userId)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Standard update failed: ${error.message}`);
+    }
+
+    const updatedStandard = formatStandardRow(data);
+
+    setStandards((prev) =>
+      prev.map((standard) => (standard.id === id ? updatedStandard : standard))
+    );
+  }
+
+  async function normalizeStandardSortOrders(standardRows) {
+    if (!userId) {
+      throw new Error("No user found for standard reorder.");
+    }
+
+    for (let index = 0; index < standardRows.length; index += 1) {
+      const standard = standardRows[index];
+      const temporarySortOrder = 1000 + index;
+
+      const { error: bumpError } = await supabase
+        .from("standards")
+        .update({
+          sort_order: temporarySortOrder,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", standard.id)
+        .eq("user_id", userId);
+
+      if (bumpError) {
+        throw new Error(`Standard temporary reorder failed: ${bumpError.message}`);
+      }
+    }
+
+    for (let index = 0; index < standardRows.length; index += 1) {
+      const standard = standardRows[index];
+
+      const { error: finalError } = await supabase
+        .from("standards")
+        .update({
+          sort_order: index,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", standard.id)
+        .eq("user_id", userId);
+
+      if (finalError) {
+        throw new Error(`Standard final reorder failed: ${finalError.message}`);
+      }
+    }
+
+    setStandards(
+      standardRows.map((standard, index) => ({
+        ...standard,
+        sortOrder: index,
+      }))
+    );
+  }
+
+  async function removeStandard(id) {
+    if (!userId) {
+      throw new Error("No user found for standard delete.");
+    }
+
+    const remainingStandards = standards.filter((standard) => standard.id !== id);
+
+    const { error: deleteError } = await supabase
+      .from("standards")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", userId);
+
+    if (deleteError) {
+      throw new Error(`Standard delete failed: ${deleteError.message}`);
+    }
+
+    await normalizeStandardSortOrders(remainingStandards);
+  }
+
+  async function reorderStandards(nextStandardIds) {
+    if (!Array.isArray(nextStandardIds) || nextStandardIds.length !== standards.length) {
+      return;
+    }
+
+    const standardById = new Map(standards.map((standard) => [standard.id, standard]));
+    const reorderedStandards = nextStandardIds
+      .map((id) => standardById.get(id))
+      .filter(Boolean);
+
+    if (reorderedStandards.length !== standards.length) {
+      throw new Error("Standard reorder list was incomplete.");
+    }
+
+    await normalizeStandardSortOrders(reorderedStandards);
+  }
+
+  async function renameActiveSession(name) {
+    if (!userId) {
+      throw new Error("No user found for session rename.");
+    }
+
+    if (!activeSession?.id) {
+      throw new Error("No active session found.");
+    }
+
+    const cleanName = name.trim();
+    if (!cleanName) return;
+
+    const { data, error } = await supabase
+      .from("sessions")
+      .update({
+        name: cleanName,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", activeSession.id)
+      .eq("user_id", userId)
+      .eq("status", "active")
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Session rename failed: ${error.message}`);
+    }
+
+    setActiveSession(formatSessionRow(data));
+  }
+
+  async function addSessionTask({ label, priority }) {
+    if (!userId) {
+      throw new Error("No user found for task create.");
+    }
+
+    if (!activeSession?.id) {
+      throw new Error("No active session found.");
+    }
+
+    const cleanLabel = label.trim();
+    if (!cleanLabel) return;
+
+    const nextSortOrder = activeSessionTasks.length;
+
+    const { data, error } = await supabase
+      .from("session_tasks")
+      .insert({
+        session_id: activeSession.id,
+        user_id: userId,
+        label: cleanLabel,
+        time_label: "—",
+        priority: priority || "NORMAL",
+        done: false,
+        sort_order: nextSortOrder,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Task create failed: ${error.message}`);
+    }
+
+    const newTask = formatSessionTaskRow(data);
+    setActiveSessionTasks((prev) => [...prev, newTask]);
+  }
+
+  async function toggleSessionTask(id) {
+    if (!userId) {
+      throw new Error("No user found for task toggle.");
+    }
+
+    const currentTask = activeSessionTasks.find((task) => task.id === id);
+    if (!currentTask) {
+      throw new Error("Task not found.");
+    }
+
+    const { data, error } = await supabase
+      .from("session_tasks")
+      .update({
+        done: !currentTask.done,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .eq("user_id", userId)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Task toggle failed: ${error.message}`);
+    }
+
+    const updatedTask = formatSessionTaskRow(data);
+
+    setActiveSessionTasks((prev) =>
+      prev.map((task) => (task.id === id ? updatedTask : task))
+    );
+  }
+
+  async function updateSessionTask(updatedTaskInput) {
+    if (!userId) {
+      throw new Error("No user found for task update.");
+    }
+
+    const cleanLabel = updatedTaskInput.label.trim();
+    if (!cleanLabel) return;
+
+    const { data, error } = await supabase
+      .from("session_tasks")
+      .update({
+        label: cleanLabel,
+        time_label: updatedTaskInput.time || "—",
+        priority: updatedTaskInput.priority || "NORMAL",
+        done: Boolean(updatedTaskInput.done),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", updatedTaskInput.id)
+      .eq("user_id", userId)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Task update failed: ${error.message}`);
+    }
+
+    const updatedTask = formatSessionTaskRow(data);
+
+    setActiveSessionTasks((prev) =>
+      prev.map((task) => (task.id === updatedTask.id ? updatedTask : task))
+    );
+  }
+
+  async function normalizeSessionTaskSortOrders(taskRows) {
+    if (!userId) {
+      throw new Error("No user found for task reorder.");
+    }
+
+    if (!activeSession?.id) {
+      throw new Error("No active session found.");
+    }
+
+    for (let index = 0; index < taskRows.length; index += 1) {
+      const task = taskRows[index];
+      const temporarySortOrder = 1000 + index;
+
+      const { error: bumpError } = await supabase
+        .from("session_tasks")
+        .update({
+          sort_order: temporarySortOrder,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", task.id)
+        .eq("user_id", userId)
+        .eq("session_id", activeSession.id);
+
+      if (bumpError) {
+        throw new Error(`Task temporary reorder failed: ${bumpError.message}`);
+      }
+    }
+
+    for (let index = 0; index < taskRows.length; index += 1) {
+      const task = taskRows[index];
+
+      const { error: finalError } = await supabase
+        .from("session_tasks")
+        .update({
+          sort_order: index,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", task.id)
+        .eq("user_id", userId)
+        .eq("session_id", activeSession.id);
+
+      if (finalError) {
+        throw new Error(`Task final reorder failed: ${finalError.message}`);
+      }
+    }
+
+    setActiveSessionTasks(
+      taskRows.map((task, index) => ({
+        ...task,
+        sortOrder: index,
+      }))
+    );
+  }
+
+  async function deleteSessionTask(id) {
+    if (!userId) {
+      throw new Error("No user found for task delete.");
+    }
+
+    if (!activeSession?.id) {
+      throw new Error("No active session found.");
+    }
+
+    const remainingTasks = activeSessionTasks.filter((task) => task.id !== id);
+
+    const { error: deleteError } = await supabase
+      .from("session_tasks")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", userId)
+      .eq("session_id", activeSession.id);
+
+    if (deleteError) {
+      throw new Error(`Task delete failed: ${deleteError.message}`);
+    }
+
+    await normalizeSessionTaskSortOrders(remainingTasks);
+  }
+
+  async function reorderSessionTasks(nextTaskIds) {
+    if (!Array.isArray(nextTaskIds) || nextTaskIds.length !== activeSessionTasks.length) {
+      return;
+    }
+
+    const taskById = new Map(activeSessionTasks.map((task) => [task.id, task]));
+    const reorderedTasks = nextTaskIds
+      .map((id) => taskById.get(id))
+      .filter(Boolean);
+
+    if (reorderedTasks.length !== activeSessionTasks.length) {
+      throw new Error("Task reorder list was incomplete.");
+    }
+
+    await normalizeSessionTaskSortOrders(reorderedTasks);
+  }
+
+  async function createFreshActiveSession() {
+    if (!userId) {
+      throw new Error("No user found for new session.");
+    }
+
+    if (activeSession?.id) {
+      const { error: deleteExistingError } = await supabase
+        .from("sessions")
+        .delete()
+        .eq("id", activeSession.id)
+        .eq("user_id", userId)
+        .eq("status", "active");
+
+      if (deleteExistingError) {
+        throw new Error(`Existing active session reset failed: ${deleteExistingError.message}`);
+      }
+    }
+
+    const { data, error } = await supabase
+      .from("sessions")
+      .insert({
+        user_id: userId,
+        name: todaySessionName(),
+        status: "active",
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`New session create failed: ${error.message}`);
+    }
+
+    setActiveSession(formatSessionRow(data));
+    setActiveSessionTasks([]);
   }
 
   useEffect(() => {
@@ -249,6 +776,10 @@ export default function OPPApp() {
         const loadedDomains = await loadDomains(user.id);
         await loadPriorities(user.id, loadedDomains);
         await loadWeeklyAnchors(user.id);
+        await loadStandards(user.id);
+
+        const currentActiveSession = await ensureActiveSession(user.id);
+        await loadSessionTasks(currentActiveSession.id);
       } catch (error) {
         console.error("App init error:", error);
         setAppError(error.message || "Failed to initialize app.");
@@ -295,20 +826,37 @@ export default function OPPApp() {
       />
     );
   } else if (screen === "standards") {
-    content = <Standards onNavigate={setScreen} />;
+    content = (
+      <Standards
+        onNavigate={setScreen}
+        standards={standards}
+        maxStandards={MAX_STANDARDS}
+        onAddStandard={addStandard}
+        onUpdateStandard={updateStandard}
+        onRemoveStandard={removeStandard}
+        onReorderStandards={reorderStandards}
+      />
+    );
   } else if (screen === "active") {
     content = (
       <ActiveSession
         onNavigate={setScreen}
-        sessionName={sessionName}
-        setSessionName={setSessionName}
+        sessionName={activeSession?.name || todaySessionName()}
+        tasks={activeSessionTasks}
+        onRenameSession={renameActiveSession}
+        onAddTask={addSessionTask}
+        onToggleTask={toggleSessionTask}
+        onUpdateTask={updateSessionTask}
+        onDeleteTask={deleteSessionTask}
+        onReorderTasks={reorderSessionTasks}
+        onCreateNewSession={createFreshActiveSession}
       />
     );
   } else {
     content = (
       <Home
         onNavigate={setScreen}
-        sessionName={sessionName}
+        sessionName={activeSession?.name || todaySessionName()}
         domains={domains}
         priorities={priorities}
         weekAnchors={weekAnchors}
