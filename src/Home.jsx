@@ -377,7 +377,7 @@ export default function Home({
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: 13,
-                    color: "#888",
+                    color: "#ffffff",
                     fontStyle: "italic",
                     marginBottom: 6,
                   }}
@@ -471,7 +471,7 @@ export default function Home({
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: 13,
-                    color: "#888",
+                    color: "#ffffff",
                     fontStyle: "italic",
                     marginBottom: 6,
                   }}
@@ -578,7 +578,7 @@ export default function Home({
                       style={{
                         fontFamily: "'DM Sans', sans-serif",
                         fontSize: 13,
-                        color: dom.focus ? "#aaa" : "#777",
+                        color: dom.focus ? "#aaa" : "#ffffff",
                         fontStyle: dom.focus ? "normal" : "italic",
                         flex: 1,
                         minWidth: 0,
