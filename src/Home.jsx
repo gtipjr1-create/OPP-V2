@@ -2,7 +2,13 @@ import { useState } from "react";
 import BottomNav from "./BottomNav";
 
 const SHEET_STYLE = {
-  position: "relative",
+  position: "fixed",
+  left: "50%",
+  bottom: 0,
+  transform: "translateX(-50%)",
+  width: "100%",
+  maxWidth: 430,
+  zIndex: 1001,
   background: "#000000",
   borderRadius: "20px 20px 0 0",
   border: "1px solid #1e1e1e",
@@ -19,56 +25,86 @@ const SHEET_HANDLE = {
   margin: "0 auto 20px",
 };
 
-const WeekAnchorsSheet = ({ anchors, setAnchors, onClose }) => {
+const BACKDROP_STYLE = {
+  position: "fixed",
+  inset: 0,
+  background: "rgba(0,0,0,0.6)",
+  zIndex: 1000,
+};
+
+const WeekAnchorsSheet = ({
+  anchors,
+  onAddWeeklyAnchor,
+  onUpdateWeeklyAnchor,
+  onRemoveWeeklyAnchor,
+  onClose,
+}) => {
   const [input, setInput] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
   const MAX = 3;
   const atCap = anchors.length >= MAX;
 
-  const handleAdd = () => {
-    if (!input.trim()) return;
+ async function handleSubmit(e) {
+  e.preventDefault();
+
+  const clean = input.trim();
+  if (!clean || isSaving) return;
+
+  try {
+    setIsSaving(true);
+
     if (editingId) {
-      setAnchors((prev) =>
-        prev.map((a) => (a.id === editingId ? { ...a, text: input.trim() } : a))
-      );
+      await onUpdateWeeklyAnchor(editingId, clean);
       setEditingId(null);
     } else {
       if (atCap) return;
-      setAnchors((prev) => [...prev, { id: Date.now(), text: input.trim() }]);
+      await onAddWeeklyAnchor(clean);
     }
-    setInput("");
-  };
 
-  const handleEdit = (anchor) => {
+    setInput("");
+    onClose();
+  } catch (error) {
+    console.error("Weekly anchor submit failed:", error);
+    alert(error.message || "Weekly anchor save failed.");
+  } finally {
+    setIsSaving(false);
+  }
+}
+
+  function handleEdit(anchor) {
+    if (isSaving) return;
     setInput(anchor.text);
     setEditingId(anchor.id);
-  };
+  }
 
-  const handleRemove = (id) => {
-    if (editingId === id) {
-      setEditingId(null);
-      setInput("");
+  async function handleRemove(id) {
+    if (isSaving) return;
+
+    try {
+      setIsSaving(true);
+
+      if (editingId === id) {
+        setEditingId(null);
+        setInput("");
+      }
+
+      await onRemoveWeeklyAnchor(id);
+    } catch (error) {
+      console.error("Weekly anchor remove failed:", error);
+      alert(error.message || "Weekly anchor delete failed.");
+    } finally {
+      setIsSaving(false);
     }
-    setAnchors((prev) => prev.filter((a) => a.id !== id));
-  };
+  }
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        zIndex: 20,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "flex-end",
-      }}
-    >
-      <div
-        onClick={onClose}
-        style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)" }}
-      />
+    <>
+      <div onClick={isSaving ? undefined : onClose} style={BACKDROP_STYLE} />
+
       <div style={SHEET_STYLE}>
         <div style={SHEET_HANDLE} />
+
         <div
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
@@ -101,28 +137,29 @@ const WeekAnchorsSheet = ({ anchors, setAnchors, onClose }) => {
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: 14,
                     color: editingId === anchor.id ? "#4A9EFF" : "#c0c0c0",
-                    cursor: "pointer",
+                    cursor: isSaving ? "default" : "pointer",
                     lineHeight: 1.35,
                   }}
                 >
                   {anchor.text}
                 </span>
+
                 <button
+                  type="button"
                   onClick={() => handleRemove(anchor.id)}
+                  disabled={isSaving}
                   style={{
                     background: "none",
                     border: "none",
                     color: "#2e2e2e",
                     fontFamily: "'IBM Plex Mono', monospace",
                     fontSize: 16,
-                    cursor: "pointer",
+                    cursor: isSaving ? "default" : "pointer",
                     padding: "2px 4px",
                     flexShrink: 0,
                     lineHeight: 1,
-                    transition: "color 0.15s ease",
+                    opacity: isSaving ? 0.5 : 1,
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "#FF453A")}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = "#2e2e2e")}
                 >
                   ×
                 </button>
@@ -132,13 +169,13 @@ const WeekAnchorsSheet = ({ anchors, setAnchors, onClose }) => {
         )}
 
         {(!atCap || editingId) && (
-          <>
+          <form onSubmit={handleSubmit}>
             <input
               autoFocus
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleAdd()}
               placeholder="What is this week anchored to?"
+              disabled={isSaving}
               style={{
                 width: "100%",
                 background: "#161616",
@@ -150,32 +187,36 @@ const WeekAnchorsSheet = ({ anchors, setAnchors, onClose }) => {
                 padding: "10px 12px",
                 outline: "none",
                 marginBottom: 14,
+                opacity: isSaving ? 0.7 : 1,
               }}
             />
+
             <button
-              onClick={handleAdd}
+              type="submit"
+              disabled={!input.trim() || isSaving}
               style={{
                 width: "100%",
                 padding: "13px",
                 borderRadius: 12,
-                background: input.trim() ? "#4A9EFF" : "#161616",
-                border: `1px solid ${input.trim() ? "transparent" : "#222"}`,
-                color: input.trim() ? "white" : "#333",
+                background: input.trim() && !isSaving ? "#4A9EFF" : "#161616",
+                border: `1px solid ${input.trim() && !isSaving ? "transparent" : "#222"}`,
+                color: input.trim() && !isSaving ? "white" : "#333",
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: 14,
                 fontWeight: 600,
-                cursor: input.trim() ? "pointer" : "default",
-                transition: "all 0.2s ease",
+                cursor: input.trim() && !isSaving ? "pointer" : "default",
               }}
             >
               {editingId ? "Update" : "Add"}
             </button>
-          </>
+          </form>
         )}
 
         {atCap && !editingId && (
           <button
+            type="button"
             onClick={onClose}
+            disabled={isSaving}
             style={{
               width: "100%",
               padding: "13px",
@@ -186,25 +227,37 @@ const WeekAnchorsSheet = ({ anchors, setAnchors, onClose }) => {
               fontFamily: "'DM Sans', sans-serif",
               fontSize: 14,
               fontWeight: 600,
-              cursor: "pointer",
+              cursor: isSaving ? "default" : "pointer",
+              opacity: isSaving ? 0.7 : 1,
             }}
           >
             Done
           </button>
         )}
       </div>
-    </div>
+    </>
   );
 };
 
-export default function Home({ onNavigate, sessionName, domains, priorities, weekAnchors, setWeekAnchors }) {
+export default function Home({
+  onNavigate,
+  sessionName,
+  domains,
+  priorities,
+  weekAnchors,
+  onAddWeeklyAnchor,
+  onUpdateWeeklyAnchor,
+  onRemoveWeeklyAnchor,
+}) {
   const [weekOpen, setWeekOpen] = useState(false);
   const activeDomains = domains.filter((dom) => dom.status === "Active");
   const activePriorities = priorities.filter((p) => !p.deferred);
   const topPriorities = activePriorities.slice(0, 3);
 
   const sessionMeta = [
-    activePriorities.length > 0 ? `${activePriorities.length} ${activePriorities.length === 1 ? "priority" : "priorities"}` : null,
+    activePriorities.length > 0
+      ? `${activePriorities.length} ${activePriorities.length === 1 ? "priority" : "priorities"}`
+      : null,
     activeDomains.length > 0 ? `${activeDomains.length} active` : null,
   ]
     .filter(Boolean)
@@ -232,8 +285,11 @@ export default function Home({ onNavigate, sessionName, domains, priorities, wee
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        *:not(input) { -webkit-user-select: none; user-select: none; }
-        @keyframes sheetUp { from { transform: translateY(100%); opacity: 0.8; } to { transform: translateY(0); opacity: 1; } }
+        *:not(input, textarea) { -webkit-user-select: none; user-select: none; }
+        @keyframes sheetUp {
+          from { transform: translateX(-50%) translateY(100%); opacity: 0.8; }
+          to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
       `}</style>
 
       <div
@@ -248,17 +304,10 @@ export default function Home({ onNavigate, sessionName, domains, priorities, wee
           paddingTop: "max(10px, env(safe-area-inset-top))",
         }}
       >
-        {/* Top spacer */}
         <div style={{ height: 20, flexShrink: 0 }} />
 
-        {/* Scrollable cards */}
         <div style={{ flex: 1, overflowY: "auto", paddingInline: 20 }}>
-
-          {/* ── 1. DAY / STATE ── */}
-          <div
-            onClick={() => onNavigate("active")}
-            style={{ ...CARD, cursor: "pointer" }}
-          >
+          <div onClick={() => onNavigate("active")} style={{ ...CARD, cursor: "pointer" }}>
             <div
               style={{
                 display: "flex",
@@ -310,11 +359,7 @@ export default function Home({ onNavigate, sessionName, domains, priorities, wee
             ) : null}
           </div>
 
-          {/* ── 2. CURRENT FOCUS ── */}
-          <div
-            onClick={() => onNavigate("priorities")}
-            style={{ ...CARD, cursor: "pointer" }}
-          >
+          <div onClick={() => onNavigate("priorities")} style={{ ...CARD, cursor: "pointer" }}>
             <div
               style={{
                 display: "flex",
@@ -408,11 +453,7 @@ export default function Home({ onNavigate, sessionName, domains, priorities, wee
             )}
           </div>
 
-          {/* ── 3. THIS WEEK ── */}
-          <div
-            onClick={() => setWeekOpen(true)}
-            style={{ ...CARD, cursor: "pointer" }}
-          >
+          <div onClick={() => setWeekOpen(true)} style={{ ...CARD, cursor: "pointer" }}>
             <div
               style={{
                 display: "flex",
@@ -478,7 +519,6 @@ export default function Home({ onNavigate, sessionName, domains, priorities, wee
             )}
           </div>
 
-          {/* ── 4. ACTIVE DOMAINS ── */}
           <div
             onClick={() => onNavigate("domains")}
             style={{ ...CARD, cursor: "pointer", marginBottom: 20 }}
@@ -564,7 +604,6 @@ export default function Home({ onNavigate, sessionName, domains, priorities, wee
               </div>
             )}
           </div>
-
         </div>
 
         <BottomNav current="home" onNavigate={onNavigate} />
@@ -572,7 +611,9 @@ export default function Home({ onNavigate, sessionName, domains, priorities, wee
         {weekOpen && (
           <WeekAnchorsSheet
             anchors={weekAnchors}
-            setAnchors={setWeekAnchors}
+            onAddWeeklyAnchor={onAddWeeklyAnchor}
+            onUpdateWeeklyAnchor={onUpdateWeeklyAnchor}
+            onRemoveWeeklyAnchor={onRemoveWeeklyAnchor}
             onClose={() => setWeekOpen(false)}
           />
         )}

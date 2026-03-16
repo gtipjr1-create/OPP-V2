@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from "react";
+import { supabase } from "./lib/supabase";
 import BottomNav from "./BottomNav";
 
-const DOMAINS = ["Health", "Work", "Build", "Mind", "Write", "Life"];
 const HORIZONS = ["Today", "This week", "Ongoing", "Season"];
 const IDEAL = 3;
 const MAX = 5;
@@ -32,13 +32,30 @@ const SHEET_LABEL = {
   marginBottom: 16,
 };
 
-const AddSheet = ({ onAdd, onClose }) => {
+function formatPriorityRow(row, domainsList) {
+  const domainNameById = new Map(domainsList.map((domain) => [domain.id, domain.name]));
+
+  return {
+    id: row.id,
+    label: row.title || "",
+    domain: row.domain_id ? domainNameById.get(row.domain_id) || "Build" : "Build",
+    domainId: row.domain_id || null,
+    horizon: row.horizon || "This week",
+    deferred: row.status === "paused",
+    status: row.status || "active",
+    sortOrder: row.sort_order ?? 0,
+    description: row.description || "",
+  };
+}
+
+const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
+  const availableDomains = domains.length > 0 ? domains.map((domain) => domain.name) : ["Build"];
   const [label, setLabel] = useState("");
-  const [domain, setDomain] = useState("Build");
+  const [domain, setDomain] = useState(availableDomains.includes("Build") ? "Build" : availableDomains[0]);
   const [horizon, setHorizon] = useState("This week");
 
   const handleAdd = () => {
-    if (!label.trim()) return;
+    if (!label.trim() || isSaving) return;
     onAdd({ label: label.trim(), domain, horizon });
   };
 
@@ -51,8 +68,9 @@ const AddSheet = ({ onAdd, onClose }) => {
     fontFamily: "'IBM Plex Mono', monospace",
     fontSize: 10,
     fontWeight: 500,
-    cursor: "pointer",
+    cursor: isSaving ? "default" : "pointer",
     transition: "all 0.15s ease",
+    opacity: isSaving ? 0.7 : 1,
   });
 
   return (
@@ -67,7 +85,7 @@ const AddSheet = ({ onAdd, onClose }) => {
       }}
     >
       <div
-        onClick={onClose}
+        onClick={isSaving ? undefined : onClose}
         style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)" }}
       />
       <div style={SHEET_STYLE}>
@@ -80,6 +98,7 @@ const AddSheet = ({ onAdd, onClose }) => {
           onChange={(e) => setLabel(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAdd()}
           placeholder="What deserves attention now?"
+          disabled={isSaving}
           style={{
             width: "100%",
             background: "#161616",
@@ -91,6 +110,7 @@ const AddSheet = ({ onAdd, onClose }) => {
             padding: "10px 12px",
             outline: "none",
             marginBottom: 18,
+            opacity: isSaving ? 0.7 : 1,
           }}
         />
 
@@ -106,8 +126,8 @@ const AddSheet = ({ onAdd, onClose }) => {
           DOMAIN
         </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
-          {DOMAINS.map((d) => (
-            <button key={d} onClick={() => setDomain(d)} style={chip(domain === d)}>
+          {availableDomains.map((d) => (
+            <button key={d} onClick={() => !isSaving && setDomain(d)} disabled={isSaving} style={chip(domain === d)}>
               {d.toUpperCase()}
             </button>
           ))}
@@ -124,31 +144,46 @@ const AddSheet = ({ onAdd, onClose }) => {
         >
           HORIZON
         </div>
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 20 }}>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
           {HORIZONS.map((h) => (
-            <button key={h} onClick={() => setHorizon(h)} style={chip(horizon === h)}>
+            <button key={h} onClick={() => !isSaving && setHorizon(h)} disabled={isSaving} style={chip(horizon === h)}>
               {h.toUpperCase()}
             </button>
           ))}
         </div>
 
+        {errorMessage ? (
+          <div
+            style={{
+              marginBottom: 12,
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 13,
+              color: "#d27d7d",
+              lineHeight: 1.4,
+            }}
+          >
+            {errorMessage}
+          </div>
+        ) : null}
+
         <button
           onClick={handleAdd}
+          disabled={!label.trim() || isSaving}
           style={{
             width: "100%",
             padding: "13px",
             borderRadius: 12,
-            background: label.trim() ? "#4A9EFF" : "#161616",
-            border: `1px solid ${label.trim() ? "transparent" : "#222"}`,
-            color: label.trim() ? "white" : "#333",
+            background: label.trim() && !isSaving ? "#4A9EFF" : "#161616",
+            border: `1px solid ${label.trim() && !isSaving ? "transparent" : "#222"}`,
+            color: label.trim() && !isSaving ? "white" : "#333",
             fontFamily: "'DM Sans', sans-serif",
             fontSize: 14,
             fontWeight: 600,
-            cursor: label.trim() ? "pointer" : "default",
+            cursor: label.trim() && !isSaving ? "pointer" : "default",
             transition: "all 0.2s ease",
           }}
         >
-          Add
+          {isSaving ? "Adding..." : "Add"}
         </button>
       </div>
     </div>
@@ -238,7 +273,6 @@ function PriorityRow({ priority, onPark, onDelete, isDragging, isOver }) {
             : "transform 0.38s cubic-bezier(0.16,1,0.3,1), opacity 0.15s ease",
         }}
       >
-        {/* Drag handle */}
         <div
           style={{
             display: "flex",
@@ -256,7 +290,6 @@ function PriorityRow({ priority, onPark, onDelete, isDragging, isOver }) {
           ))}
         </div>
 
-        {/* Content */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
@@ -300,7 +333,6 @@ function PriorityRow({ priority, onPark, onDelete, isDragging, isOver }) {
           </div>
         </div>
 
-        {/* Park action */}
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -404,15 +436,20 @@ function NotNowRow({ priority, onActivate }) {
   );
 }
 
-export default function Priorities({ onNavigate, priorities, setPriorities }) {
+export default function Priorities({ onNavigate, priorities, setPriorities, domains }) {
   const [addOpen, setAddOpen] = useState(false);
   const [dragId, setDragId] = useState(null);
   const [overIndex, setOverIndex] = useState(null);
+  const [actionError, setActionError] = useState("");
+  const [isAdding, setIsAdding] = useState(false);
 
   const listRef = useRef(null);
   const holdTimer = useRef(null);
   const dragIdRef = useRef(null);
   const activeRef = useRef([]);
+  const prioritiesRef = useRef(priorities);
+
+  prioritiesRef.current = priorities;
 
   const active = priorities.filter((p) => !p.deferred);
   const notNow = priorities.filter((p) => p.deferred);
@@ -421,30 +458,184 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
   const atCap = active.length >= MAX;
   const crowded = active.length > IDEAL;
 
-  const addPriority = ({ label, domain, horizon }) => {
-    if (atCap) return;
-    setPriorities((prev) => [
-      ...prev,
-      { id: Date.now(), label, domain, horizon, deferred: false },
-    ]);
-    setAddOpen(false);
-  };
+  const domainIdByName = new Map(domains.map((domain) => [domain.name, domain.id]));
 
-  const removePriority = (id) => {
-    setPriorities((prev) => prev.filter((p) => p.id !== id));
-  };
+  async function getCurrentUserId() {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-  const parkPriority = (id) => {
-    setPriorities((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, deferred: true } : p))
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (!user) {
+      throw new Error("No signed-in user found.");
+    }
+
+    return user.id;
+  }
+
+  async function persistSortOrders(nextList) {
+    const updates = nextList.map((priority, index) =>
+      supabase
+        .from("priorities")
+        .update({ sort_order: index })
+        .eq("id", priority.id)
     );
+
+    const results = await Promise.all(updates);
+    const failed = results.find((result) => result.error);
+
+    if (failed?.error) {
+      throw new Error(failed.error.message);
+    }
+  }
+
+  const addPriority = async ({ label, domain, horizon }) => {
+    try {
+      if (atCap) return;
+
+      setIsAdding(true);
+      setActionError("");
+
+      const userId = await getCurrentUserId();
+      const domainId = domainIdByName.get(domain) || null;
+
+      const { data, error } = await supabase
+        .from("priorities")
+        .insert({
+          user_id: userId,
+          domain_id: domainId,
+          title: label,
+          description: "",
+          status: "active",
+          sort_order: active.length,
+          horizon,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const formatted = formatPriorityRow(data, domains);
+
+      setPriorities((prev) => {
+        const prevActive = prev.filter((p) => !p.deferred);
+        const prevDeferred = prev.filter((p) => p.deferred);
+        return [...prevActive, formatted, ...prevDeferred];
+      });
+
+      setAddOpen(false);
+    } catch (error) {
+      console.error("Failed to add priority:", error);
+      setActionError(error.message || "Could not add priority.");
+    } finally {
+      setIsAdding(false);
+    }
   };
 
-  const activatePriority = (id) => {
-    if (atCap) return;
-    setPriorities((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, deferred: false } : p))
-    );
+  const removePriority = async (id) => {
+    const previous = prioritiesRef.current;
+
+    try {
+      setActionError("");
+
+      const nextList = previous.filter((p) => p.id !== id);
+      setPriorities(nextList);
+
+      const { error } = await supabase.from("priorities").delete().eq("id", id);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      await persistSortOrders(nextList);
+    } catch (error) {
+      console.error("Failed to remove priority:", error);
+      setPriorities(previous);
+      setActionError(error.message || "Could not remove priority.");
+    }
+  };
+
+  const parkPriority = async (id) => {
+    const previous = prioritiesRef.current;
+
+    try {
+      setActionError("");
+
+      const activeItems = previous.filter((p) => !p.deferred);
+      const deferredItems = previous.filter((p) => p.deferred);
+      const moved = activeItems.find((p) => p.id === id);
+
+      if (!moved) return;
+
+      const nextList = [
+        ...activeItems.filter((p) => p.id !== id),
+        ...deferredItems,
+        { ...moved, deferred: true, status: "paused" },
+      ];
+
+      setPriorities(nextList);
+
+      const { error } = await supabase
+        .from("priorities")
+        .update({ status: "paused" })
+        .eq("id", id);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      await persistSortOrders(nextList);
+    } catch (error) {
+      console.error("Failed to park priority:", error);
+      setPriorities(previous);
+      setActionError(error.message || "Could not park priority.");
+    }
+  };
+
+  const activatePriority = async (id) => {
+    const previous = prioritiesRef.current;
+
+    try {
+      const currentActive = previous.filter((p) => !p.deferred);
+      if (currentActive.length >= MAX) return;
+
+      setActionError("");
+
+      const activeItems = previous.filter((p) => !p.deferred);
+      const deferredItems = previous.filter((p) => p.deferred);
+      const moved = deferredItems.find((p) => p.id === id);
+
+      if (!moved) return;
+
+      const nextList = [
+        ...activeItems,
+        { ...moved, deferred: false, status: "active" },
+        ...deferredItems.filter((p) => p.id !== id),
+      ];
+
+      setPriorities(nextList);
+
+      const { error } = await supabase
+        .from("priorities")
+        .update({ status: "active" })
+        .eq("id", id);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      await persistSortOrders(nextList);
+    } catch (error) {
+      console.error("Failed to activate priority:", error);
+      setPriorities(previous);
+      setActionError(error.message || "Could not activate priority.");
+    }
   };
 
   const getIndexAtY = useCallback((clientY) => {
@@ -455,8 +646,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
       if (clientY >= r.top && clientY <= r.bottom) return i;
     }
     if (rows.length > 0) {
-      if (clientY > rows[rows.length - 1].getBoundingClientRect().bottom)
-        return rows.length - 1;
+      if (clientY > rows[rows.length - 1].getBoundingClientRect().bottom) return rows.length - 1;
       if (clientY < rows[0].getBoundingClientRect().top) return 0;
     }
     return null;
@@ -465,15 +655,19 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
   const onContainerPointerDown = useCallback((e) => {
     const rows = Array.from(listRef.current?.children || []);
     let idx = null;
+
     for (let i = 0; i < rows.length; i++) {
       if (rows[i].contains(e.target)) {
         idx = i;
         break;
       }
     }
+
     if (idx === null) return;
+
     const id = activeRef.current[idx]?.id;
     if (!id) return;
+
     holdTimer.current = setTimeout(() => {
       dragIdRef.current = id;
       setDragId(id);
@@ -485,30 +679,48 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
     (e) => {
       if (!dragIdRef.current) return;
       e.preventDefault();
+
       const idx = getIndexAtY(e.clientY);
       if (idx === null) return;
+
       const from = activeRef.current.findIndex((p) => p.id === dragIdRef.current);
       if (idx === from) return;
+
       setOverIndex(idx);
+
       setPriorities((prev) => {
         const act = prev.filter((p) => !p.deferred);
         const def = prev.filter((p) => p.deferred);
         const f = act.findIndex((p) => p.id === dragIdRef.current);
         if (f === -1) return prev;
+
         const next = [...act];
         const [moved] = next.splice(f, 1);
         next.splice(idx, 0, moved);
+
         return [...next, ...def];
       });
     },
     [getIndexAtY, setPriorities]
   );
 
-  const onContainerPointerUp = useCallback(() => {
+  const onContainerPointerUp = useCallback(async () => {
     clearTimeout(holdTimer.current);
+
+    const wasDragging = !!dragIdRef.current;
     dragIdRef.current = null;
     setDragId(null);
     setOverIndex(null);
+
+    if (!wasDragging) return;
+
+    try {
+      setActionError("");
+      await persistSortOrders(prioritiesRef.current);
+    } catch (error) {
+      console.error("Failed to persist priority order:", error);
+      setActionError(error.message || "Could not save priority order.");
+    }
   }, []);
 
   const onContainerPointerLeave = useCallback(() => {
@@ -517,6 +729,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
 
   let capacityColor = "#4A9EFF";
   let capacityText = `${active.length} active`;
+
   if (atCap) {
     capacityColor = "#FF453A";
     capacityText = `${active.length} active · at capacity`;
@@ -555,10 +768,8 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
           paddingTop: "max(10px, env(safe-area-inset-top))",
         }}
       >
-        {/* Top bar spacer */}
         <div style={{ height: 40, flexShrink: 0 }} />
 
-        {/* Header */}
         <div
           style={{
             display: "flex",
@@ -595,13 +806,13 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
           </span>
         </div>
 
-        {/* Capacity chip */}
         <div
           style={{
             display: "flex",
             justifyContent: "center",
-            marginBottom: 14,
+            marginBottom: 10,
             flexShrink: 0,
+            paddingInline: 14,
           }}
         >
           <span
@@ -621,10 +832,23 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
           </span>
         </div>
 
-        {/* Scrollable content */}
-        <div style={{ flex: 1, overflowY: "auto", paddingInline: 14 }}>
+        {actionError ? (
+          <div
+            style={{
+              paddingInline: 14,
+              marginBottom: 10,
+              flexShrink: 0,
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 13,
+              color: "#d27d7d",
+              textAlign: "center",
+            }}
+          >
+            {actionError}
+          </div>
+        ) : null}
 
-          {/* Active priorities card */}
+        <div style={{ flex: 1, overflowY: "auto", paddingInline: 14 }}>
           <div
             style={{
               background: "#111111",
@@ -701,7 +925,6 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
               )}
             </div>
 
-            {/* Add row */}
             <div style={{ paddingTop: 10, paddingBottom: 6, flexShrink: 0 }}>
               <button
                 onClick={() => !atCap && setAddOpen(true)}
@@ -729,7 +952,6 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
             </div>
           </div>
 
-          {/* Not Now section */}
           {notNow.length > 0 && (
             <div
               style={{
@@ -759,13 +981,23 @@ export default function Priorities({ onNavigate, priorities, setPriorities }) {
               <div style={{ height: 6 }} />
             </div>
           )}
-
         </div>
 
         <BottomNav current="priorities" onNavigate={onNavigate} />
 
         {addOpen && (
-          <AddSheet onAdd={addPriority} onClose={() => setAddOpen(false)} />
+          <AddSheet
+            onAdd={addPriority}
+            onClose={() => {
+              if (!isAdding) {
+                setActionError("");
+                setAddOpen(false);
+              }
+            }}
+            domains={domains}
+            isSaving={isAdding}
+            errorMessage={actionError}
+          />
         )}
       </div>
     </div>
