@@ -170,7 +170,7 @@ const LockToggle = ({ locked, onToggle }) => (
   </button>
 );
 
-const SettingsLayer = ({ onClose, onAction }) => (
+const SettingsLayer = ({ onClose, onAction, onSignOut }) => (
   <div
     style={{
       position: "absolute",
@@ -258,21 +258,10 @@ const SettingsLayer = ({ onClose, onAction }) => (
                   background: "#000000",
                   transition: "background 0.15s ease",
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "#131313";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "#000000";
-                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "#131313"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "#000000"; }}
               >
-                <span
-                  style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 14,
-                    color: "#bbb",
-                    fontWeight: 400,
-                  }}
-                >
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: "#bbb", fontWeight: 400 }}>
                   {item}
                 </span>
                 <span style={{ color: "#333", fontSize: 16 }}>›</span>
@@ -281,6 +270,42 @@ const SettingsLayer = ({ onClose, onAction }) => (
           </div>
         </div>
       ))}
+
+      <div style={{ marginTop: 24 }}>
+        <div
+          style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 10,
+            fontWeight: 500,
+            color: "#383838",
+            letterSpacing: "0.14em",
+            marginBottom: 4,
+          }}
+        >
+          ACCOUNT
+        </div>
+        <div style={{ borderRadius: 12, overflow: "hidden", border: "1px solid #222" }}>
+          <div
+            onClick={onSignOut}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "13px 14px",
+              cursor: "pointer",
+              background: "#000000",
+              transition: "background 0.15s ease",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "#131313"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "#000000"; }}
+          >
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: "#bbb", fontWeight: 400 }}>
+              Sign Out
+            </span>
+            <span style={{ color: "#333", fontSize: 16 }}>›</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 );
@@ -671,6 +696,7 @@ export default function ActiveSession({
   onDeleteTask,
   onReorderTasks,
   onCreateNewSession,
+  onSignOut,
 }) {
   const [activeFilter, setActiveFilter] = useState("NORMAL");
   const [displayTasks, setDisplayTasks] = useState(tasks || []);
@@ -1388,7 +1414,7 @@ export default function ActiveSession({
         </div>
 
         {settingsOpen && (
-          <SettingsLayer onClose={() => setSettingsOpen(false)} onAction={handleSettingsAction} />
+          <SettingsLayer onClose={() => setSettingsOpen(false)} onAction={handleSettingsAction} onSignOut={onSignOut} />
         )}
 
         {renameOpen && (

@@ -858,6 +858,7 @@ export default function OPPApp() {
         onDeleteTask={deleteSessionTask}
         onReorderTasks={reorderSessionTasks}
         onCreateNewSession={createFreshActiveSession}
+        onSignOut={async () => { await supabase.auth.signOut(); }}
       />
     );
   } else {
