@@ -180,7 +180,7 @@ function ActiveDomainCard({ domain, onTap }) {
       style={{
         background: "#111111",
         borderRadius: 14,
-        padding: "14px 16px",
+        padding: "10px 14px",
         border: "1px solid #1a1a1a",
         cursor: "pointer",
       }}
@@ -258,7 +258,7 @@ function SteadyDomainRow({ domain, onTap, isLast }) {
         display: "flex",
         alignItems: "center",
         gap: 10,
-        padding: "12px 0",
+        padding: "8px 0",
         borderBottom: isLast ? "none" : "1px solid #161616",
         cursor: "pointer",
       }}
@@ -374,14 +374,14 @@ export default function Domains({ onNavigate, domains, setDomains }) {
           paddingTop: "max(10px, env(safe-area-inset-top))",
         }}
       >
-        <div style={{ height: 40, flexShrink: 0 }} />
+        <div style={{ height: 16, flexShrink: 0 }} />
 
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: 8,
+            marginBottom: 4,
             flexShrink: 0,
             paddingInline: 14,
           }}
@@ -416,7 +416,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
           style={{
             display: "flex",
             justifyContent: "center",
-            marginBottom: 14,
+            marginBottom: 8,
             flexShrink: 0,
           }}
         >
@@ -437,7 +437,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
         </div>
 
         <div style={{ flex: 1, overflowY: "auto", paddingInline: 14 }}>
-          <div style={{ marginBottom: 20 }}>
+          <div style={{ marginBottom: 10 }}>
             <div
               style={{
                 fontFamily: "'IBM Plex Mono', monospace",
@@ -445,7 +445,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
                 fontWeight: 500,
                 color: activeDomains.length > 0 ? "#555" : "#333",
                 letterSpacing: "0.1em",
-                marginBottom: 10,
+                marginBottom: 8,
               }}
             >
               ACTIVE
@@ -483,7 +483,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
                 </div>
               </div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {activeDomains.map((domain) => (
                   <ActiveDomainCard key={domain.id} domain={domain} onTap={setEditId} />
                 ))}
@@ -500,7 +500,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
                   fontWeight: 500,
                   color: "#333",
                   letterSpacing: "0.1em",
-                  marginBottom: 10,
+                  marginBottom: 8,
                 }}
               >
                 STEADY

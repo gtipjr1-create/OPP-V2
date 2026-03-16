@@ -267,8 +267,8 @@ export default function Home({
   const CARD = {
     background: "#111111",
     border: "1px solid #1e1e1e",
-    borderRadius: 16,
-    padding: "16px 18px",
+    borderRadius: 14,
+    padding: "13px 16px",
     marginBottom: 10,
   };
 
@@ -306,7 +306,7 @@ export default function Home({
                 alignItems: "flex-start",
                 justifyContent: "space-between",
                 gap: 10,
-                marginBottom: 10,
+                marginBottom: 6,
               }}
             >
               <div
