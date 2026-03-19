@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import { supabase } from "./lib/supabase";
-import ActiveSession from "./ActiveSession";
+import { ensureProfile } from "./ensureProfile";
+import Today from "./Today";
 import ArchivedSessions from "./ArchivedSessions";
 import Domains from "./Domains";
 import Priorities from "./Priorities";
 import Standards from "./Standards";
-import Home from "./Home";
 import Settings from "./Settings";
+
+function todayISODate() {
+  return new Date().toISOString().slice(0, 10);
+}
 
 const DOMAINS_DEFAULT = [
   { name: "Health", slug: "health" },
@@ -17,23 +21,22 @@ const DOMAINS_DEFAULT = [
   { name: "Life", slug: "life" },
 ];
 
-const MAX_STANDARDS = 6;
-
-function todaySessionName() {
-  const now = new Date();
-  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const day = days[now.getDay()];
-  const m = now.getMonth() + 1;
-  const d = now.getDate();
-  const yy = String(now.getFullYear()).slice(-2);
-  return `${day} / ${m}·${d}·${yy}`;
-}
+const MAX_STANDARDS = 8;
 
 function deriveDomainStatusFromName(name) {
   if (name === "Health" || name === "Work" || name === "Build") {
     return "Active";
   }
   return "Steady";
+}
+
+function formatTodayTaskRow(row) {
+  return {
+    id: row.id,
+    label: row.label || "",
+    done: Boolean(row.done),
+    sortOrder: row.sort_order ?? 0,
+  };
 }
 
 function formatPriorityRow(row, domainsList) {
@@ -70,28 +73,6 @@ function formatStandardRow(row) {
   };
 }
 
-function formatSessionRow(row) {
-  return {
-    id: row.id,
-    name: row.name || todaySessionName(),
-    status: row.status || "active",
-    createdAt: row.created_at || null,
-    updatedAt: row.updated_at || null,
-  };
-}
-
-function formatSessionTaskRow(row) {
-  return {
-    id: row.id,
-    label: row.label || "",
-    time: row.time_label || "—",
-    priority: row.priority || "NORMAL",
-    done: Boolean(row.done),
-    sortOrder: row.sort_order ?? 0,
-    createdAt: row.created_at || null,
-    updatedAt: row.updated_at || null,
-  };
-}
 
 export default function OPPApp() {
   const [screen, setScreen] = useState("home");
@@ -99,8 +80,7 @@ export default function OPPApp() {
   const [priorities, setPriorities] = useState([]);
   const [weekAnchors, setWeekAnchors] = useState([]);
   const [standards, setStandards] = useState([]);
-  const [activeSession, setActiveSession] = useState(null);
-  const [activeSessionTasks, setActiveSessionTasks] = useState([]);
+  const [todayTasks, setTodayTasks] = useState([]);
   const [appError, setAppError] = useState("");
   const [userId, setUserId] = useState(null);
 
@@ -194,58 +174,22 @@ export default function OPPApp() {
     return formattedStandards;
   }
 
-  async function loadSessionTasks(sessionIdValue) {
+  async function loadTodayTasks(userIdValue) {
     const { data, error } = await supabase
-      .from("session_tasks")
+      .from("today_tasks")
       .select("*")
-      .eq("session_id", sessionIdValue)
+      .eq("user_id", userIdValue)
+      .eq("date", todayISODate())
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: true });
 
     if (error) {
-      throw new Error(`Session tasks load failed: ${error.message}`);
+      throw new Error(`Today tasks load failed: ${error.message}`);
     }
 
-    const formattedTasks = (data || []).map(formatSessionTaskRow);
-    setActiveSessionTasks(formattedTasks);
-    return formattedTasks;
-  }
-
-  async function ensureActiveSession(userIdValue) {
-    const { data, error } = await supabase
-      .from("sessions")
-      .select("*")
-      .eq("user_id", userIdValue)
-      .eq("status", "active")
-      .maybeSingle();
-
-    if (error) {
-      throw new Error(`Active session lookup failed: ${error.message}`);
-    }
-
-    if (data) {
-      const formattedSession = formatSessionRow(data);
-      setActiveSession(formattedSession);
-      return formattedSession;
-    }
-
-    const { data: insertedSession, error: createError } = await supabase
-      .from("sessions")
-      .insert({
-        user_id: userIdValue,
-        name: todaySessionName(),
-        status: "active",
-      })
-      .select()
-      .single();
-
-    if (createError) {
-      throw new Error(`Active session create failed: ${createError.message}`);
-    }
-
-    const formattedSession = formatSessionRow(insertedSession);
-    setActiveSession(formattedSession);
-    return formattedSession;
+    const formatted = (data || []).map(formatTodayTaskRow);
+    setTodayTasks(formatted);
+    return formatted;
   }
 
   async function addWeeklyAnchor(text) {
@@ -489,270 +433,6 @@ export default function OPPApp() {
     await normalizeStandardSortOrders(reorderedStandards);
   }
 
-  async function renameActiveSession(name) {
-    if (!userId) {
-      throw new Error("No user found for session rename.");
-    }
-
-    if (!activeSession?.id) {
-      throw new Error("No active session found.");
-    }
-
-    const cleanName = name.trim();
-    if (!cleanName) return;
-
-    const { data, error } = await supabase
-      .from("sessions")
-      .update({
-        name: cleanName,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", activeSession.id)
-      .eq("user_id", userId)
-      .eq("status", "active")
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`Session rename failed: ${error.message}`);
-    }
-
-    setActiveSession(formatSessionRow(data));
-  }
-
-  async function addSessionTask({ label, priority }) {
-    if (!userId) {
-      throw new Error("No user found for task create.");
-    }
-
-    if (!activeSession?.id) {
-      throw new Error("No active session found.");
-    }
-
-    const cleanLabel = label.trim();
-    if (!cleanLabel) return;
-
-    const nextSortOrder = activeSessionTasks.length;
-
-    const { data, error } = await supabase
-      .from("session_tasks")
-      .insert({
-        session_id: activeSession.id,
-        user_id: userId,
-        label: cleanLabel,
-        time_label: "—",
-        priority: priority || "NORMAL",
-        done: false,
-        sort_order: nextSortOrder,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`Task create failed: ${error.message}`);
-    }
-
-    const newTask = formatSessionTaskRow(data);
-    setActiveSessionTasks((prev) => [...prev, newTask]);
-  }
-
-  async function toggleSessionTask(id) {
-    if (!userId) {
-      throw new Error("No user found for task toggle.");
-    }
-
-    const currentTask = activeSessionTasks.find((task) => task.id === id);
-    if (!currentTask) {
-      throw new Error("Task not found.");
-    }
-
-    const { data, error } = await supabase
-      .from("session_tasks")
-      .update({
-        done: !currentTask.done,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", id)
-      .eq("user_id", userId)
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`Task toggle failed: ${error.message}`);
-    }
-
-    const updatedTask = formatSessionTaskRow(data);
-
-    setActiveSessionTasks((prev) =>
-      prev.map((task) => (task.id === id ? updatedTask : task))
-    );
-  }
-
-  async function updateSessionTask(updatedTaskInput) {
-    if (!userId) {
-      throw new Error("No user found for task update.");
-    }
-
-    const cleanLabel = updatedTaskInput.label.trim();
-    if (!cleanLabel) return;
-
-    const { data, error } = await supabase
-      .from("session_tasks")
-      .update({
-        label: cleanLabel,
-        time_label: updatedTaskInput.time || "—",
-        priority: updatedTaskInput.priority || "NORMAL",
-        done: Boolean(updatedTaskInput.done),
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", updatedTaskInput.id)
-      .eq("user_id", userId)
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`Task update failed: ${error.message}`);
-    }
-
-    const updatedTask = formatSessionTaskRow(data);
-
-    setActiveSessionTasks((prev) =>
-      prev.map((task) => (task.id === updatedTask.id ? updatedTask : task))
-    );
-  }
-
-  async function normalizeSessionTaskSortOrders(taskRows) {
-    if (!userId) {
-      throw new Error("No user found for task reorder.");
-    }
-
-    if (!activeSession?.id) {
-      throw new Error("No active session found.");
-    }
-
-    for (let index = 0; index < taskRows.length; index += 1) {
-      const task = taskRows[index];
-      const temporarySortOrder = 1000 + index;
-
-      const { error: bumpError } = await supabase
-        .from("session_tasks")
-        .update({
-          sort_order: temporarySortOrder,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", task.id)
-        .eq("user_id", userId)
-        .eq("session_id", activeSession.id);
-
-      if (bumpError) {
-        throw new Error(`Task temporary reorder failed: ${bumpError.message}`);
-      }
-    }
-
-    for (let index = 0; index < taskRows.length; index += 1) {
-      const task = taskRows[index];
-
-      const { error: finalError } = await supabase
-        .from("session_tasks")
-        .update({
-          sort_order: index,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", task.id)
-        .eq("user_id", userId)
-        .eq("session_id", activeSession.id);
-
-      if (finalError) {
-        throw new Error(`Task final reorder failed: ${finalError.message}`);
-      }
-    }
-
-    setActiveSessionTasks(
-      taskRows.map((task, index) => ({
-        ...task,
-        sortOrder: index,
-      }))
-    );
-  }
-
-  async function deleteSessionTask(id) {
-    if (!userId) {
-      throw new Error("No user found for task delete.");
-    }
-
-    if (!activeSession?.id) {
-      throw new Error("No active session found.");
-    }
-
-    const remainingTasks = activeSessionTasks.filter((task) => task.id !== id);
-
-    const { error: deleteError } = await supabase
-      .from("session_tasks")
-      .delete()
-      .eq("id", id)
-      .eq("user_id", userId)
-      .eq("session_id", activeSession.id);
-
-    if (deleteError) {
-      throw new Error(`Task delete failed: ${deleteError.message}`);
-    }
-
-    await normalizeSessionTaskSortOrders(remainingTasks);
-  }
-
-  async function reorderSessionTasks(nextTaskIds) {
-    if (!Array.isArray(nextTaskIds) || nextTaskIds.length !== activeSessionTasks.length) {
-      return;
-    }
-
-    const taskById = new Map(activeSessionTasks.map((task) => [task.id, task]));
-    const reorderedTasks = nextTaskIds
-      .map((id) => taskById.get(id))
-      .filter(Boolean);
-
-    if (reorderedTasks.length !== activeSessionTasks.length) {
-      throw new Error("Task reorder list was incomplete.");
-    }
-
-    await normalizeSessionTaskSortOrders(reorderedTasks);
-  }
-
-  async function createFreshActiveSession() {
-    if (!userId) {
-      throw new Error("No user found for new session.");
-    }
-
-    if (activeSession?.id) {
-      const { error: deleteExistingError } = await supabase
-        .from("sessions")
-        .delete()
-        .eq("id", activeSession.id)
-        .eq("user_id", userId)
-        .eq("status", "active");
-
-      if (deleteExistingError) {
-        throw new Error(`Existing active session reset failed: ${deleteExistingError.message}`);
-      }
-    }
-
-    const { data, error } = await supabase
-      .from("sessions")
-      .insert({
-        user_id: userId,
-        name: todaySessionName(),
-        status: "active",
-      })
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`New session create failed: ${error.message}`);
-    }
-
-    setActiveSession(formatSessionRow(data));
-    setActiveSessionTasks([]);
-  }
-
   useEffect(() => {
     async function initApp() {
       try {
@@ -763,24 +443,24 @@ export default function OPPApp() {
           error: userError,
         } = await supabase.auth.getUser();
 
-        if (userError) {
-          throw new Error(`Auth user lookup failed: ${userError.message}`);
-        }
-
-        if (!user) {
-          throw new Error("No signed-in user found.");
+        if (userError || !user) {
+          await supabase.auth.signOut();
+          return;
         }
 
         setUserId(user.id);
+
+        const { error: profileError } = await ensureProfile();
+        if (profileError) {
+          throw new Error(`Profile setup failed: ${profileError.message}`);
+        }
 
         await seedDefaultDomains(user.id);
         const loadedDomains = await loadDomains(user.id);
         await loadPriorities(user.id, loadedDomains);
         await loadWeeklyAnchors(user.id);
         await loadStandards(user.id);
-
-        const currentActiveSession = await ensureActiveSession(user.id);
-        await loadSessionTasks(currentActiveSession.id);
+        await loadTodayTasks(user.id);
       } catch (error) {
         console.error("App init error:", error);
         setAppError(error.message || "Failed to initialize app.");
@@ -845,33 +525,14 @@ export default function OPPApp() {
         onReorderStandards={reorderStandards}
       />
     );
-  } else if (screen === "active") {
-    content = (
-      <ActiveSession
-        onNavigate={setScreen}
-        sessionName={activeSession?.name || todaySessionName()}
-        tasks={activeSessionTasks}
-        onRenameSession={renameActiveSession}
-        onAddTask={addSessionTask}
-        onToggleTask={toggleSessionTask}
-        onUpdateTask={updateSessionTask}
-        onDeleteTask={deleteSessionTask}
-        onReorderTasks={reorderSessionTasks}
-        onCreateNewSession={createFreshActiveSession}
-        onSignOut={async () => { await supabase.auth.signOut(); }}
-      />
-    );
   } else {
     content = (
-      <Home
+      <Today
         onNavigate={setScreen}
-        sessionName={activeSession?.name || todaySessionName()}
-        domains={domains}
-        priorities={priorities}
-        weekAnchors={weekAnchors}
-        onAddWeeklyAnchor={addWeeklyAnchor}
-        onUpdateWeeklyAnchor={updateWeeklyAnchor}
-        onRemoveWeeklyAnchor={removeWeeklyAnchor}
+        tasks={todayTasks}
+        setTasks={setTodayTasks}
+        userId={userId}
+        onSignOut={async () => { await supabase.auth.signOut(); }}
       />
     );
   }

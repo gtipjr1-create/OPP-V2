@@ -2,7 +2,7 @@ import { useState, useRef, useCallback } from "react";
 import { supabase } from "./lib/supabase";
 import BottomNav from "./BottomNav";
 
-const HORIZONS = ["Today", "This week", "Ongoing", "Season"];
+const HORIZONS = ["Today", "This week", "Sustained", "Season"];
 const IDEAL = 3;
 const MAX = 5;
 

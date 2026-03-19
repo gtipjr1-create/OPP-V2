@@ -3,8 +3,9 @@ import { supabase } from "./lib/supabase";
 import BottomNav from "./BottomNav";
 
 const STATUSES = ["Active", "Steady"];
+const MAX_ACTIVE_DOMAINS = 3;
 
-const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage }) => {
+const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCap }) => {
   const [status, setStatus] = useState(domain.status === "Active" ? "Active" : "Steady");
   const [focus, setFocus] = useState(domain.focus || "");
 
@@ -68,9 +69,10 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage }) => {
           STATUS
         </div>
 
-        <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: atActiveCap && status !== "Active" ? 8 : 18 }}>
           {STATUSES.map((s) => {
             const isSelected = status === s;
+            const blocked = s === "Active" && atActiveCap && status !== "Active";
             const color = s === "Active" ? "#4A9EFF" : "#555";
             const bg = s === "Active" ? "rgba(74,158,255,0.07)" : "transparent";
             const border = s === "Active" ? "rgba(74,158,255,0.35)" : "#2a2a2a";
@@ -78,18 +80,18 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage }) => {
             return (
               <button
                 key={s}
-                onClick={() => !isSaving && setStatus(s)}
-                disabled={isSaving}
+                onClick={() => !isSaving && !blocked && setStatus(s)}
+                disabled={isSaving || blocked}
                 style={{
                   padding: "6px 16px",
                   borderRadius: 20,
                   border: `1px solid ${isSelected ? border : "#222"}`,
                   background: isSelected ? bg : "transparent",
-                  color: isSelected ? color : "#444",
+                  color: isSelected ? color : blocked ? "#2a2a2a" : "#444",
                   fontFamily: "'IBM Plex Mono', monospace",
                   fontSize: 10,
                   fontWeight: 500,
-                  cursor: isSaving ? "default" : "pointer",
+                  cursor: isSaving || blocked ? "default" : "pointer",
                   transition: "all 0.15s ease",
                   opacity: isSaving ? 0.7 : 1,
                 }}
@@ -99,6 +101,20 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage }) => {
             );
           })}
         </div>
+
+        {atActiveCap && status !== "Active" && (
+          <div
+            style={{
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 10,
+              color: "#555",
+              letterSpacing: "0.06em",
+              marginBottom: 18,
+            }}
+          >
+            {MAX_ACTIVE_DOMAINS} active · at capacity
+          </div>
+        )}
 
         <div
           style={{
@@ -524,6 +540,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
             }}
             isSaving={isSaving}
             errorMessage={saveError}
+            atActiveCap={activeDomains.length >= MAX_ACTIVE_DOMAINS && editDomain.status !== "Active"}
           />
         )}
       </div>
