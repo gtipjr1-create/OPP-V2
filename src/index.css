@@ -41,12 +41,46 @@ textarea::placeholder {
 }
 
 .tappable {
-  transition: opacity 0.12s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
 .tappable:active {
-  opacity: 0.65;
+  opacity: 0.78;
+  transform: scale(0.975);
+}
+
+@keyframes screenReveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.screen-reveal {
+  animation: screenReveal 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 1px solid rgba(74, 158, 255, 0.55);
+  outline-offset: 2px;
 }
 
 html,

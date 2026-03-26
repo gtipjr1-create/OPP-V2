@@ -1,6 +1,7 @@
-import { useCallback, useRef, useState } from "react";
-import { supabase } from "./lib/supabase";
+﻿import { useCallback, useRef, useState } from "react";
 import BottomNav from "./BottomNav";
+import { supabase } from "./lib/supabase";
+import { createTodayTask } from "./data/todayTasks";
 
 function todayDateLabel() {
   const now = new Date();
@@ -9,11 +10,56 @@ function todayDateLabel() {
   const m = now.getMonth() + 1;
   const d = now.getDate();
   const yy = String(now.getFullYear()).slice(-2);
-  return `${day} / ${m}·${d}·${yy}`;
+  return `${day} / ${m}.${d}.${yy}`;
 }
 
-function todayISODate() {
-  return new Date().toISOString().slice(0, 10);
+function localISODate() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+async function updateTodayTaskDoneForUser(id, done, userId) {
+  const { error } = await supabase
+    .from("today_tasks")
+    .update({ done })
+    .eq("id", id)
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(`Today task update failed: ${error.message}`);
+  }
+}
+
+async function deleteTodayTaskForUser(id, userId) {
+  const { error } = await supabase
+    .from("today_tasks")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(`Today task delete failed: ${error.message}`);
+  }
+}
+
+async function updateTodayTaskSortOrdersForUser(tasks, userId) {
+  const updates = tasks.map((task, index) =>
+    supabase
+      .from("today_tasks")
+      .update({ sort_order: index })
+      .eq("id", task.id)
+      .eq("user_id", userId)
+  );
+
+  const results = await Promise.all(updates);
+  const failed = results.find((result) => result.error);
+
+  if (failed?.error) {
+    throw new Error(`Today task reorder failed: ${failed.error.message}`);
+  }
 }
 
 const SHEET_STYLE = {
@@ -146,12 +192,15 @@ function TaskRow({ task, onToggle, onDelete, isDragging, isOver }) {
             : "transform 0.38s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease",
         }}
       >
-        <div
+        <button
+          type="button"
           onClick={() => !isDragging && offset === 0 && onToggle(task.id)}
-          style={{ flexShrink: 0, cursor: "pointer" }}
+          className="tappable"
+          aria-label={task.done ? `Mark "${task.label}" as not done` : `Mark "${task.label}" as done`}
+          style={{ flexShrink: 0, cursor: "pointer", background: "none", border: "none" }}
         >
           <CheckIcon checked={task.done} />
-        </div>
+        </button>
 
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
@@ -218,15 +267,19 @@ const SettingsSheet = ({ onClose, onSignOut }) => (
         ACCOUNT
       </div>
       <div style={{ borderRadius: 12, overflow: "hidden", border: "1px solid #1e1e1e" }}>
-        <div
+        <button
+          type="button"
           onClick={onSignOut}
+          className="tappable"
           style={{
+            width: "100%",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             padding: "13px 14px",
             cursor: "pointer",
             background: "#000",
+            border: "none",
           }}
         >
           <span
@@ -239,8 +292,8 @@ const SettingsSheet = ({ onClose, onSignOut }) => (
           >
             Sign Out
           </span>
-          <span style={{ color: "#333", fontSize: 16 }}>›</span>
-        </div>
+          <span style={{ color: "#333", fontSize: 16 }}>&rsaquo;</span>
+        </button>
       </div>
     </div>
   </div>
@@ -272,27 +325,20 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
       setIsAdding(true);
       setActionError("");
 
-      const { data, error } = await supabase
-        .from("today_tasks")
-        .insert({
-          user_id: userId,
-          date: todayISODate(),
-          label,
-          done: false,
-          sort_order: tasks.length,
-        })
-        .select()
-        .single();
-
-      if (error) throw new Error(error.message);
+      const data = await createTodayTask({
+        userId,
+        label,
+        sortOrder: tasks.length,
+        date: localISODate(),
+      });
 
       setTasks((prev) => [
         ...prev,
         { id: data.id, label: data.label, done: data.done, sortOrder: data.sort_order },
       ]);
       setQuickAdd("");
-    } catch (err) {
-      setActionError(err.message || "Could not add task.");
+    } catch (error) {
+      setActionError(error.message || "Could not add task.");
     } finally {
       setIsAdding(false);
     }
@@ -302,16 +348,14 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
     const task = tasksRef.current.find((t) => t.id === id);
     if (!task) return;
 
+    const previous = tasksRef.current;
     const nextDone = !task.done;
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, done: nextDone } : t)));
 
-    const { error } = await supabase
-      .from("today_tasks")
-      .update({ done: nextDone })
-      .eq("id", id);
-
-    if (error) {
-      setTasks(tasksRef.current);
+    try {
+      await updateTodayTaskDoneForUser(id, nextDone, userId);
+    } catch (error) {
+      setTasks(previous);
       setActionError(error.message || "Could not update task.");
     }
   }
@@ -320,22 +364,17 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
     const previous = tasksRef.current;
     setTasks((prev) => prev.filter((t) => t.id !== id));
 
-    const { error } = await supabase.from("today_tasks").delete().eq("id", id);
-
-    if (error) {
+    try {
+      await deleteTodayTaskForUser(id, userId);
+    } catch (error) {
       setTasks(previous);
       setActionError(error.message || "Could not delete task.");
     }
   }
 
-  async function persistSortOrders(nextList) {
-    const updates = nextList.map((task, index) =>
-      supabase.from("today_tasks").update({ sort_order: index }).eq("id", task.id)
-    );
-    const results = await Promise.all(updates);
-    const failed = results.find((r) => r.error);
-    if (failed?.error) throw new Error(failed.error.message);
-  }
+  const persistSortOrders = useCallback(async (nextList) => {
+    await updateTodayTaskSortOrdersForUser(nextList, userId);
+  }, [userId]);
 
   const getIndexAtY = useCallback((clientY) => {
     if (!listRef.current) return null;
@@ -355,7 +394,10 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
     const rows = Array.from(listRef.current?.children || []);
     let idx = null;
     for (let i = 0; i < rows.length; i++) {
-      if (rows[i].contains(e.target)) { idx = i; break; }
+      if (rows[i].contains(e.target)) {
+        idx = i;
+        break;
+      }
     }
     if (idx === null) return;
     const id = tasksRef.current[idx]?.id;
@@ -395,10 +437,10 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
     if (!wasDragging) return;
     try {
       await persistSortOrders(tasksRef.current);
-    } catch (err) {
-      setActionError(err.message || "Could not save order.");
+    } catch (error) {
+      setActionError(error.message || "Could not save order.");
     }
-  }, []);
+  }, [persistSortOrders]);
 
   const onContainerPointerLeave = useCallback(() => {
     clearTimeout(holdTimer.current);
@@ -414,7 +456,8 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
       statusColor = "#34C759";
       statusBorder = "rgba(52,199,89,0.35)";
     } else {
-      statusText = doneCount === 0 ? `${total} task${total !== 1 ? "s" : ""}` : `${doneCount} of ${total} done`;
+      statusText =
+        doneCount === 0 ? `${total} task${total !== 1 ? "s" : ""}` : `${doneCount} of ${total} done`;
       statusColor = "#4A9EFF";
       statusBorder = "rgba(74,158,255,0.3)";
     }
@@ -436,6 +479,7 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
       `}</style>
 
       <div
+        className="screen-reveal"
         style={{
           width: "100%",
           maxWidth: 430,
@@ -447,7 +491,6 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
           paddingTop: "max(10px, env(safe-area-inset-top))",
         }}
       >
-        {/* Top bar */}
         <div
           style={{
             height: 44,
@@ -460,6 +503,8 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
         >
           <button
             onClick={() => setSettingsOpen(true)}
+            className="tappable"
+            aria-label="Open account settings"
             style={{
               background: "none",
               border: "none",
@@ -470,11 +515,10 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
               padding: "4px 2px",
             }}
           >
-            ···
+            ...
           </button>
         </div>
 
-        {/* Header */}
         <div
           style={{
             display: "flex",
@@ -511,7 +555,6 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
           </span>
         </div>
 
-        {/* Status pill */}
         <div
           style={{
             display: "flex",
@@ -553,9 +596,7 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
           </div>
         ) : null}
 
-        {/* Body */}
         <div style={{ flex: 1, overflowY: "auto", paddingInline: 14 }}>
-          {/* Add input */}
           <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
             <input
               value={quickAdd}
@@ -578,6 +619,8 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
             />
             <button
               onClick={addTask}
+              className="tappable"
+              aria-label="Add task"
               disabled={!quickAdd.trim() || isAdding}
               style={{
                 width: 38,
@@ -602,7 +645,6 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
             </button>
           </div>
 
-          {/* Section label */}
           <div style={{ marginBottom: 8 }}>
             <span
               style={{
@@ -617,7 +659,6 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
             </span>
           </div>
 
-          {/* Task list */}
           <div
             ref={listRef}
             style={{
@@ -680,3 +721,4 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
     </div>
   );
 }
+

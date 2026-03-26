@@ -22,7 +22,11 @@ export default function BottomNav({ current, onNavigate }) {
         return (
           <button
             key={id}
+            type="button"
             onClick={() => onNavigate(id)}
+            className="tappable"
+            aria-current={isActive ? "page" : undefined}
+            aria-label={`Go to ${label}`}
             style={{
               background: "none",
               border: "none",

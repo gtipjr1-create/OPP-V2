@@ -1,6 +1,9 @@
-import { useState, useRef, useCallback } from "react";
-import { supabase } from "./lib/supabase";
+﻿import { useState, useRef, useCallback } from "react";
 import BottomNav from "./BottomNav";
+import { supabase } from "./lib/supabase";
+import {
+  createPriority,
+} from "./data/priorities";
 
 const HORIZONS = ["Today", "This week", "Sustained", "Season"];
 const IDEAL = 3;
@@ -127,7 +130,7 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
         </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
           {availableDomains.map((d) => (
-            <button key={d} onClick={() => !isSaving && setDomain(d)} disabled={isSaving} style={chip(domain === d)}>
+            <button key={d} className="tappable" onClick={() => !isSaving && setDomain(d)} disabled={isSaving} style={chip(domain === d)}>
               {d.toUpperCase()}
             </button>
           ))}
@@ -146,7 +149,7 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
         </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
           {HORIZONS.map((h) => (
-            <button key={h} onClick={() => !isSaving && setHorizon(h)} disabled={isSaving} style={chip(horizon === h)}>
+            <button key={h} className="tappable" onClick={() => !isSaving && setHorizon(h)} disabled={isSaving} style={chip(horizon === h)}>
               {h.toUpperCase()}
             </button>
           ))}
@@ -168,6 +171,7 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
 
         <button
           onClick={handleAdd}
+          className="tappable"
           disabled={!label.trim() || isSaving}
           style={{
             width: "100%",
@@ -338,6 +342,8 @@ function PriorityRow({ priority, onPark, onDelete, isDragging, isOver }) {
             e.stopPropagation();
             onPark(priority.id);
           }}
+          className="tappable"
+          aria-label={`Move "${priority.label}" to not now`}
           style={{
             background: "none",
             border: "none",
@@ -353,7 +359,7 @@ function PriorityRow({ priority, onPark, onDelete, isDragging, isOver }) {
           onMouseEnter={(e) => (e.currentTarget.style.color = "#555")}
           onMouseLeave={(e) => (e.currentTarget.style.color = "#252525")}
         >
-          —
+          -
         </button>
       </div>
     </div>
@@ -415,6 +421,8 @@ function NotNowRow({ priority, onActivate }) {
 
       <button
         onClick={() => onActivate(priority.id)}
+        className="tappable"
+        aria-label={`Move "${priority.label}" back to in focus`}
         style={{
           background: "none",
           border: "none",
@@ -436,7 +444,7 @@ function NotNowRow({ priority, onActivate }) {
   );
 }
 
-export default function Priorities({ onNavigate, priorities, setPriorities, domains }) {
+export default function Priorities({ onNavigate, priorities, setPriorities, domains, userId }) {
   const [addOpen, setAddOpen] = useState(false);
   const [dragId, setDragId] = useState(null);
   const [overIndex, setOverIndex] = useState(null);
@@ -460,66 +468,41 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
 
   const domainIdByName = new Map(domains.map((domain) => [domain.name, domain.id]));
 
-  async function getCurrentUserId() {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
+  const persistSortOrders = useCallback(async (nextList) => {
+    if (!userId) throw new Error("No user found for priority reorder.");
 
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    if (!user) {
-      throw new Error("No signed-in user found.");
-    }
-
-    return user.id;
-  }
-
-  async function persistSortOrders(nextList) {
     const updates = nextList.map((priority, index) =>
       supabase
         .from("priorities")
         .update({ sort_order: index })
         .eq("id", priority.id)
+        .eq("user_id", userId)
     );
 
     const results = await Promise.all(updates);
     const failed = results.find((result) => result.error);
 
     if (failed?.error) {
-      throw new Error(failed.error.message);
+      throw new Error(`Priority reorder failed: ${failed.error.message}`);
     }
-  }
+  }, [userId]);
 
   const addPriority = async ({ label, domain, horizon }) => {
     try {
       if (atCap) return;
+      if (!userId) throw new Error("No user found for priority create.");
 
       setIsAdding(true);
       setActionError("");
 
-      const userId = await getCurrentUserId();
       const domainId = domainIdByName.get(domain) || null;
-
-      const { data, error } = await supabase
-        .from("priorities")
-        .insert({
-          user_id: userId,
-          domain_id: domainId,
-          title: label,
-          description: "",
-          status: "active",
-          sort_order: active.length,
-          horizon,
-        })
-        .select()
-        .single();
-
-      if (error) {
-        throw new Error(error.message);
-      }
+      const data = await createPriority({
+        userId,
+        domainId,
+        title: label,
+        horizon,
+        sortOrder: active.length,
+      });
 
       const formatted = formatPriorityRow(data, domains);
 
@@ -542,15 +525,20 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
     const previous = prioritiesRef.current;
 
     try {
+      if (!userId) throw new Error("No user found for priority delete.");
       setActionError("");
 
       const nextList = previous.filter((p) => p.id !== id);
       setPriorities(nextList);
 
-      const { error } = await supabase.from("priorities").delete().eq("id", id);
+      const { error: deleteError } = await supabase
+        .from("priorities")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", userId);
 
-      if (error) {
-        throw new Error(error.message);
+      if (deleteError) {
+        throw new Error(`Priority delete failed: ${deleteError.message}`);
       }
 
       await persistSortOrders(nextList);
@@ -565,6 +553,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
     const previous = prioritiesRef.current;
 
     try {
+      if (!userId) throw new Error("No user found for priority update.");
       setActionError("");
 
       const activeItems = previous.filter((p) => !p.deferred);
@@ -581,13 +570,14 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
 
       setPriorities(nextList);
 
-      const { error } = await supabase
+      const { error: statusError } = await supabase
         .from("priorities")
         .update({ status: "paused" })
-        .eq("id", id);
+        .eq("id", id)
+        .eq("user_id", userId);
 
-      if (error) {
-        throw new Error(error.message);
+      if (statusError) {
+        throw new Error(`Priority status update failed: ${statusError.message}`);
       }
 
       await persistSortOrders(nextList);
@@ -602,6 +592,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
     const previous = prioritiesRef.current;
 
     try {
+      if (!userId) throw new Error("No user found for priority update.");
       const currentActive = previous.filter((p) => !p.deferred);
       if (currentActive.length >= MAX) return;
 
@@ -621,13 +612,14 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
 
       setPriorities(nextList);
 
-      const { error } = await supabase
+      const { error: statusError } = await supabase
         .from("priorities")
         .update({ status: "active" })
-        .eq("id", id);
+        .eq("id", id)
+        .eq("user_id", userId);
 
-      if (error) {
-        throw new Error(error.message);
+      if (statusError) {
+        throw new Error(`Priority status update failed: ${statusError.message}`);
       }
 
       await persistSortOrders(nextList);
@@ -721,7 +713,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
       console.error("Failed to persist priority order:", error);
       setActionError(error.message || "Could not save priority order.");
     }
-  }, []);
+  }, [persistSortOrders]);
 
   const onContainerPointerLeave = useCallback(() => {
     clearTimeout(holdTimer.current);
@@ -749,8 +741,8 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
         overflow: "hidden",
       }}
     >
-
       <div
+        className="screen-reveal"
         style={{
           width: "100%",
           maxWidth: 430,
@@ -898,7 +890,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                       letterSpacing: "0.06em",
                     }}
                   >
-                    Set 1–3 priorities that deserve attention now
+                    Set 1-3 priorities that deserve attention now
                   </div>
                 </div>
               ) : (
@@ -918,6 +910,8 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
             <div style={{ paddingTop: 10, paddingBottom: 6, flexShrink: 0 }}>
               <button
                 onClick={() => !atCap && setAddOpen(true)}
+                className="tappable"
+                aria-label={atCap ? "Priority capacity reached" : "Add priority"}
                 style={{
                   background: "none",
                   border: "none",
@@ -937,7 +931,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                   if (!atCap) e.currentTarget.style.color = "#383838";
                 }}
               >
-                {atCap ? "— at capacity" : "+ Add Priority"}
+                {atCap ? "- at capacity" : "+ Add Priority"}
               </button>
             </div>
           </div>
@@ -985,3 +979,6 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
     </div>
   );
 }
+
+
+

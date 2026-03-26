@@ -1,5 +1,22 @@
 import { useEffect, useState } from "react";
-import { supabase } from "./lib/supabase";
+import { getCurrentUser, signOut } from "./data/auth";
+import { loadDomains as fetchDomains, seedDefaultDomains as upsertDefaultDomains } from "./data/domains";
+import { loadPriorities as fetchPriorities } from "./data/priorities";
+import {
+  createStandard,
+  deleteStandard,
+  loadStandards as fetchStandards,
+  normalizeStandardSortOrders,
+  updateStandardText,
+} from "./data/standards";
+import { loadTodayTasks as fetchTodayTasks } from "./data/todayTasks";
+import {
+  createWeeklyAnchor,
+  deleteWeeklyAnchor,
+  loadWeeklyAnchors as fetchWeeklyAnchors,
+  updateWeeklyAnchorSortOrders,
+  updateWeeklyAnchorText,
+} from "./data/weeklyAnchors";
 import { ensureProfile } from "./ensureProfile";
 import Today from "./Today";
 import ArchivedSessions from "./ArchivedSessions";
@@ -9,7 +26,11 @@ import Standards from "./Standards";
 import Settings from "./Settings";
 
 function todayISODate() {
-  return new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 const DOMAINS_DEFAULT = [
@@ -73,7 +94,6 @@ function formatStandardRow(row) {
   };
 }
 
-
 export default function OPPApp() {
   const [screen, setScreen] = useState("home");
   const [domains, setDomains] = useState([]);
@@ -85,17 +105,8 @@ export default function OPPApp() {
   const [userId, setUserId] = useState(null);
 
   async function loadDomains(userIdValue) {
-    const { data, error } = await supabase
-      .from("domains")
-      .select("*")
-      .eq("user_id", userIdValue)
-      .order("created_at", { ascending: true });
-
-    if (error) {
-      throw new Error(`Domains load failed: ${error.message}`);
-    }
-
-    const formattedDomains = (data || []).map((domain) => ({
+    const data = await fetchDomains(userIdValue);
+    const formattedDomains = data.map((domain) => ({
       id: domain.id,
       name: domain.name,
       slug: domain.slug,
@@ -108,91 +119,38 @@ export default function OPPApp() {
   }
 
   async function seedDefaultDomains(userIdValue) {
-    const seedRows = DOMAINS_DEFAULT.map((domain) => ({
-      user_id: userIdValue,
-      name: domain.name,
-      slug: domain.slug,
-    }));
-
-    const { error } = await supabase
-      .from("domains")
-      .upsert(seedRows, { onConflict: "user_id,slug" });
-
-    if (error) {
-      throw new Error(`Domains seed failed: ${error.message}`);
-    }
+    await upsertDefaultDomains(userIdValue, DOMAINS_DEFAULT);
   }
 
   async function loadPriorities(userIdValue, domainsList) {
-    const { data, error } = await supabase
-      .from("priorities")
-      .select("*")
-      .eq("user_id", userIdValue)
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: true });
-
-    if (error) {
-      throw new Error(`Priorities load failed: ${error.message}`);
-    }
-
-    const formattedPriorities = (data || []).map((row) => formatPriorityRow(row, domainsList));
+    const data = await fetchPriorities(userIdValue);
+    const formattedPriorities = data.map((row) => formatPriorityRow(row, domainsList));
     setPriorities(formattedPriorities);
     return formattedPriorities;
   }
 
   async function loadWeeklyAnchors(userIdValue) {
-    const { data, error } = await supabase
-      .from("weekly_anchors")
-      .select("*")
-      .eq("user_id", userIdValue)
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: true });
-
-    if (error) {
-      throw new Error(`Weekly anchors load failed: ${error.message}`);
-    }
-
-    const formattedAnchors = (data || []).map(formatWeeklyAnchorRow);
+    const data = await fetchWeeklyAnchors(userIdValue);
+    const formattedAnchors = data.map(formatWeeklyAnchorRow);
     setWeekAnchors(formattedAnchors);
     return formattedAnchors;
   }
 
   async function loadStandards(userIdValue) {
-    const { data, error } = await supabase
-      .from("standards")
-      .select("*")
-      .eq("user_id", userIdValue)
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: true });
-
-    if (error) {
-      throw new Error(`Standards load failed: ${error.message}`);
-    }
-
-    const formattedStandards = (data || []).map(formatStandardRow);
+    const data = await fetchStandards(userIdValue);
+    const formattedStandards = data.map(formatStandardRow);
     setStandards(formattedStandards);
     return formattedStandards;
   }
 
   async function loadTodayTasks(userIdValue) {
-    const { data, error } = await supabase
-      .from("today_tasks")
-      .select("*")
-      .eq("user_id", userIdValue)
-      .eq("date", todayISODate())
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: true });
-
-    if (error) {
-      throw new Error(`Today tasks load failed: ${error.message}`);
-    }
-
-    const formatted = (data || []).map(formatTodayTaskRow);
+    const data = await fetchTodayTasks(userIdValue, todayISODate());
+    const formatted = data.map(formatTodayTaskRow);
     setTodayTasks(formatted);
     return formatted;
   }
 
-  async function addWeeklyAnchor(text) {
+  async function _addWeeklyAnchor(text) {
     if (!userId) {
       throw new Error("No user found for weekly anchor create.");
     }
@@ -201,27 +159,17 @@ export default function OPPApp() {
     if (!cleanText) return;
     if (weekAnchors.length >= 3) return;
 
-    const nextSortOrder = weekAnchors.length;
-
-    const { data, error } = await supabase
-      .from("weekly_anchors")
-      .insert({
-        user_id: userId,
-        text: cleanText,
-        sort_order: nextSortOrder,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`Weekly anchor create failed: ${error.message}`);
-    }
+    const data = await createWeeklyAnchor({
+      userId,
+      text: cleanText,
+      sortOrder: weekAnchors.length,
+    });
 
     const newAnchor = formatWeeklyAnchorRow(data);
     setWeekAnchors((prev) => [...prev, newAnchor]);
   }
 
-  async function updateWeeklyAnchor(id, text) {
+  async function _updateWeeklyAnchor(id, text) {
     if (!userId) {
       throw new Error("No user found for weekly anchor update.");
     }
@@ -229,17 +177,11 @@ export default function OPPApp() {
     const cleanText = text.trim();
     if (!cleanText) return;
 
-    const { data, error } = await supabase
-      .from("weekly_anchors")
-      .update({ text: cleanText })
-      .eq("id", id)
-      .eq("user_id", userId)
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`Weekly anchor update failed: ${error.message}`);
-    }
+    const data = await updateWeeklyAnchorText({
+      id,
+      userId,
+      text: cleanText,
+    });
 
     const updatedAnchor = formatWeeklyAnchorRow(data);
 
@@ -248,38 +190,15 @@ export default function OPPApp() {
     );
   }
 
-  async function removeWeeklyAnchor(id) {
+  async function _removeWeeklyAnchor(id) {
     if (!userId) {
       throw new Error("No user found for weekly anchor delete.");
     }
 
     const remainingAnchors = weekAnchors.filter((anchor) => anchor.id !== id);
 
-    const { error: deleteError } = await supabase
-      .from("weekly_anchors")
-      .delete()
-      .eq("id", id)
-      .eq("user_id", userId);
-
-    if (deleteError) {
-      throw new Error(`Weekly anchor delete failed: ${deleteError.message}`);
-    }
-
-    for (let index = 0; index < remainingAnchors.length; index += 1) {
-      const anchor = remainingAnchors[index];
-
-      if (anchor.sortOrder !== index) {
-        const { error: reorderError } = await supabase
-          .from("weekly_anchors")
-          .update({ sort_order: index })
-          .eq("id", anchor.id)
-          .eq("user_id", userId);
-
-        if (reorderError) {
-          throw new Error(`Weekly anchor reorder failed: ${reorderError.message}`);
-        }
-      }
-    }
+    await deleteWeeklyAnchor(id, userId);
+    await updateWeeklyAnchorSortOrders(remainingAnchors, userId);
 
     setWeekAnchors(
       remainingAnchors.map((anchor, index) => ({
@@ -300,20 +219,11 @@ export default function OPPApp() {
 
     const nextSortOrder = standards.length;
 
-    const { data, error } = await supabase
-      .from("standards")
-      .insert({
-        user_id: userId,
-        text: cleanText,
-        sort_order: nextSortOrder,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`Standard create failed: ${error.message}`);
-    }
-
+    const data = await createStandard({
+      userId,
+      text: cleanText,
+      sortOrder: nextSortOrder,
+    });
     const newStandard = formatStandardRow(data);
     setStandards((prev) => [...prev, newStandard]);
   }
@@ -326,21 +236,11 @@ export default function OPPApp() {
     const cleanText = text.trim();
     if (!cleanText) return;
 
-    const { data, error } = await supabase
-      .from("standards")
-      .update({
-        text: cleanText,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", id)
-      .eq("user_id", userId)
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`Standard update failed: ${error.message}`);
-    }
-
+    const data = await updateStandardText({
+      id,
+      userId,
+      text: cleanText,
+    });
     const updatedStandard = formatStandardRow(data);
 
     setStandards((prev) =>
@@ -348,45 +248,12 @@ export default function OPPApp() {
     );
   }
 
-  async function normalizeStandardSortOrders(standardRows) {
+  async function syncStandardSortOrders(standardRows) {
     if (!userId) {
       throw new Error("No user found for standard reorder.");
     }
 
-    for (let index = 0; index < standardRows.length; index += 1) {
-      const standard = standardRows[index];
-      const temporarySortOrder = 1000 + index;
-
-      const { error: bumpError } = await supabase
-        .from("standards")
-        .update({
-          sort_order: temporarySortOrder,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", standard.id)
-        .eq("user_id", userId);
-
-      if (bumpError) {
-        throw new Error(`Standard temporary reorder failed: ${bumpError.message}`);
-      }
-    }
-
-    for (let index = 0; index < standardRows.length; index += 1) {
-      const standard = standardRows[index];
-
-      const { error: finalError } = await supabase
-        .from("standards")
-        .update({
-          sort_order: index,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", standard.id)
-        .eq("user_id", userId);
-
-      if (finalError) {
-        throw new Error(`Standard final reorder failed: ${finalError.message}`);
-      }
-    }
+    await normalizeStandardSortOrders(standardRows, userId);
 
     setStandards(
       standardRows.map((standard, index) => ({
@@ -403,17 +270,8 @@ export default function OPPApp() {
 
     const remainingStandards = standards.filter((standard) => standard.id !== id);
 
-    const { error: deleteError } = await supabase
-      .from("standards")
-      .delete()
-      .eq("id", id)
-      .eq("user_id", userId);
-
-    if (deleteError) {
-      throw new Error(`Standard delete failed: ${deleteError.message}`);
-    }
-
-    await normalizeStandardSortOrders(remainingStandards);
+    await deleteStandard(id, userId);
+    await syncStandardSortOrders(remainingStandards);
   }
 
   async function reorderStandards(nextStandardIds) {
@@ -430,7 +288,7 @@ export default function OPPApp() {
       throw new Error("Standard reorder list was incomplete.");
     }
 
-    await normalizeStandardSortOrders(reorderedStandards);
+    await syncStandardSortOrders(reorderedStandards);
   }
 
   useEffect(() => {
@@ -438,16 +296,7 @@ export default function OPPApp() {
       try {
         setAppError("");
 
-        const {
-          data: { user },
-          error: userError,
-        } = await supabase.auth.getUser();
-
-        if (userError || !user) {
-          await supabase.auth.signOut();
-          return;
-        }
-
+        const user = await getCurrentUser();
         setUserId(user.id);
 
         const { error: profileError } = await ensureProfile();
@@ -504,15 +353,11 @@ export default function OPPApp() {
         priorities={priorities}
         setPriorities={setPriorities}
         domains={domains}
+        userId={userId}
       />
     );
   } else if (screen === "settings") {
-    content = (
-      <Settings
-        onNavigate={setScreen}
-        onSignOut={async () => { await supabase.auth.signOut(); }}
-      />
-    );
+    content = <Settings onNavigate={setScreen} onSignOut={signOut} />;
   } else if (screen === "standards") {
     content = (
       <Standards
@@ -532,7 +377,7 @@ export default function OPPApp() {
         tasks={todayTasks}
         setTasks={setTodayTasks}
         userId={userId}
-        onSignOut={async () => { await supabase.auth.signOut(); }}
+        onSignOut={signOut}
       />
     );
   }
