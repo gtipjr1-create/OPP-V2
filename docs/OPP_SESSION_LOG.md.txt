@@ -24,3 +24,26 @@ System cleanup and project continuity setup.
 
 ### Next Session Start Point
 - create project folders and docs in VS Code, then begin moving over active context
+
+## March 26, 2026
+
+### Session Focus
+OPP v1 refinement and model-coherence tightening.
+
+### What I Completed
+- locked screen roles and vocabulary in active docs
+- tightened Today as re-entry/orientation surface
+- reinforced Priorities as focus management layer
+- strengthened Domains as structural life lanes
+- elevated Standards into a governing-rule experience
+- added glossary to Settings using collapsed-by-default sections
+- completed final UI polish (font scale, spacing rhythm, icon restoration, nav typography)
+
+### Key Decisions
+- no feature-breadth expansion during this phase
+- glossary should support model clarity, not compensate for unclear screens
+- keep duplicate information only when it serves orientation or management
+
+### Verification
+- lint passed
+- build passed

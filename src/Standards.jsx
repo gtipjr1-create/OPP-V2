@@ -1,7 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import BottomNav from "./BottomNav";
 
-function StandardRow({ standard, onDelete, onTap, isDragging, isOver }) {
+function formatRuleNumber(index) {
+  return String(index + 1).padStart(2, "0");
+}
+
+function StandardRow({ standard, ruleNumber, onDelete, onTap, isDragging, isOver }) {
   const swipeX = useRef(0);
   const startX = useRef(0);
   const [offset, setOffset] = useState(0);
@@ -86,20 +90,43 @@ function StandardRow({ standard, onDelete, onTap, isDragging, isOver }) {
       >
         <div
           onClick={() => !isDragging && offset === 0 && onTap(standard)}
+          className="tappable"
           style={{ flex: 1, minWidth: 0, cursor: "pointer" }}
         >
+          <div
+            style={{
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 9,
+              color: "#5d5d5d",
+              letterSpacing: "0.08em",
+              marginBottom: 5,
+            }}
+          >
+            RULE {ruleNumber}
+          </div>
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: 14,
-              fontWeight: 400,
-              color: "#e0e0e0",
-              lineHeight: 1.55,
+              fontSize: 15,
+              fontWeight: 500,
+              color: "#e6e6e6",
+              lineHeight: 1.45,
               margin: 0,
             }}
           >
             {standard.text}
           </p>
+          <div
+            style={{
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 9,
+              color: "#3f3f3f",
+              letterSpacing: "0.06em",
+              marginTop: 6,
+            }}
+          >
+            TAP TO EDIT
+          </div>
         </div>
 
         <div
@@ -173,8 +200,14 @@ export default function Standards({
 
   async function handleAdd() {
     const cleanDraft = draft.trim();
-    if (!cleanDraft) { setLocalError("Write the standard first."); return; }
-    if (hasReachedMax) { setLocalError(`Maximum ${maxStandards} standards.`); return; }
+    if (!cleanDraft) {
+      setLocalError("Write the standard first.");
+      return;
+    }
+    if (hasReachedMax) {
+      setLocalError(`Maximum ${maxStandards} standards.`);
+      return;
+    }
 
     try {
       setIsSaving(true);
@@ -191,7 +224,10 @@ export default function Standards({
   async function handleSaveEdit() {
     const cleanText = editingText.trim();
     if (!editingId) return;
-    if (!cleanText) { setLocalError("Standard cannot be empty."); return; }
+    if (!cleanText) {
+      setLocalError("Standard cannot be empty.");
+      return;
+    }
 
     try {
       setIsSaving(true);
@@ -219,12 +255,21 @@ export default function Standards({
   }
 
   async function handleEditKeyDown(e) {
-    if (e.key === "Enter") { e.preventDefault(); await handleSaveEdit(); }
-    if (e.key === "Escape") { e.preventDefault(); cancelEdit(); }
+    if (e.key === "Enter") {
+      e.preventDefault();
+      await handleSaveEdit();
+    }
+    if (e.key === "Escape") {
+      e.preventDefault();
+      cancelEdit();
+    }
   }
 
   async function handleDraftKeyDown(e) {
-    if (e.key === "Enter") { e.preventDefault(); await handleAdd(); }
+    if (e.key === "Enter") {
+      e.preventDefault();
+      await handleAdd();
+    }
   }
 
   const getIndexAtY = useCallback((clientY) => {
@@ -246,7 +291,10 @@ export default function Standards({
     const rows = Array.from(listRef.current?.children || []);
     let idx = null;
     for (let i = 0; i < rows.length; i++) {
-      if (rows[i].contains(e.target)) { idx = i; break; }
+      if (rows[i].contains(e.target)) {
+        idx = i;
+        break;
+      }
     }
     if (idx === null) return;
     const id = displayRef.current[idx]?.id;
@@ -313,6 +361,7 @@ export default function Standards({
       }}
     >
       <div
+        className="screen-reveal"
         style={{
           width: "100%",
           maxWidth: 430,
@@ -345,10 +394,21 @@ export default function Standards({
               letterSpacing: "-0.01em",
               lineHeight: 1.1,
               textAlign: "center",
+              marginBottom: 6,
             }}
           >
             Standards
           </h1>
+          <span
+            style={{
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 10,
+              color: "#383838",
+              letterSpacing: "0.06em",
+            }}
+          >
+            Governing layer
+          </span>
         </div>
 
         <div
@@ -367,10 +427,25 @@ export default function Standards({
               fontFamily: "'IBM Plex Mono', monospace",
               color: "#555",
               border: "1px solid #2a2a2a",
+              letterSpacing: "0.06em",
             }}
           >
             Non-Negotiables · {sortedStandards.length}/{maxStandards}
           </span>
+        </div>
+
+        <div
+          style={{
+            marginBottom: 14,
+            paddingInline: 14,
+            textAlign: "center",
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 12,
+            color: "#666",
+            lineHeight: 1.4,
+          }}
+        >
+          These rules govern behavior across mood, energy, and circumstances.
         </div>
 
         <div style={{ flex: 1, overflowY: "auto", paddingInline: 14 }}>
@@ -393,7 +468,7 @@ export default function Standards({
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={handleDraftKeyDown}
-              placeholder={hasReachedMax ? "Maximum reached" : "Add a standard"}
+              placeholder={hasReachedMax ? "Maximum reached" : "Write a governing rule"}
               disabled={hasReachedMax || isSaving}
               style={{
                 flex: 1,
@@ -410,6 +485,7 @@ export default function Standards({
             />
             <button
               onClick={handleAdd}
+              className="tappable"
               disabled={hasReachedMax || isSaving}
               style={{
                 flexShrink: 0,
@@ -427,6 +503,18 @@ export default function Standards({
             </button>
           </div>
 
+          <div
+            style={{
+              marginBottom: 10,
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 10,
+              color: "#525252",
+              letterSpacing: "0.04em",
+            }}
+          >
+            DIRECT · OPERATIONAL · REPEATABLE
+          </div>
+
           {localError ? (
             <div style={{ marginBottom: 8, fontSize: 12, color: "#8a8a8a", lineHeight: 1.4 }}>
               {localError}
@@ -435,11 +523,14 @@ export default function Standards({
 
           {displayStandards.length === 0 ? (
             <div style={{ paddingTop: 16 }}>
-              <p style={{ color: "#6e6e6e", fontSize: 14, lineHeight: 1.6 }}>
-                No standards set yet.
+              <p style={{ color: "#b0b0b0", fontSize: 14, lineHeight: 1.6 }}>
+                No governing rules defined yet.
               </p>
-              <p style={{ color: "#4f4f4f", fontSize: 13, lineHeight: 1.6, marginTop: 4 }}>
-                Define the rules you operate by.
+              <p style={{ color: "#6a6a6a", fontSize: 13, lineHeight: 1.6, marginTop: 4 }}>
+                Standards should be clear enough to follow even when motivation is low.
+              </p>
+              <p style={{ color: "#4f4f4f", fontSize: 12, lineHeight: 1.6, marginTop: 6 }}>
+                Example shape: "Finish planned work before drift."
               </p>
             </div>
           ) : (
@@ -490,6 +581,7 @@ export default function Standards({
                   <StandardRow
                     key={standard.id}
                     standard={standard}
+                    ruleNumber={formatRuleNumber(index)}
                     onDelete={handleDelete}
                     onTap={startEdit}
                     isDragging={dragId === standard.id}
@@ -506,3 +598,5 @@ export default function Standards({
     </div>
   );
 }
+
+

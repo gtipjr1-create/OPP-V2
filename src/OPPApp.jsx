@@ -376,6 +376,9 @@ export default function OPPApp() {
         onNavigate={setScreen}
         tasks={todayTasks}
         setTasks={setTodayTasks}
+        priorities={priorities}
+        weekAnchors={weekAnchors}
+        domains={domains}
         userId={userId}
         onSignOut={signOut}
       />

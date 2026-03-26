@@ -5,7 +5,7 @@ import {
   createPriority,
 } from "./data/priorities";
 
-const HORIZONS = ["Today", "This week", "Sustained", "Season"];
+const HORIZONS = ["Today", "This week", "Ongoing", "Season"];
 const IDEAL = 3;
 const MAX = 5;
 
@@ -52,9 +52,24 @@ function formatPriorityRow(row, domainsList) {
 }
 
 const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
-  const availableDomains = domains.length > 0 ? domains.map((domain) => domain.name) : ["Build"];
+  const domainChoices = domains.length > 0
+    ? [...domains]
+        .sort((a, b) => {
+          const aScore = a.status === "Active" ? 0 : 1;
+          const bScore = b.status === "Active" ? 0 : 1;
+          if (aScore !== bScore) return aScore - bScore;
+          return a.name.localeCompare(b.name);
+        })
+        .map((domain) => ({
+          name: domain.name,
+          status: domain.status === "Active" ? "Active" : "Steady",
+        }))
+    : [{ name: "Build", status: "Active" }];
+
   const [label, setLabel] = useState("");
-  const [domain, setDomain] = useState(availableDomains.includes("Build") ? "Build" : availableDomains[0]);
+  const [domain, setDomain] = useState(
+    domainChoices.find((choice) => choice.status === "Active")?.name ?? domainChoices[0]?.name ?? "Build"
+  );
   const [horizon, setHorizon] = useState("This week");
 
   const handleAdd = () => {
@@ -62,12 +77,12 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
     onAdd({ label: label.trim(), domain, horizon });
   };
 
-  const chip = (active) => ({
+  const chip = (active, status) => ({
     padding: "5px 13px",
     borderRadius: 20,
     border: `1px solid ${active ? "#4A9EFF" : "#222"}`,
     background: active ? "rgba(74,158,255,0.07)" : "transparent",
-    color: active ? "#4A9EFF" : "#444",
+    color: active ? "#4A9EFF" : status === "Steady" ? "#373737" : "#444",
     fontFamily: "'IBM Plex Mono', monospace",
     fontSize: 10,
     fontWeight: 500,
@@ -129,11 +144,35 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
           DOMAIN
         </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
-          {availableDomains.map((d) => (
-            <button key={d} className="tappable" onClick={() => !isSaving && setDomain(d)} disabled={isSaving} style={chip(domain === d)}>
-              {d.toUpperCase()}
+          {domainChoices.map((choice) => (
+            <button
+              key={choice.name}
+              className="tappable"
+              onClick={() => !isSaving && setDomain(choice.name)}
+              disabled={isSaving}
+              style={chip(domain === choice.name, choice.status)}
+            >
+              {choice.name.toUpperCase()}
             </button>
           ))}
+        </div>
+
+        <div
+          style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 10,
+            color:
+              domainChoices.find((choice) => choice.name === domain)?.status === "Steady"
+                ? "#6d5f42"
+                : "#3f4f63",
+            letterSpacing: "0.04em",
+            marginTop: -8,
+            marginBottom: 12,
+          }}
+        >
+          {domainChoices.find((choice) => choice.name === domain)?.status === "Steady"
+            ? "STEADY DOMAIN - maintenance lane"
+            : "ACTIVE DOMAIN - current push lane"}
         </div>
 
         <div
@@ -788,7 +827,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
               letterSpacing: "0.06em",
             }}
           >
-            What matters now
+            Focus management layer
           </span>
         </div>
 
@@ -880,7 +919,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                       marginBottom: 6,
                     }}
                   >
-                    No focus locked
+                    No commitments in focus
                   </div>
                   <div
                     style={{
@@ -889,10 +928,10 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                       color: "#555",
                       letterSpacing: "0.06em",
                     }}
-                  >
-                    Set 1-3 priorities that deserve attention now
+                    >
+                      Set 1-3 priorities that deserve attention now
+                    </div>
                   </div>
-                </div>
               ) : (
                 active.map((p, index) => (
                   <PriorityRow

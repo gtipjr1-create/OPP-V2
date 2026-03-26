@@ -3,6 +3,13 @@ import BottomNav from "./BottomNav";
 import { supabase } from "./lib/supabase";
 import { createTodayTask } from "./data/todayTasks";
 
+const HORIZON_ORDER = {
+  today: 0,
+  "this week": 1,
+  ongoing: 2,
+  season: 3,
+};
+
 function todayDateLabel() {
   const now = new Date();
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -11,6 +18,27 @@ function todayDateLabel() {
   const d = now.getDate();
   const yy = String(now.getFullYear()).slice(-2);
   return `${day} / ${m}.${d}.${yy}`;
+}
+
+function normalizeHorizon(horizon) {
+  const value = String(horizon || "").trim().toLowerCase();
+  if (value === "thisweek") return "this week";
+  if (value === "sustained") return "ongoing";
+  if (value in HORIZON_ORDER) return value;
+  return "this week";
+}
+
+function horizonLabel(horizon) {
+  const key = normalizeHorizon(horizon);
+  if (key === "today") return "TODAY";
+  if (key === "this week") return "THIS WEEK";
+  if (key === "ongoing") return "ONGOING";
+  if (key === "season") return "SEASON";
+  return "THIS WEEK";
+}
+
+function horizonWeight(horizon) {
+  return HORIZON_ORDER[normalizeHorizon(horizon)] ?? HORIZON_ORDER["this week"];
 }
 
 function localISODate() {
@@ -61,24 +89,6 @@ async function updateTodayTaskSortOrdersForUser(tasks, userId) {
     throw new Error(`Today task reorder failed: ${failed.error.message}`);
   }
 }
-
-const SHEET_STYLE = {
-  position: "relative",
-  background: "#000000",
-  borderRadius: "20px 20px 0 0",
-  border: "1px solid #1e1e1e",
-  borderBottom: "none",
-  padding: "20px 20px 36px",
-  animation: "sheetUp 0.38s cubic-bezier(0.16,1,0.3,1) forwards",
-};
-
-const SHEET_HANDLE = {
-  width: 36,
-  height: 4,
-  background: "#333",
-  borderRadius: 2,
-  margin: "0 auto 20px",
-};
 
 const CheckIcon = ({ checked }) => (
   <div
@@ -173,7 +183,7 @@ function TaskRow({ task, onToggle, onDelete, isDragging, isOver }) {
           display: "flex",
           alignItems: "center",
           gap: 12,
-          padding: isDragging ? "13px 10px" : "13px 0",
+          padding: isDragging ? "14px 10px" : "14px 0",
           marginLeft: isDragging ? -10 : 0,
           marginRight: isDragging ? -10 : 0,
           opacity: isOver ? 0.25 : task.done ? 0.38 : 1,
@@ -205,11 +215,11 @@ function TaskRow({ task, onToggle, onDelete, isDragging, isOver }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
-              fontSize: 14,
+              fontSize: 15,
               fontWeight: 400,
               color: task.done ? "#383838" : "#d0d0d0",
               fontFamily: "'DM Sans', sans-serif",
-              lineHeight: 1.35,
+              lineHeight: 1.4,
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
@@ -238,71 +248,73 @@ function TaskRow({ task, onToggle, onDelete, isDragging, isOver }) {
   );
 }
 
-const SettingsSheet = ({ onClose, onSignOut }) => (
-  <div
-    style={{
-      position: "absolute",
-      inset: 0,
-      zIndex: 20,
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "flex-end",
-    }}
-  >
+function OrientationPanel({ label, actionLabel, onAction, children }) {
+  return (
     <div
-      onClick={onClose}
-      style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)" }}
-    />
-    <div style={SHEET_STYLE}>
-      <div style={SHEET_HANDLE} />
+      style={{
+        border: "1px solid #1d1d1d",
+        borderRadius: 12,
+        padding: "12px 13px",
+        background: "#090909",
+        marginBottom: 12,
+      }}
+    >
       <div
         style={{
-          fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 10,
-          color: "#383838",
-          letterSpacing: "0.14em",
-          marginBottom: 4,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 8,
+          marginBottom: 8,
         }}
       >
-        ACCOUNT
-      </div>
-      <div style={{ borderRadius: 12, overflow: "hidden", border: "1px solid #1e1e1e" }}>
-        <button
-          type="button"
-          onClick={onSignOut}
-          className="tappable"
+        <span
           style={{
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "13px 14px",
-            cursor: "pointer",
-            background: "#000",
-            border: "none",
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 11,
+            fontWeight: 500,
+            color: "#4a4a4a",
+            letterSpacing: "0.08em",
           }}
         >
-          <span
+          {label}
+        </span>
+        {onAction ? (
+          <button
+            type="button"
+            onClick={onAction}
+            className="tappable"
             style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 14,
-              color: "#bbb",
-              fontWeight: 400,
+              background: "none",
+              border: "none",
+              color: "#3f3f3f",
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 11,
+              letterSpacing: "0.06em",
+              cursor: "pointer",
+              padding: 0,
             }}
           >
-            Sign Out
-          </span>
-          <span style={{ color: "#333", fontSize: 16 }}>&rsaquo;</span>
-        </button>
+            {actionLabel}
+          </button>
+        ) : null}
       </div>
+      {children}
     </div>
-  </div>
-);
+  );
+}
 
-export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }) {
+export default function Today({
+  onNavigate,
+  tasks,
+  setTasks,
+  priorities = [],
+  weekAnchors = [],
+  domains = [],
+  userId,
+}) {
   const [quickAdd, setQuickAdd] = useState("");
   const [isAdding, setIsAdding] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [actionError, setActionError] = useState("");
   const [dragId, setDragId] = useState(null);
   const [overIndex, setOverIndex] = useState(null);
@@ -316,6 +328,15 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
   const dateLabel = todayDateLabel();
   const doneCount = tasks.filter((t) => t.done).length;
   const total = tasks.length;
+  const activePriorities = priorities.filter((p) => !p.deferred);
+  const activeDomains = domains.filter((d) => d.status === "Active");
+  const todayHorizonCount = activePriorities.filter((p) => normalizeHorizon(p.horizon) === "today").length;
+  const weeklyHorizonCount = activePriorities.filter(
+    (p) => normalizeHorizon(p.horizon) === "this week"
+  ).length;
+  const previewPriorities = [...activePriorities]
+    .sort((a, b) => horizonWeight(a.horizon) - horizonWeight(b.horizon))
+    .slice(0, 4);
 
   async function addTask() {
     const label = quickAdd.trim();
@@ -446,23 +467,6 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
     clearTimeout(holdTimer.current);
   }, []);
 
-  let statusText = "No tasks";
-  let statusColor = "#333";
-  let statusBorder = "#1e1e1e";
-
-  if (total > 0) {
-    if (doneCount === total) {
-      statusText = "All done";
-      statusColor = "#34C759";
-      statusBorder = "rgba(52,199,89,0.35)";
-    } else {
-      statusText =
-        doneCount === 0 ? `${total} task${total !== 1 ? "s" : ""}` : `${doneCount} of ${total} done`;
-      statusColor = "#4A9EFF";
-      statusBorder = "rgba(74,158,255,0.3)";
-    }
-  }
-
   return (
     <div
       style={{
@@ -493,7 +497,7 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
       >
         <div
           style={{
-            height: 44,
+            height: 46,
             flexShrink: 0,
             display: "flex",
             alignItems: "center",
@@ -502,20 +506,22 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
           }}
         >
           <button
-            onClick={() => setSettingsOpen(true)}
+            onClick={() => onNavigate("settings")}
             className="tappable"
-            aria-label="Open account settings"
+            aria-label="Open settings"
             style={{
               background: "none",
               border: "none",
-              color: "#3a3a3a",
-              fontSize: 17,
+              color: "#4a4a4a",
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 11,
+              fontWeight: 500,
+              letterSpacing: "0.08em",
               cursor: "pointer",
-              letterSpacing: "3px",
-              padding: "4px 2px",
+              padding: "4px 0",
             }}
           >
-            ...
+            SETTINGS
           </button>
         </div>
 
@@ -524,21 +530,27 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: 8,
+            marginBottom: 12,
             flexShrink: 0,
             paddingInline: 14,
           }}
         >
+          <img
+            src="/icons/favicon-32.png"
+            alt=""
+            aria-hidden="true"
+            style={{ width: 24, height: 24, opacity: 0.45, marginBottom: 10 }}
+          />
           <h1
             style={{
               fontFamily: "'DM Serif Display', serif",
-              fontSize: 28,
+              fontSize: 32,
               fontWeight: 400,
               color: "#f0f0f0",
               letterSpacing: "-0.01em",
               lineHeight: 1.1,
               textAlign: "center",
-              marginBottom: 6,
+              marginBottom: 7,
             }}
           >
             {dateLabel}
@@ -546,37 +558,12 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
           <span
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 10,
+              fontSize: 11,
               color: "#383838",
               letterSpacing: "0.06em",
             }}
           >
             Today
-          </span>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginBottom: 10,
-            flexShrink: 0,
-          }}
-        >
-          <span
-            style={{
-              padding: "3px 9px",
-              borderRadius: 20,
-              fontSize: 10,
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontWeight: 500,
-              color: statusColor,
-              border: `1px solid ${statusBorder}`,
-              letterSpacing: "0.06em",
-              transition: "all 0.3s ease",
-            }}
-          >
-            {statusText}
           </span>
         </div>
 
@@ -597,6 +584,192 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
         ) : null}
 
         <div style={{ flex: 1, overflowY: "auto", paddingInline: 14 }}>
+          <OrientationPanel label="ACTIVE SESSION">
+            <div
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 14,
+                color: "#c7c7c7",
+                marginBottom: 4,
+              }}
+            >
+              {total === 0
+                ? "No re-entry tasks defined."
+                : `${doneCount}/${total} re-entry tasks complete.`}
+            </div>
+            <div
+                style={{
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: 11,
+                  color: "#5a5a5a",
+                  letterSpacing: "0.04em",
+                }}
+            >
+              {activePriorities.length} in focus · {activeDomains.length} active domains
+            </div>
+            {(todayHorizonCount > 0 || weeklyHorizonCount > 0) && (
+              <div
+                style={{
+                  marginTop: 4,
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: 11,
+                  color: "#4a4a4a",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                {todayHorizonCount} today-facing · {weeklyHorizonCount} week-facing
+              </div>
+            )}
+          </OrientationPanel>
+
+          <OrientationPanel
+            label="CURRENT FOCUS"
+            actionLabel="MANAGE"
+            onAction={() => onNavigate("priorities")}
+          >
+            {previewPriorities.length === 0 ? (
+              <div
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 13,
+                  color: "#727272",
+                  fontStyle: "italic",
+                }}
+              >
+                No priorities in focus.
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                {previewPriorities.map((priority) => (
+                  <div key={priority.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span
+                      style={{
+                        width: 4,
+                        height: 4,
+                        borderRadius: 99,
+                        background: "#4A9EFF",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span
+                      style={{
+                        flex: 1,
+                        minWidth: 0,
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: 14,
+                        color:
+                          normalizeHorizon(priority.horizon) === "today"
+                            ? "#d5d5d5"
+                            : normalizeHorizon(priority.horizon) === "this week"
+                            ? "#c7c7c7"
+                            : "#9a9a9a",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {priority.label}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: "'IBM Plex Mono', monospace",
+                        fontSize: 10,
+                        color:
+                          normalizeHorizon(priority.horizon) === "today"
+                            ? "#4A9EFF"
+                            : "#4f4f4f",
+                        letterSpacing: "0.05em",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {horizonLabel(priority.horizon)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </OrientationPanel>
+
+          <OrientationPanel label="THIS WEEK">
+            {weekAnchors.length === 0 ? (
+              <div
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 14,
+                  color: "#727272",
+                  fontStyle: "italic",
+                }}
+              >
+                No weekly anchors yet.
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                {weekAnchors.slice(0, 3).map((anchor) => (
+                  <div
+                    key={anchor.id}
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 14,
+                      color: "#c7c7c7",
+                      lineHeight: 1.35,
+                    }}
+                  >
+                    {anchor.text}
+                  </div>
+                ))}
+              </div>
+            )}
+          </OrientationPanel>
+
+          <OrientationPanel
+            label="DOMAINS"
+            actionLabel="OPEN"
+            onAction={() => onNavigate("domains")}
+          >
+            {activeDomains.length === 0 ? (
+              <div
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 14,
+                  color: "#727272",
+                  fontStyle: "italic",
+                }}
+              >
+                No active domains set.
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                {activeDomains.slice(0, 3).map((domain) => (
+                  <div key={domain.id} style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
+                    <span
+                    style={{
+                      fontFamily: "'IBM Plex Mono', monospace",
+                      fontSize: 11,
+                      color: "#4A9EFF",
+                        letterSpacing: "0.06em",
+                        minWidth: 56,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {domain.name.toUpperCase()}
+                    </span>
+                    <span
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 14,
+                      color: domain.focus ? "#9a9a9a" : "#6f6f6f",
+                      fontStyle: domain.focus ? "normal" : "italic",
+                      lineHeight: 1.35,
+                      }}
+                    >
+                      {domain.focus || "No emphasis set"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </OrientationPanel>
+
           <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
             <input
               value={quickAdd}
@@ -611,8 +784,8 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
                 borderRadius: 9,
                 color: "#ccc",
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 14,
-                padding: "10px 12px",
+                fontSize: 15,
+                padding: "11px 13px",
                 outline: "none",
                 opacity: isAdding ? 0.7 : 1,
               }}
@@ -623,8 +796,8 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
               aria-label="Add task"
               disabled={!quickAdd.trim() || isAdding}
               style={{
-                width: 38,
-                height: 38,
+                width: 40,
+                height: 40,
                 borderRadius: 9,
                 background:
                   quickAdd.trim() && !isAdding ? "rgba(74,158,255,0.1)" : "transparent",
@@ -632,7 +805,7 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
                   quickAdd.trim() && !isAdding ? "rgba(74,158,255,0.35)" : "#222"
                 }`,
                 color: quickAdd.trim() && !isAdding ? "#4A9EFF" : "#2e2e2e",
-                fontSize: 20,
+                fontSize: 22,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -649,13 +822,13 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
             <span
               style={{
                 fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 10,
+                fontSize: 11,
                 fontWeight: 500,
                 color: "#555",
                 letterSpacing: "0.1em",
               }}
             >
-              TASKS
+              RE-ENTRY TASKS
             </span>
           </div>
 
@@ -710,13 +883,6 @@ export default function Today({ onNavigate, tasks, setTasks, userId, onSignOut }
         </div>
 
         <BottomNav current="home" onNavigate={onNavigate} />
-
-        {settingsOpen && (
-          <SettingsSheet
-            onClose={() => setSettingsOpen(false)}
-            onSignOut={onSignOut}
-          />
-        )}
       </div>
     </div>
   );

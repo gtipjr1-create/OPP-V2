@@ -1,9 +1,21 @@
-import { useState } from "react";
-import { supabase } from "./lib/supabase";
+﻿import { useState } from "react";
 import BottomNav from "./BottomNav";
+import { updateDomain } from "./data/domains";
 
 const STATUSES = ["Active", "Steady"];
 const MAX_ACTIVE_DOMAINS = 3;
+const DOMAIN_PURPOSES = {
+  Health: "Energy, recovery, and physical capability.",
+  Work: "Career output, reliability, and contribution.",
+  Build: "Long-arc projects and asset creation.",
+  Mind: "Mental clarity, reflection, and learning.",
+  Write: "Expression, thinking, and publishing practice.",
+  Life: "Home, logistics, relationships, and stability.",
+};
+
+function domainPurpose(name) {
+  return DOMAIN_PURPOSES[name] || "A structural lane of life allocation.";
+}
 
 const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCap }) => {
   const [status, setStatus] = useState(domain.status === "Active" ? "Active" : "Steady");
@@ -102,6 +114,21 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
           })}
         </div>
 
+        <div
+          style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 12,
+            color: status === "Active" ? "#6f86a1" : "#6a6a6a",
+            lineHeight: 1.4,
+            marginTop: -10,
+            marginBottom: 14,
+          }}
+        >
+          {status === "Active"
+            ? "Active means this lane receives current push and can shape Today focus."
+            : "Steady means this lane stays maintained without current push pressure."}
+        </div>
+
         {atActiveCap && status !== "Active" && (
           <div
             style={{
@@ -125,6 +152,30 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
             marginBottom: 8,
           }}
         >
+          PURPOSE
+        </div>
+
+        <div
+          style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 12,
+            color: "#707070",
+            lineHeight: 1.4,
+            marginBottom: 12,
+          }}
+        >
+          {domainPurpose(domain.name)}
+        </div>
+
+        <div
+          style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 10,
+            color: "#444",
+            letterSpacing: "0.08em",
+            marginBottom: 8,
+          }}
+        >
           CURRENT FOCUS
         </div>
 
@@ -133,7 +184,7 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
           value={focus}
           onChange={(e) => setFocus(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !isSaving && handleSave()}
-          placeholder="What are you pointed at right now?"
+          placeholder="What is this lane pointed at right now?"
           disabled={isSaving}
           style={{
             width: "100%",
@@ -302,7 +353,7 @@ function SteadyDomainRow({ domain, onTap, isLast }) {
           </div>
         )}
       </div>
-      <span style={{ color: "#222", fontSize: 14, flexShrink: 0 }}>›</span>
+      <span style={{ color: "#222", fontSize: 14, flexShrink: 0 }}>&rsaquo;</span>
     </div>
   );
 }
@@ -319,19 +370,11 @@ export default function Domains({ onNavigate, domains, setDomains }) {
       setIsSaving(true);
       setSaveError("");
 
-      const { data, error } = await supabase
-        .from("domains")
-        .update({
-          status: updated.status,
-          focus: updated.focus,
-        })
-        .eq("id", updated.id)
-        .select()
-        .single();
-
-      if (error) {
-        throw error;
-      }
+      const data = await updateDomain({
+        id: updated.id,
+        status: updated.status,
+        focus: updated.focus,
+      });
 
       setDomains((prev) =>
         prev.map((d) =>
@@ -375,8 +418,8 @@ export default function Domains({ onNavigate, domains, setDomains }) {
         overflow: "hidden",
       }}
     >
-
       <div
+        className="screen-reveal"
         style={{
           width: "100%",
           maxWidth: 430,
@@ -422,7 +465,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
               letterSpacing: "0.06em",
             }}
           >
-            Life structure
+            Structural life lanes
           </span>
         </div>
 
@@ -464,6 +507,17 @@ export default function Domains({ onNavigate, domains, setDomains }) {
             >
               ACTIVE
             </div>
+            <div
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 12,
+                color: "#5f5f5f",
+                lineHeight: 1.35,
+                marginBottom: 8,
+              }}
+            >
+              Active lanes receive deliberate advancement now.
+            </div>
 
             {activeDomains.length === 0 ? (
               <div style={{ padding: "12px 0" }}>
@@ -486,7 +540,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
                     letterSpacing: "0.06em",
                   }}
                 >
-                  Tap a domain to mark it active
+                  Promote a lane to active when it needs deliberate push
                 </div>
               </div>
             ) : (
@@ -511,6 +565,17 @@ export default function Domains({ onNavigate, domains, setDomains }) {
                 }}
               >
                 STEADY
+              </div>
+              <div
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 12,
+                  color: "#595959",
+                  lineHeight: 1.35,
+                  marginBottom: 8,
+                }}
+              >
+                Steady lanes remain maintained and visible.
               </div>
               <div>
                 {steadyDomains.map((domain, i) => (
@@ -547,3 +612,5 @@ export default function Domains({ onNavigate, domains, setDomains }) {
     </div>
   );
 }
+
+
