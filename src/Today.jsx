@@ -206,7 +206,9 @@ function TaskRow({ task, onToggle, onDelete, isDragging, isOver }) {
           type="button"
           onClick={() => !isDragging && offset === 0 && onToggle(task.id)}
           className="tappable"
-          aria-label={task.done ? `Mark "${task.label}" as not done` : `Mark "${task.label}" as done`}
+          aria-label={
+            task.done ? `Mark day item "${task.label}" as not done` : `Mark day item "${task.label}" as done`
+          }
           style={{ flexShrink: 0, cursor: "pointer", background: "none", border: "none" }}
         >
           <CheckIcon checked={task.done} />
@@ -359,7 +361,7 @@ export default function Today({
       ]);
       setQuickAdd("");
     } catch (error) {
-      setActionError(error.message || "Could not add task.");
+      setActionError(error.message || "Could not add day item.");
     } finally {
       setIsAdding(false);
     }
@@ -377,7 +379,7 @@ export default function Today({
       await updateTodayTaskDoneForUser(id, nextDone, userId);
     } catch (error) {
       setTasks(previous);
-      setActionError(error.message || "Could not update task.");
+      setActionError(error.message || "Could not update day item.");
     }
   }
 
@@ -389,7 +391,7 @@ export default function Today({
       await deleteTodayTaskForUser(id, userId);
     } catch (error) {
       setTasks(previous);
-      setActionError(error.message || "Could not delete task.");
+      setActionError(error.message || "Could not delete day item.");
     }
   }
 
@@ -594,8 +596,8 @@ export default function Today({
               }}
             >
               {total === 0
-                ? "No re-entry tasks defined."
-                : `${doneCount}/${total} re-entry tasks complete.`}
+                ? "No day items defined."
+                : `${doneCount}/${total} day items complete.`}
             </div>
             <div
                 style={{
@@ -636,7 +638,7 @@ export default function Today({
                   fontStyle: "italic",
                 }}
               >
-                No priorities in focus.
+                No commitments in focus.
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
@@ -775,7 +777,7 @@ export default function Today({
               value={quickAdd}
               onChange={(e) => setQuickAdd(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addTask()}
-              placeholder="Add a task..."
+              placeholder="Add day item..."
               disabled={isAdding}
               style={{
                 flex: 1,
@@ -793,7 +795,7 @@ export default function Today({
             <button
               onClick={addTask}
               className="tappable"
-              aria-label="Add task"
+              aria-label="Add day item"
               disabled={!quickAdd.trim() || isAdding}
               style={{
                 width: 40,
@@ -828,7 +830,7 @@ export default function Today({
                 letterSpacing: "0.1em",
               }}
             >
-              RE-ENTRY TASKS
+              DAY ITEMS
             </span>
           </div>
 
@@ -854,7 +856,7 @@ export default function Today({
                     marginBottom: 6,
                   }}
                 >
-                  No tasks yet
+                  No day items yet
                 </div>
                 <div
                   style={{
@@ -864,7 +866,7 @@ export default function Today({
                     letterSpacing: "0.06em",
                   }}
                 >
-                  Add what needs to get done today
+                  Capture what needs to be handled today
                 </div>
               </div>
             ) : (

@@ -108,7 +108,7 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
       />
       <div style={SHEET_STYLE}>
         <div style={SHEET_HANDLE} />
-        <div style={SHEET_LABEL}>ADD PRIORITY</div>
+        <div style={SHEET_LABEL}>ADD COMMITMENT</div>
 
         <input
           autoFocus
@@ -226,7 +226,7 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
             transition: "all 0.2s ease",
           }}
         >
-          {isSaving ? "Adding..." : "Add"}
+          {isSaving ? "Adding..." : "Add Commitment"}
         </button>
       </div>
     </div>
@@ -554,7 +554,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
       setAddOpen(false);
     } catch (error) {
       console.error("Failed to add priority:", error);
-      setActionError(error.message || "Could not add priority.");
+      setActionError(error.message || "Could not add commitment.");
     } finally {
       setIsAdding(false);
     }
@@ -584,7 +584,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
     } catch (error) {
       console.error("Failed to remove priority:", error);
       setPriorities(previous);
-      setActionError(error.message || "Could not remove priority.");
+      setActionError(error.message || "Could not remove commitment.");
     }
   };
 
@@ -623,7 +623,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
     } catch (error) {
       console.error("Failed to park priority:", error);
       setPriorities(previous);
-      setActionError(error.message || "Could not park priority.");
+      setActionError(error.message || "Could not pause commitment.");
     }
   };
 
@@ -665,7 +665,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
     } catch (error) {
       console.error("Failed to activate priority:", error);
       setPriorities(previous);
-      setActionError(error.message || "Could not activate priority.");
+      setActionError(error.message || "Could not activate commitment.");
     }
   };
 
@@ -929,7 +929,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                       letterSpacing: "0.06em",
                     }}
                     >
-                      Set 1-3 priorities that deserve attention now
+                      Set 1-3 commitments that deserve attention now
                     </div>
                   </div>
               ) : (
@@ -950,7 +950,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
               <button
                 onClick={() => !atCap && setAddOpen(true)}
                 className="tappable"
-                aria-label={atCap ? "Priority capacity reached" : "Add priority"}
+                aria-label={atCap ? "Commitment capacity reached" : "Add commitment"}
                 style={{
                   background: "none",
                   border: "none",
@@ -970,7 +970,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                   if (!atCap) e.currentTarget.style.color = "#383838";
                 }}
               >
-                {atCap ? "- at capacity" : "+ Add Priority"}
+                {atCap ? "- at capacity" : "+ Add Commitment"}
               </button>
             </div>
           </div>

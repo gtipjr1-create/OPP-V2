@@ -1,5 +1,4 @@
-# OPP — MASTER CONTEXT
-
+# OPP - MASTER CONTEXT
 ## Product Identity
 OPP is a personal operating system built to reduce noise and help me live, build, train, and think with clarity, discipline, and control.
 
@@ -108,7 +107,20 @@ Where other systems help with isolated tasks, OPP helps maintain:
 - decision consistency
 - life architecture
 
-It is a personal command center, not just a task list.
+It is a personal command center, not just a generic productivity app.
+
+---
+
+## Layer Contract (v1 Locked)
+- Today: re-entry, daily order, and day-item execution surface.
+- Domains: structural life lanes with Active/Steady state.
+- Priorities: focus-management layer for selected commitments.
+- Standards: governing rules that hold across mood, energy, and circumstances.
+- Settings: account access and system language glossary.
+
+Key distinction:
+- Day items shape the current day.
+- Commitments shape active focus.
 
 ---
 
@@ -257,3 +269,4 @@ It must not become:
 - performative
 - overly abstract
 - aesthetically impressive but functionally weak
+

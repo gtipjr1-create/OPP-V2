@@ -7,18 +7,26 @@ v1 refinement (tightening, not expansion).
 Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, sharper, and more governed.
 
 ## Core Screen Truths
-- Today: The command surface for re-entry and immediate orientation.
+- Today: The command surface for re-entry and immediate orientation, using day items for day-level order.
 - Domains: The structural layer of life allocation and emphasis.
-- Priorities: The management layer for active commitments across horizons.
+- Priorities: The management layer for selected commitments across horizons.
 - Standards: The governing layer for rules and non-negotiables.
 
 ## Locked Vocabulary
 - Active: Deliberate current push.
 - Steady: Maintained without current push.
-- Session: Current operating window of focus and orientation.
-- Priority: Focus commitment tied to a domain and horizon.
-- Standard: Rule of operation independent of mood.
+- Session: Current operating window of re-entry, orientation, and daily control.
+- Priority: Selected focus object inside the commitment layer.
+- Commitment: Deliberately chosen item that deserves active attention now.
+- Day Item: Day-level capture point for order and completion in the current day.
+- Standard: Rule of operation independent of mood, energy, or circumstances.
 - Horizon: Today, This Week, Ongoing, Season.
+
+## Distinction Lock
+- Day items support daily order.
+- Commitments support active focus.
+- Today holds day items.
+- Priorities hold commitments.
 
 ## Execution Priorities
 1. Lock screen roles in docs and UI labels.

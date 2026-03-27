@@ -5,27 +5,29 @@ const GLOSSARY_GROUPS = [
   {
     title: "CORE STATE TERMS",
     items: [
-      { term: "Active", definition: "A domain or item receiving deliberate attention and advancement now." },
-      { term: "Steady", definition: "A domain being maintained without current push." },
-      { term: "Session", definition: "The current operating window of focus and orientation." },
+      { term: "Active", definition: "A lane or item receiving deliberate advancement now." },
+      { term: "Steady", definition: "A lane that remains maintained and visible without current push." },
+      { term: "Session", definition: "The current operating window of re-entry, orientation, and daily control." },
     ],
   },
   {
     title: "STRUCTURAL TERMS",
     items: [
-      { term: "Domain", definition: "A structural life lane that holds direction and current emphasis." },
-      { term: "Priority", definition: "A current focus commitment assigned to a domain and horizon." },
-      { term: "Standard", definition: "A rule of operation that governs behavior regardless of mood." },
-      { term: "Horizon", definition: "The time-frame that defines a priority's relevance." },
+      { term: "Domain", definition: "A structural life lane that organizes long-term attention and effort." },
+      { term: "Priority", definition: "A selected focus object inside the commitment layer." },
+      { term: "Commitment", definition: "A deliberately chosen item that deserves active attention now." },
+      { term: "Standard", definition: "A rule of operation that governs behavior regardless of mood, energy, or circumstances." },
+      { term: "Day Item", definition: "A day-level capture point used to maintain order and completion within the current day." },
+      { term: "Horizon", definition: "The time-frame that defines a commitment's relevance." },
     ],
   },
   {
     title: "HORIZON DEFINITIONS",
     items: [
-      { term: "Today", definition: "Urgent, current-day focus." },
-      { term: "This Week", definition: "Current weekly commitments." },
-      { term: "Ongoing", definition: "Continuing focus without an immediate endpoint." },
-      { term: "Season", definition: "A longer strategic arc of importance or development." },
+      { term: "Today", definition: "Immediate day-level relevance." },
+      { term: "This Week", definition: "Current weekly relevance and active short-range attention." },
+      { term: "Ongoing", definition: "Continuing relevance without immediate endpoint." },
+      { term: "Season", definition: "Longer-arc relevance tied to a broader period of life, effort, or development." },
     ],
   },
 ];
@@ -91,7 +93,7 @@ export default function Settings({ onNavigate, onSignOut }) {
               letterSpacing: "0.06em",
             }}
           >
-            Account and app access
+            Account and system language
           </span>
         </div>
 
@@ -222,7 +224,7 @@ export default function Settings({ onNavigate, onSignOut }) {
                     letterSpacing: "0.06em",
                   }}
                 >
-                  {openGlossaryGroup === group.title ? "−" : "+"}
+                  {openGlossaryGroup === group.title ? "-" : "+"}
                 </span>
               </button>
               {openGlossaryGroup === group.title ? (

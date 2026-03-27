@@ -47,3 +47,23 @@ OPP v1 refinement and model-coherence tightening.
 ### Verification
 - lint passed
 - build passed
+
+## March 27, 2026
+
+### Session Focus
+Language-architecture lock for Today vs Priorities.
+
+### What I Completed
+- replaced Today task language with day item language across UI states
+- updated Priorities entry/action copy to commitment language
+- expanded Settings glossary with locked definitions for Active, Steady, Session, Domain, Priority, Commitment, Standard, Day Item, and horizons
+- corrected glossary toggle symbol encoding issue
+- updated active docs to lock day item vs commitment model explicitly
+
+### Key Decisions
+- Today is the day-order surface and owns day items
+- Priorities is the focus-management surface and owns commitments
+- refinement remains role-clarity first, not feature expansion
+
+### Verification
+- build passed
