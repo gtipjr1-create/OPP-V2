@@ -20,16 +20,19 @@ function getRecoveryState() {
     hashParams.get("access_token") || searchParams.get("access_token");
   const refreshToken =
     hashParams.get("refresh_token") || searchParams.get("refresh_token");
+  const code = searchParams.get("code");
 
   const isRecovery =
     typeFromHash === "recovery" ||
     typeFromSearch === "recovery" ||
-    Boolean(accessToken && refreshToken);
+    Boolean(accessToken && refreshToken) ||
+    Boolean(code);
 
   return {
     isRecovery,
     accessToken,
     refreshToken,
+    code,
   };
 }
 
@@ -42,7 +45,18 @@ export default function App() {
     let mounted = true;
 
     async function bootstrap() {
-      if (recoveryState.accessToken && recoveryState.refreshToken) {
+      if (recoveryState.code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(
+          recoveryState.code
+        );
+
+        if (error) {
+          console.error("Recovery code exchange failed:", error.message);
+        }
+
+        const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+        window.history.replaceState({}, document.title, cleanUrl);
+      } else if (recoveryState.accessToken && recoveryState.refreshToken) {
         await supabase.auth.setSession({
           access_token: recoveryState.accessToken,
           refresh_token: recoveryState.refreshToken,
@@ -71,7 +85,11 @@ export default function App() {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [recoveryState.accessToken, recoveryState.refreshToken]);
+  }, [
+    recoveryState.accessToken,
+    recoveryState.refreshToken,
+    recoveryState.code,
+  ]);
 
   if (session === undefined) {
     return (

@@ -1,46 +1,111 @@
 # CLAUDE.md
 
-## Project context imports
+## Project Context Imports
 @docs/MASTER_CONTEXT.md
 @docs/ACTIVE_WORK.md
 @docs/ARCHIVE_IDEAS.md
 
-This file provides guidance to Claude Code when working in this repository.
+This file provides guidance to Claude when working in this repository.
 
 ---
 
 ## Read This First
 
 The imported docs in `docs/` are the source of truth for:
+
 - product identity
 - current execution
 - deferred ideas
 
-Before making recommendations or editing code, align with:
+Before making recommendations, shaping product decisions, or editing code, align with:
+
 - `docs/MASTER_CONTEXT.md` — stable product identity, philosophy, and long-term guardrails
 - `docs/ACTIVE_WORK.md` — current focus, current phase, and what is actively being shaped
 - `docs/ARCHIVE_IDEAS.md` — preserved ideas and deferred directions; do not treat these as active scope unless explicitly asked
 
-Code decisions should align with these docs.
+Code and product decisions should align with these docs.
 
 ---
 
-## Product Identity
+## Project Identity
 
-OPP is a personal operating system built to reduce noise and help me live, build, train, and think with clarity, discipline, and control.
+OPP is a Personal Command Center for disciplined living and focused building.
 
 It is not:
+
 - a generic productivity app
-- a gamified habit tracker
+- a casual task manager
+- a habit tracker clone
+- a passive notes container
+- a gamified life dashboard
 - a social product
-- a cluttered life dashboard
 - a feature-heavy experimentation playground
 
 It is:
+
+- a personal operating system
 - a structured personal operating framework
 - a calm control system
 - a low-noise command layer for life organization
-- a disciplined environment for clarity and self-direction
+- a disciplined environment for clarity, control, direction, and deliberate execution
+
+---
+
+## Core Product Question
+
+This product should help answer:
+
+- what matters right now
+- what is active
+- where life energy is allocated
+- what governs how I operate
+- what this week is trying to move
+
+---
+
+## Core Layers
+
+The system currently works through:
+
+- Today / Command Desk
+- Priorities
+- Domains
+- Standards
+- This Week / Weekly Anchors
+
+These layers must remain conceptually distinct.
+
+---
+
+## Conceptual Discipline
+
+Protect semantic clarity.
+
+Do not allow these layers to collapse into each other.
+
+Examples:
+
+- Today is not a generic task inbox
+- Domains are not just categories
+- Standards are not lightweight habits
+- Priorities are not the same as weekly anchors
+
+If a proposed feature, UI decision, or naming choice blurs these lines, flag it.
+
+---
+
+## Product Priorities
+
+The product should feel:
+
+- sharp
+- governed
+- intentional
+- calm
+- structured
+- meaningful
+
+Prioritize conceptual coherence over feature quantity.
 
 ---
 
@@ -49,19 +114,78 @@ It is:
 This project should be developed with a slow, deliberate, quality-first approach.
 
 Priorities:
+
 - clarity over cleverness
 - structure over speed
 - stability over unnecessary rewrites
 - signal over clutter
 - strong hierarchy over excessive options
 - maintainability over novelty
+- meaning before mechanics
+- clarity before expansion
+- clean navigation
+- consistent naming
+- high-signal surfaces
 
 Do not:
+
 - overcomplicate the architecture
 - introduce trendy patterns without clear value
 - add speculative features just because they sound useful
 - create visual noise
-- drift from the product identity in `docs/MASTER_CONTEXT.md`
+- drift from product identity
+- weaken the semantic model for the sake of convenience
+
+---
+
+## Navigation Principles
+
+Navigation should reinforce hierarchy and purpose.
+
+Current v1 structure:
+
+- persistent bottom nav for primary screens
+- top-left back for nested / deeper screens
+
+Do not casually break this model.
+
+---
+
+## Language Rules
+
+Be precise with labels.
+
+Avoid generic productivity language when stronger system language exists.
+
+Each screen should have:
+
+- a clear role
+- non-overlapping meaning
+- language that reinforces the product model
+
+Avoid:
+
+- vague labels
+- duplicated meaning across screens
+- generic productivity patterns
+- semantic drift
+
+---
+
+## Decision Rules
+
+When reviewing, designing, or implementing:
+
+1. protect conceptual boundaries
+2. sharpen information architecture
+3. improve naming clarity
+4. reduce overlap
+5. maintain a command-center feel
+6. align with docs first
+7. respect current active scope
+8. preserve a calm, structured, cognitively light system
+
+If a change increases complexity, it should provide meaningful clarity or capability in return.
 
 ---
 
@@ -76,9 +200,10 @@ When making changes:
 5. Preserve a calm, structured, premium feel in both code and UI.
 6. Keep the system cognitively light.
 7. Avoid duplication in logic, views, or state ownership.
-8. If a change increases complexity, it should provide meaningful clarity or capability in return.
+8. If code and docs conflict, prefer the docs unless they have been explicitly updated.
 
 When suggesting features or UI:
+
 - prioritize usefulness
 - reduce noise
 - avoid dashboard bloat
@@ -95,31 +220,22 @@ Use the `docs/` folder as the source of truth for direction:
 - `ACTIVE_WORK.md` = what matters now
 - `ARCHIVE_IDEAS.md` = what is preserved but inactive
 
-If code and docs conflict, prefer the docs unless they have been explicitly updated.
+Do not treat archived ideas as current product direction unless explicitly asked.
 
 ---
-
-## Commands
-
-```bash
-npm run dev
-npm run build
-npm run lint
-npm run preview
-
 
 ## Product Rules
 
 ## Priorities and Domains
 
-### Core hierarchy
+### Core Hierarchy
 
 OPP should treat Domains and Priorities as distinct layers in the system.
 
 - **Domains** define the major areas of life that the system is built around.
 - **Priorities** define the limited set of active commitments currently receiving focused attention within that life structure.
 
-Domains frame the landscape.
+Domains frame the landscape.  
 Priorities name what is actively being advanced inside that landscape.
 
 Domains sit above Priorities in the conceptual hierarchy.
@@ -128,13 +244,21 @@ Domains sit above Priorities in the conceptual hierarchy.
 
 ### Domains
 
-Domains are structural.
+Domains are structural.  
 They are not ad hoc, temporary, or casually accumulated.
 
 A Domain represents a major area of life allocation and long-term responsibility.
-Examples may include health, work, writing, finances, relationships, or living environment.
 
-#### Domain states
+Examples may include:
+
+- health
+- work
+- writing
+- finances
+- relationships
+- living environment
+
+#### Domain States
 
 Domains should use a constrained state model:
 
@@ -143,19 +267,20 @@ Domains should use a constrained state model:
 
 These states must have clear meaning.
 
-“Active” should never become a vague status badge.
+“Active” should never become a vague status badge.  
 If everything can be Active, the distinction collapses.
 
-#### Active domain rule
+#### Active Domain Rule
 
 The number of Active domains should be capped.
 
 Preferred v1 cap:
+
 - **2–3 Active domains maximum**
 
 This keeps the screen meaningful as an allocation tool and reinforces deliberate focus.
 
-#### Domain Focus rule
+#### Domain Focus Rule
 
 Each Active domain may carry a short **Current Focus** statement.
 
@@ -164,11 +289,13 @@ This statement is directional, not task-like.
 It should describe what the domain is oriented toward right now, at a level above daily execution and above individual tasks.
 
 Good examples:
+
 - Rebuild training base
 - Stabilize financial foundation
 - Re-establish clean daily structure
 
 Bad examples:
+
 - Buy groceries
 - Reply to gym email
 - Finish Tuesday checklist
@@ -187,61 +314,64 @@ A Priority represents a declared current commitment that is actively receiving a
 
 Priorities should feel like a focus contract.
 
-#### Priority count rule
+#### Priority Count Rule
 
 Priorities should remain intentionally constrained.
 
 - Hard cap: **5**
 - Soft ideal: **3**
 
-Scarcity is part of the product logic.
+Scarcity is part of the product logic.  
 The limit is not cosmetic — it is meant to force clarity and tradeoffs.
 
-#### Priority states
+#### Priority States
 
 Priorities should use a split model:
 
 - **In Focus** = currently active commitments
 - **Not Now** = real commitments that are acknowledged but not currently in active rotation
 
-“Not Now” is not deletion.
+“Not Now” is not deletion.  
 It represents parking, not abandonment.
 
 This distinction should remain clear in both language and behavior.
 
 ---
 
-### Priority vs task distinction
+### Priority vs Task Distinction
 
 Priorities must remain above the task layer.
 
-A Priority is not a daily to-do.
-It is not a checklist item.
+A Priority is not a daily to-do.  
+It is not a checklist item.  
 It is not a short-lived execution action.
 
 A Priority answers:
+
 - what is actively being advanced right now?
 
 A task answers:
+
 - what specific action needs to be done?
 
-If OPP includes a Today or daily execution layer, that layer should hold actions and immediate work.
+If OPP includes a Today or daily execution layer, that layer should hold actions and immediate work.  
 Priorities should remain at a higher level of commitment.
 
-#### Horizon rule for Priorities
+#### Horizon Rule for Priorities
 
 Priorities should not collapse into daily execution.
 
-“Today” is likely too small a horizon for a Priority and risks making the screen behave like a task list.
+“Today” is too small a horizon for a Priority and risks making the screen behave like a task list.
 
 Preferred principle:
+
 - Priorities should be **at minimum week-scale commitments**
 
 If horizon labels are used, they should reinforce that distinction.
 
 ---
 
-### Domain Focus vs Priority distinction
+### Domain Focus vs Priority Distinction
 
 Domain Focus and Priorities must not do the same job.
 
@@ -250,35 +380,52 @@ The distinction is:
 - **Domain Focus** = directional intent for a major life area
 - **Priority** = specific active commitment currently being advanced within the system
 
-Domain Focus is broader, more orienting, and more contextual.
+Domain Focus is broader, more orienting, and more contextual.  
 Priority is more concrete, more immediate, and more operational.
 
-A Domain Focus may shape several Priorities.
+A Domain Focus may shape several Priorities.  
 A Priority may belong to a Domain.
 
 But the two should not collapse into duplicate statements written in different places.
 
-#### Working principle
+---
 
-Use Domains to answer:
-- where is life energy being allocated?
+## What to Avoid
 
-Use Priorities to answer:
-- what am I actively advancing right now inside that allocation?
+Avoid:
+
+- semantic drift
+- duplicated meaning across screens
+- vague labels
+- generic productivity patterns
+- features that weaken the governing philosophy
+- over-tracking
+- cluttered dashboard behavior
+- systems that create cognitive heaviness
+- features that collapse layers into each other
 
 ---
 
-### Structural protection rules
+## Response Expectations
 
-To protect system clarity:
+When helping in this repo:
 
-- Domains should not become a second priorities screen
-- Priorities should not become a task list
-- Daily execution should not be stored inside Domains
-- “Active” should not be unlimited
-- parked priorities should remain visible enough to be acknowledged
-- labels should be precise and system-consistent
+- first identify the conceptual role of the screen or entity
+- identify overlap risk with nearby layers
+- propose improvements that sharpen product meaning, not just UI
+- preserve semantic boundaries before adding mechanics
+- push back when a proposal weakens the model
+- explain tradeoffs clearly when multiple directions are possible
 
-When overlap appears between layers, resolve the product model first before adjusting the UI.
+Claude should not act like a generic implementation assistant in this repository.  
+It should act like a product-aligned builder protecting the system’s clarity, structure, and discipline.
 
-Model clarity comes before interface polish.
+---
+
+## Commands
+
+```bash
+npm run dev
+npm run build
+npm run lint
+npm run preview
