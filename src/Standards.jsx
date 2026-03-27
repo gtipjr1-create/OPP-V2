@@ -50,7 +50,7 @@ function StandardRow({ standard, ruleNumber, onDelete, onTap, isDragging, isOver
         {reveal > 20 && (
           <span
             style={{
-              fontSize: 12,
+              fontSize: 13,
               color: "white",
               fontFamily: "'IBM Plex Mono', monospace",
               letterSpacing: "0.06em",
@@ -382,7 +382,7 @@ export default function Standards({
             alignItems: "center",
             marginBottom: 10,
             flexShrink: 0,
-            paddingInline: 14,
+            paddingInline: 16,
           }}
         >
           <h1
@@ -437,7 +437,7 @@ export default function Standards({
         <div
           style={{
             marginBottom: 14,
-            paddingInline: 14,
+            paddingInline: 16,
             textAlign: "center",
             fontFamily: "'DM Sans', sans-serif",
             fontSize: 12,
@@ -448,7 +448,14 @@ export default function Standards({
           These rules govern behavior across mood, energy, and circumstances.
         </div>
 
-        <div style={{ flex: 1, overflowY: "auto", paddingInline: 14 }}>
+        <div
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            paddingInline: 16,
+            paddingBottom: "max(20px, env(safe-area-inset-bottom))",
+          }}
+        >
           <div style={{ marginBottom: 12 }}>
             <span
               style={{
@@ -463,7 +470,7 @@ export default function Standards({
             </span>
           </div>
 
-          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
+          <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 10 }}>
             <input
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
@@ -475,10 +482,10 @@ export default function Standards({
                 minWidth: 0,
                 background: "#0a0a0a",
                 border: "1px solid #1d1d1d",
-                borderRadius: 12,
+                borderRadius: 14,
                 color: "#d6d6d6",
                 fontSize: 14,
-                padding: "12px 12px",
+                padding: "13px 12px",
                 fontFamily: "'DM Sans', sans-serif",
                 outline: "none",
               }}
@@ -489,8 +496,8 @@ export default function Standards({
               disabled={hasReachedMax || isSaving}
               style={{
                 flexShrink: 0,
-                padding: "12px 12px",
-                borderRadius: 12,
+                padding: "13px 12px",
+                borderRadius: 14,
                 border: "1px solid #2a2a2a",
                 background: "transparent",
                 color: hasReachedMax ? "#444" : "#c8c8c8",

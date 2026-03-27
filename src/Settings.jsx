@@ -68,7 +68,7 @@ export default function Settings({ onNavigate, onSignOut }) {
             alignItems: "center",
             marginBottom: 16,
             flexShrink: 0,
-            paddingInline: 14,
+            paddingInline: 16,
           }}
         >
           <h1
@@ -120,7 +120,14 @@ export default function Settings({ onNavigate, onSignOut }) {
           </span>
         </div>
 
-        <div style={{ flex: 1, overflowY: "auto", paddingInline: 14 }}>
+        <div
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            paddingInline: 16,
+            paddingBottom: "max(20px, env(safe-area-inset-bottom))",
+          }}
+        >
           <div style={{ marginBottom: 12 }}>
             <span
               style={{
@@ -165,7 +172,7 @@ export default function Settings({ onNavigate, onSignOut }) {
                 fontFamily: "'IBM Plex Mono', monospace",
                 fontSize: 10,
                 letterSpacing: "0.08em",
-                padding: "7px 12px",
+                padding: "9px 14px",
                 cursor: "pointer",
               }}
             >

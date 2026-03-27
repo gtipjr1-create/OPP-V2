@@ -13,8 +13,8 @@ export default function BottomNav({ current, onNavigate }) {
         borderTop: "1px solid #181818",
         background: "#000",
         display: "flex",
-        paddingTop: 6,
-        paddingBottom: "max(16px, env(safe-area-inset-bottom))",
+        paddingTop: 8,
+        paddingBottom: "max(18px, env(safe-area-inset-bottom))",
       }}
     >
       {NAV_ITEMS.map(({ id, label }) => {
@@ -36,7 +36,7 @@ export default function BottomNav({ current, onNavigate }) {
               fontWeight: isActive ? 500 : 400,
               letterSpacing: "0.06em",
               cursor: "pointer",
-              padding: "11px 0 9px",
+              padding: "13px 0 11px",
               transition: "color 0.15s ease",
               textAlign: "center",
               flex: 1,

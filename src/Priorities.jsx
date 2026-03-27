@@ -20,8 +20,8 @@ const SHEET_STYLE = {
 };
 
 const SHEET_HANDLE = {
-  width: 36,
-  height: 4,
+  width: 40,
+  height: 5,
   background: "#333",
   borderRadius: 2,
   margin: "0 auto 20px",
@@ -78,7 +78,7 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
   };
 
   const chip = (active, status) => ({
-    padding: "5px 13px",
+    padding: "7px 14px",
     borderRadius: 20,
     border: `1px solid ${active ? "#4A9EFF" : "#222"}`,
     background: active ? "rgba(74,158,255,0.07)" : "transparent",
@@ -121,11 +121,11 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
             width: "100%",
             background: "#161616",
             border: "1.5px solid #222222",
-            borderRadius: 9,
+            borderRadius: 10,
             color: "#ccc",
             fontFamily: "'DM Sans', sans-serif",
             fontSize: 16,
-            padding: "10px 12px",
+            padding: "12px 12px",
             outline: "none",
             marginBottom: 18,
             opacity: isSaving ? 0.7 : 1,
@@ -214,8 +214,8 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
           disabled={!label.trim() || isSaving}
           style={{
             width: "100%",
-            padding: "13px",
-            borderRadius: 12,
+            padding: "14px",
+            borderRadius: 14,
             background: label.trim() && !isSaving ? "#4A9EFF" : "#161616",
             border: `1px solid ${label.trim() && !isSaving ? "transparent" : "#222"}`,
             color: label.trim() && !isSaving ? "white" : "#333",
@@ -770,7 +770,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
             alignItems: "center",
             marginBottom: 8,
             flexShrink: 0,
-            paddingInline: 14,
+            paddingInline: 16,
           }}
         >
           <h1
@@ -805,7 +805,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
             justifyContent: "center",
             marginBottom: 10,
             flexShrink: 0,
-            paddingInline: 14,
+            paddingInline: 16,
           }}
         >
           <span
@@ -828,7 +828,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
         {actionError ? (
           <div
             style={{
-              paddingInline: 14,
+              paddingInline: 16,
               marginBottom: 10,
               flexShrink: 0,
               fontFamily: "'DM Sans', sans-serif",
@@ -841,7 +841,14 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
           </div>
         ) : null}
 
-        <div style={{ flex: 1, overflowY: "auto", paddingInline: 14 }}>
+        <div
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            paddingInline: 16,
+            paddingBottom: "max(20px, env(safe-area-inset-bottom))",
+          }}
+        >
           <div
             style={{
               display: "flex",
@@ -952,7 +959,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                   color: atCap ? "#252525" : "#383838",
                   letterSpacing: "0.08em",
                   cursor: atCap ? "default" : "pointer",
-                  padding: "4px 0",
+                  padding: "8px 0",
                   transition: "color 0.15s ease",
                 }}
                 onMouseEnter={(e) => {

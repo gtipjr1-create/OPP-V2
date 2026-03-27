@@ -440,7 +440,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
             alignItems: "center",
             marginBottom: 4,
             flexShrink: 0,
-            paddingInline: 14,
+            paddingInline: 16,
           }}
         >
           <h1
@@ -493,7 +493,14 @@ export default function Domains({ onNavigate, domains, setDomains }) {
           </span>
         </div>
 
-        <div style={{ flex: 1, overflowY: "auto", paddingInline: 14 }}>
+        <div
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            paddingInline: 16,
+            paddingBottom: "max(20px, env(safe-area-inset-bottom))",
+          }}
+        >
           <div style={{ marginBottom: 10 }}>
             <div
               style={{

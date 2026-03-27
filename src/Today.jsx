@@ -322,6 +322,7 @@ export default function Today({
   const [overIndex, setOverIndex] = useState(null);
 
   const listRef = useRef(null);
+  const quickAddInputRef = useRef(null);
   const holdTimer = useRef(null);
   const dragIdRef = useRef(null);
   const tasksRef = useRef(tasks);
@@ -504,7 +505,7 @@ export default function Today({
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-end",
-            paddingInline: 16,
+            paddingInline: 18,
           }}
         >
           <button
@@ -520,7 +521,7 @@ export default function Today({
               fontWeight: 500,
               letterSpacing: "0.08em",
               cursor: "pointer",
-              padding: "4px 0",
+              padding: "8px 0",
             }}
           >
             SETTINGS
@@ -534,14 +535,14 @@ export default function Today({
             alignItems: "center",
             marginBottom: 12,
             flexShrink: 0,
-            paddingInline: 14,
+            paddingInline: 16,
           }}
         >
           <img
             src="/icons/favicon-32.png"
             alt=""
             aria-hidden="true"
-            style={{ width: 24, height: 24, opacity: 0.45, marginBottom: 10 }}
+            style={{ width: 28, height: 28, opacity: 0.5, marginBottom: 12 }}
           />
           <h1
             style={{
@@ -572,7 +573,7 @@ export default function Today({
         {actionError ? (
           <div
             style={{
-              paddingInline: 14,
+              paddingInline: 16,
               marginBottom: 8,
               flexShrink: 0,
               fontFamily: "'DM Sans', sans-serif",
@@ -585,7 +586,14 @@ export default function Today({
           </div>
         ) : null}
 
-        <div style={{ flex: 1, overflowY: "auto", paddingInline: 14 }}>
+        <div
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            paddingInline: 16,
+            paddingBottom: "max(20px, env(safe-area-inset-bottom))",
+          }}
+        >
           <OrientationPanel label="ACTIVE SESSION">
             <div
               style={{
@@ -772,22 +780,28 @@ export default function Today({
             )}
           </OrientationPanel>
 
-          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+          <div style={{ display: "flex", gap: 10, marginBottom: 18 }}>
             <input
+              ref={quickAddInputRef}
               value={quickAdd}
               onChange={(e) => setQuickAdd(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addTask()}
+              onFocus={() => {
+                requestAnimationFrame(() => {
+                  quickAddInputRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+                });
+              }}
               placeholder="Add day item..."
               disabled={isAdding}
               style={{
                 flex: 1,
                 background: "#111",
                 border: "1px solid #222",
-                borderRadius: 9,
+                borderRadius: 10,
                 color: "#ccc",
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: 15,
-                padding: "11px 13px",
+                padding: "12px 14px",
                 outline: "none",
                 opacity: isAdding ? 0.7 : 1,
               }}
@@ -798,9 +812,9 @@ export default function Today({
               aria-label="Add day item"
               disabled={!quickAdd.trim() || isAdding}
               style={{
-                width: 40,
-                height: 40,
-                borderRadius: 9,
+                width: 44,
+                height: 44,
+                borderRadius: 10,
                 background:
                   quickAdd.trim() && !isAdding ? "rgba(74,158,255,0.1)" : "transparent",
                 border: `1px solid ${
