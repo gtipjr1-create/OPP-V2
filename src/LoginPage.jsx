@@ -20,7 +20,10 @@ export default function LoginPage() {
         if (error) throw error;
         setMessage("Account created. You can now sign in.");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
         if (error) throw error;
 
         const { error: profileError } = await ensureProfile();
@@ -28,6 +31,30 @@ export default function LoginPage() {
       }
     } catch (error) {
       setMessage(error?.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleForgotPassword() {
+    if (!email) {
+      setMessage("Enter your email first, then tap reset password.");
+      return;
+    }
+
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: "https://opp-v2-psi.vercel.app",
+      });
+
+      if (error) throw error;
+
+      setMessage("Password reset email sent. Check your inbox.");
+    } catch (error) {
+      setMessage(error?.message || "Unable to send reset email.");
     } finally {
       setLoading(false);
     }
@@ -70,6 +97,7 @@ export default function LoginPage() {
         >
           OPP
         </div>
+
         <div
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
@@ -97,7 +125,10 @@ export default function LoginPage() {
             <button
               key={m}
               type="button"
-              onClick={() => setMode(m)}
+              onClick={() => {
+                setMode(m);
+                setMessage("");
+              }}
               style={{
                 flex: 1,
                 padding: "9px",
@@ -117,7 +148,10 @@ export default function LoginPage() {
           ))}
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: "flex", flexDirection: "column", gap: 10 }}
+        >
           <input
             type="email"
             placeholder="Email"
@@ -126,6 +160,7 @@ export default function LoginPage() {
             required
             style={inputStyle}
           />
+
           <input
             type="password"
             placeholder="Password"
@@ -134,6 +169,7 @@ export default function LoginPage() {
             required
             style={inputStyle}
           />
+
           <button
             type="submit"
             disabled={loading}
@@ -152,6 +188,27 @@ export default function LoginPage() {
             }}
           >
             {loading ? "Working..." : mode === "signup" ? "Create Account" : "Sign In"}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleForgotPassword}
+            disabled={loading || mode !== "signin"}
+            style={{
+              marginTop: 2,
+              padding: "12px",
+              borderRadius: 12,
+              background: "transparent",
+              border: "1px solid #1e1e1e",
+              color: mode !== "signin" ? "#333" : "#7a7a7a",
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 10,
+              letterSpacing: "0.08em",
+              cursor: loading || mode !== "signin" ? "default" : "pointer",
+              transition: "all 0.2s ease",
+            }}
+          >
+            RESET PASSWORD
           </button>
         </form>
 
