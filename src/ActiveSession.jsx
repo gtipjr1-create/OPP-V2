@@ -387,7 +387,7 @@ const EditSheet = ({ task, onSave, onClose, isSaving }) => {
       />
       <div style={SHEET_STYLE}>
         <div style={SHEET_HANDLE} />
-        <div style={SHEET_LABEL}>EDIT TASK</div>
+        <div style={SHEET_LABEL}>EDIT DAY ITEM</div>
 
         <div style={{ marginBottom: 14 }}>
           <div
@@ -532,7 +532,7 @@ const ConfirmDeleteSheet = ({ taskLabel, onConfirm, onClose, isSaving }) => (
           marginBottom: 8,
         }}
       >
-        Delete task?
+        Delete day item?
       </div>
       <div
         style={{
@@ -900,7 +900,7 @@ export default function ActiveSession({
       await onReorderTasks(reorderedIds);
     } catch (error) {
       console.error(error);
-      alert(error.message || "Task reorder failed.");
+      alert(error.message || "Day item reorder failed.");
       setDisplayTasks(tasks || []);
     } finally {
       setIsSaving(false);
@@ -1148,7 +1148,7 @@ export default function ActiveSession({
             paddingInline: 14,
           }}
         >
-          {total} tasks&nbsp;&nbsp;·&nbsp;&nbsp;{displayTasks.filter((t) => t.priority === "HIGH").length} high
+          {total} day items&nbsp;&nbsp;·&nbsp;&nbsp;{displayTasks.filter((t) => t.priority === "HIGH").length} high
           priority&nbsp;&nbsp;·&nbsp;&nbsp;{total} scheduled
         </div>
 
@@ -1249,7 +1249,7 @@ export default function ActiveSession({
                     transition: "all 0.15s ease",
                     opacity: isSaving ? 0.7 : 1,
                   }}
-                  placeholder={locked ? "Unlock to add tasks..." : "What's next?"}
+                  placeholder={locked ? "Unlock to add day items..." : "What's next?"}
                   value={quickAdd}
                   disabled={locked || isSaving}
                   onChange={(e) => setQuickAdd(e.target.value)}

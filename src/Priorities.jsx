@@ -234,172 +234,138 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
 };
 
 function PriorityRow({ priority, onPark, onDelete, isDragging, isOver }) {
-  const swipeX = useRef(0);
-  const startX = useRef(0);
-  const [offset, setOffset] = useState(0);
-  const THRESHOLD = -90;
-
-  const onTouchStart = (e) => {
-    if (!isDragging) startX.current = e.touches[0].clientX;
-  };
-
-  const onTouchMove = (e) => {
-    if (isDragging) return;
-    const dx = e.touches[0].clientX - startX.current;
-    if (dx > 0) return;
-    swipeX.current = Math.max(dx, -110);
-    setOffset(swipeX.current);
-  };
-
-  const onTouchEnd = () => {
-    if (swipeX.current < THRESHOLD) onDelete(priority.id);
-    setOffset(0);
-    swipeX.current = 0;
-  };
-
-  const reveal = Math.min(Math.abs(offset), 110);
-
   return (
-    <div style={{ position: "relative", overflow: "hidden", borderBottom: "1px solid #1e1e1e" }}>
-      <div
-        style={{
-          position: "absolute",
-          right: 0,
-          top: 0,
-          bottom: 0,
-          width: reveal,
-          background: "#FF453A",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          transition: "width 0.1s ease",
-        }}
-      >
-        {reveal > 20 && (
+    <div
+      style={{
+        marginBottom: 8,
+        opacity: isOver ? 0.25 : 1,
+        transform: isDragging ? "scale(1.02)" : "scale(1)",
+        background: isDragging ? "#202020" : "#0e0e0e",
+        border: isDragging ? "1px solid #2a2a2a" : "1px solid #1a1a1a",
+        borderRadius: 12,
+        boxShadow: isDragging
+          ? "0 16px 48px rgba(0,0,0,0.8), 0 4px 12px rgba(0,0,0,0.5)"
+          : "none",
+        zIndex: isDragging ? 100 : 1,
+        position: "relative",
+        transition: isDragging
+          ? "transform 0.01s, box-shadow 0.2s ease"
+          : "transform 0.25s ease, opacity 0.15s ease, border-color 0.2s ease",
+      }}
+    >
+      <div style={{ padding: "12px 12px 10px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 8 }}>
           <span
             style={{
-              fontSize: 12,
-              color: "white",
               fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 9,
+              color: "#4e4e4e",
+              letterSpacing: "0.08em",
+            }}
+          >
+            COMMITMENT
+          </span>
+          <span
+            style={{
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 9,
+              color: "#4A9EFF",
               letterSpacing: "0.06em",
             }}
           >
-            REMOVE
+            IN FOCUS
           </span>
-        )}
-      </div>
-
-      <div
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          padding: isDragging ? "13px 10px" : "13px 0",
-          marginLeft: isDragging ? -10 : 0,
-          marginRight: isDragging ? -10 : 0,
-          opacity: isOver ? 0.25 : 1,
-          transform: isDragging ? "scale(1.03)" : `translateX(${offset}px)`,
-          background: isDragging ? "#222222" : "#111111",
-          borderRadius: isDragging ? 12 : 0,
-          boxShadow: isDragging
-            ? "0 16px 48px rgba(0,0,0,0.8), 0 4px 12px rgba(0,0,0,0.5)"
-            : "none",
-          zIndex: isDragging ? 100 : 1,
-          position: "relative",
-          transition: isDragging
-            ? "transform 0.01s, box-shadow 0.2s ease"
-            : offset !== 0
-            ? "none"
-            : "transform 0.38s cubic-bezier(0.16,1,0.3,1), opacity 0.15s ease",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 3,
-            flexShrink: 0,
-            opacity: 0.2,
-          }}
-        >
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              style={{ width: 14, height: 1.5, background: "#555", borderRadius: 1 }}
-            />
-          ))}
         </div>
 
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
+        <div
+          style={{
+            fontSize: 14,
+            fontWeight: 500,
+            color: "#e8e8e8",
+            fontFamily: "'DM Sans', sans-serif",
+            marginBottom: 8,
+            lineHeight: 1.35,
+          }}
+        >
+          {priority.label}
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
+          <span
             style={{
-              fontSize: 14,
-              fontWeight: 400,
-              color: "#e8e8e8",
-              fontFamily: "'DM Sans', sans-serif",
-              marginBottom: 5,
-              lineHeight: 1.35,
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 9,
+              fontWeight: 500,
+              color: "#444",
+              border: "1px solid #2a2a2a",
+              borderRadius: 4,
+              padding: "2px 6px",
+              letterSpacing: "0.06em",
             }}
           >
-            {priority.label}
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            {priority.domain.toUpperCase()}
+          </span>
+          {priority.horizon && (
             <span
               style={{
                 fontFamily: "'IBM Plex Mono', monospace",
                 fontSize: 9,
-                fontWeight: 500,
-                color: "#444",
-                border: "1px solid #2a2a2a",
-                borderRadius: 4,
-                padding: "2px 6px",
-                letterSpacing: "0.06em",
+                color: "#4a4a4a",
+                letterSpacing: "0.05em",
               }}
             >
-              {priority.domain.toUpperCase()}
+              {priority.horizon.toUpperCase()}
             </span>
-            {priority.horizon && (
-              <span
-                style={{
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 9,
-                  color: "#383838",
-                  letterSpacing: "0.04em",
-                }}
-              >
-                {priority.horizon.toLowerCase()}
-              </span>
-            )}
-          </div>
+          )}
         </div>
 
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onPark(priority.id);
-          }}
-          className="tappable"
-          aria-label={`Move "${priority.label}" to not now`}
-          style={{
-            background: "none",
-            border: "none",
-            color: "#252525",
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 13,
-            cursor: "pointer",
-            padding: "4px 6px",
-            flexShrink: 0,
-            transition: "color 0.15s ease",
-            lineHeight: 1,
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#555")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#252525")}
-        >
-          -
-        </button>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onPark(priority.id);
+            }}
+            className="tappable"
+            aria-label={`Pause commitment "${priority.label}"`}
+            style={{
+              background: "transparent",
+              border: "1px solid #252525",
+              borderRadius: 8,
+              color: "#666",
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 10,
+              letterSpacing: "0.06em",
+              cursor: "pointer",
+              padding: "6px 8px",
+              lineHeight: 1,
+            }}
+          >
+            PAUSE
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(priority.id);
+            }}
+            className="tappable"
+            aria-label={`Remove commitment "${priority.label}"`}
+            style={{
+              background: "transparent",
+              border: "1px solid rgba(255,69,58,0.3)",
+              borderRadius: 8,
+              color: "#a45a56",
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 10,
+              letterSpacing: "0.06em",
+              cursor: "pointer",
+              padding: "6px 8px",
+              lineHeight: 1,
+            }}
+          >
+            REMOVE
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -412,8 +378,11 @@ function NotNowRow({ priority, onActivate }) {
         display: "flex",
         alignItems: "center",
         gap: 10,
-        padding: "11px 0",
-        borderBottom: "1px solid #161616",
+        padding: "10px 12px",
+        border: "1px solid #161616",
+        borderRadius: 10,
+        marginBottom: 8,
+        background: "#0a0a0a",
       }}
     >
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -461,23 +430,22 @@ function NotNowRow({ priority, onActivate }) {
       <button
         onClick={() => onActivate(priority.id)}
         className="tappable"
-        aria-label={`Move "${priority.label}" back to in focus`}
+        aria-label={`Activate commitment "${priority.label}"`}
         style={{
-          background: "none",
-          border: "none",
-          color: "#2a2a2a",
+          background: "transparent",
+          border: "1px solid #23364a",
+          borderRadius: 8,
+          color: "#4A9EFF",
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 13,
+          fontSize: 10,
+          letterSpacing: "0.06em",
           cursor: "pointer",
-          padding: "4px 6px",
+          padding: "6px 8px",
           flexShrink: 0,
-          transition: "color 0.15s ease",
           lineHeight: 1,
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = "#4A9EFF")}
-        onMouseLeave={(e) => (e.currentTarget.style.color = "#2a2a2a")}
       >
-        +
+        ACTIVATE
       </button>
     </div>
   );
@@ -895,6 +863,17 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                 IN FOCUS
               </span>
             </div>
+            <div
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 12,
+                color: "#666",
+                lineHeight: 1.4,
+                marginBottom: 10,
+              }}
+            >
+              Chosen commitments receiving active advancement now.
+            </div>
 
             <div
               ref={listRef}
@@ -947,6 +926,19 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
             </div>
 
             <div style={{ paddingTop: 10, paddingBottom: 6, flexShrink: 0 }}>
+              {active.length > 1 && (
+                <div
+                  style={{
+                    fontFamily: "'IBM Plex Mono', monospace",
+                    fontSize: 9,
+                    color: "#454545",
+                    letterSpacing: "0.05em",
+                    marginBottom: 8,
+                  }}
+                >
+                  HOLD AND DRAG TO REORDER FOCUS WEIGHT
+                </div>
+              )}
               <button
                 onClick={() => !atCap && setAddOpen(true)}
                 className="tappable"
@@ -989,6 +981,17 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                 >
                   NOT NOW
                 </span>
+              </div>
+              <div
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 12,
+                  color: "#5b5b5b",
+                  lineHeight: 1.4,
+                  marginBottom: 8,
+                }}
+              >
+                Paused commitments that can be reactivated when focus shifts.
               </div>
               {notNow.map((p) => (
                 <NotNowRow key={p.id} priority={p} onActivate={activatePriority} />

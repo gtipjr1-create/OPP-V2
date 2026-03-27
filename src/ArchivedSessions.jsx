@@ -133,14 +133,14 @@ function SessionRow({ session, onDelete }) {
         onTouchEnd={onTouchEnd}
         style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 0", transform: `translateX(${offset}px)`, transition: offset !== 0 ? "none" : "transform 0.38s cubic-bezier(0.16,1,0.3,1)" }}
       >
-        {/* Left: name + date + task count */}
+        {/* Left: name + date + day item count */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 14, fontWeight: 400, color: "#d0d0d0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 4, fontFamily: "'DM Serif Display', serif" }}>
             {session.name}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: "#3a3a3a" }}>{session.date}</span>
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: "#333" }}>{done}/{total} tasks</span>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: "#333" }}>{done}/{total} day items</span>
           </div>
         </div>
 
