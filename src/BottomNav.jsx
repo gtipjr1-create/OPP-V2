@@ -10,11 +10,12 @@ export default function BottomNav({ current, onNavigate }) {
     <div
       style={{
         flexShrink: 0,
-        borderTop: "1px solid #181818",
+        borderTop: "1px solid #232323",
         background: "#000",
         display: "flex",
-        paddingTop: 8,
-        paddingBottom: "max(18px, env(safe-area-inset-bottom))",
+        paddingTop: 10,
+        paddingBottom: "max(20px, env(safe-area-inset-bottom))",
+        paddingInline: 6,
       }}
     >
       {NAV_ITEMS.map(({ id, label }) => {
@@ -30,13 +31,13 @@ export default function BottomNav({ current, onNavigate }) {
             style={{
               background: "none",
               border: "none",
-              color: isActive ? "#ededed" : "#6f6f6f",
+              color: isActive ? "#f0f0f0" : "#8a8a8a",
               fontFamily: "'IBM Plex Mono', monospace",
               fontSize: 13,
               fontWeight: isActive ? 600 : 500,
               letterSpacing: "0.06em",
               cursor: "pointer",
-              padding: "13px 0 11px",
+              padding: "12px 0 10px",
               transition: "color 0.15s ease",
               textAlign: "center",
               flex: 1,
@@ -44,17 +45,17 @@ export default function BottomNav({ current, onNavigate }) {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 5,
+              gap: 6,
             }}
           >
             {label}
             <div
               style={{
-                width: 3,
+                width: isActive ? 14 : 10,
                 height: 2,
                 borderRadius: 99,
-                background: isActive ? "#e0e0e0" : "transparent",
-                transition: "background 0.15s ease",
+                background: isActive ? "#dcdcdc" : "#2a2a2a",
+                transition: "all 0.15s ease",
               }}
             />
           </button>

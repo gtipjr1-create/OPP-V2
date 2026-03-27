@@ -258,7 +258,7 @@ function OrientationPanel({ label, actionLabel, onAction, children }) {
         borderRadius: 12,
         padding: "12px 13px",
         background: "#090909",
-        marginBottom: 12,
+        marginBottom: 10,
       }}
     >
       <div
@@ -500,12 +500,12 @@ export default function Today({
       >
         <div
           style={{
-            height: 46,
+            height: 40,
             flexShrink: 0,
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-end",
-            paddingInline: 18,
+            paddingInline: 16,
           }}
         >
           <button
@@ -533,7 +533,7 @@ export default function Today({
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: 12,
+            marginBottom: 14,
             flexShrink: 0,
             paddingInline: 16,
           }}
@@ -542,7 +542,7 @@ export default function Today({
             src="/icons/favicon-32.png"
             alt=""
             aria-hidden="true"
-            style={{ width: 28, height: 28, opacity: 0.5, marginBottom: 12 }}
+            style={{ width: 28, height: 28, opacity: 0.5, marginBottom: 14 }}
           />
           <h1
             style={{
@@ -552,7 +552,7 @@ export default function Today({
               color: "#f0f0f0",
               lineHeight: "36px",
               textAlign: "center",
-              marginBottom: 7,
+              marginBottom: 10,
             }}
           >
             {dateLabel}
@@ -563,6 +563,7 @@ export default function Today({
               fontSize: 11,
               color: "#383838",
               letterSpacing: "0.06em",
+              lineHeight: 1.3,
             }}
           >
             Today
@@ -779,7 +780,7 @@ export default function Today({
             )}
           </OrientationPanel>
 
-          <div style={{ display: "flex", gap: 10, marginBottom: 18 }}>
+          <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
             <input
               ref={quickAddInputRef}
               value={quickAdd}
@@ -833,7 +834,7 @@ export default function Today({
             </button>
           </div>
 
-          <div style={{ marginBottom: 8 }}>
+          <div style={{ marginBottom: 10 }}>
             <span
               style={{
                 fontFamily: "'DM Sans', sans-serif",

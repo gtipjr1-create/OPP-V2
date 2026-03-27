@@ -375,14 +375,14 @@ export default function Standards({
           paddingTop: "max(10px, env(safe-area-inset-top))",
         }}
       >
-        <div style={{ height: 40, flexShrink: 0 }} />
+        <div style={{ height: 28, flexShrink: 0 }} />
 
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: 6,
+            marginBottom: 8,
             flexShrink: 0,
             paddingInline: 16,
           }}
@@ -417,7 +417,7 @@ export default function Standards({
           style={{
             display: "flex",
             justifyContent: "center",
-            marginBottom: 12,
+            marginBottom: 14,
             flexShrink: 0,
           }}
         >
@@ -458,7 +458,7 @@ export default function Standards({
             paddingBottom: "max(20px, env(safe-area-inset-bottom))",
           }}
         >
-          <div style={{ marginBottom: 12 }}>
+          <div style={{ marginBottom: 14 }}>
             <span
               style={{
                 fontFamily: "'DM Sans', sans-serif",

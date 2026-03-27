@@ -761,14 +761,14 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
           paddingTop: "max(10px, env(safe-area-inset-top))",
         }}
       >
-        <div style={{ height: 40, flexShrink: 0 }} />
+        <div style={{ height: 28, flexShrink: 0 }} />
 
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: 6,
+            marginBottom: 8,
             flexShrink: 0,
             paddingInline: 16,
           }}
@@ -803,7 +803,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
           style={{
             display: "flex",
             justifyContent: "center",
-            marginBottom: 8,
+            marginBottom: 14,
             flexShrink: 0,
             paddingInline: 16,
           }}
@@ -854,7 +854,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
               display: "flex",
               flexDirection: "column",
               overflow: dragId ? "visible" : "hidden",
-              marginBottom: 16,
+              marginBottom: 14,
             }}
           >
             <div style={{ marginBottom: 12, flexShrink: 0 }}>

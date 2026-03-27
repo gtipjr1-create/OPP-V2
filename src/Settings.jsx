@@ -59,14 +59,14 @@ export default function Settings({ onNavigate, onSignOut }) {
           paddingTop: "max(10px, env(safe-area-inset-top))",
         }}
       >
-        <div style={{ height: 40, flexShrink: 0 }} />
+        <div style={{ height: 28, flexShrink: 0 }} />
 
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: 10,
+            marginBottom: 8,
             flexShrink: 0,
             paddingInline: 16,
           }}
@@ -101,7 +101,7 @@ export default function Settings({ onNavigate, onSignOut }) {
           style={{
             display: "flex",
             justifyContent: "center",
-            marginBottom: 12,
+            marginBottom: 14,
             flexShrink: 0,
           }}
         >
@@ -128,7 +128,7 @@ export default function Settings({ onNavigate, onSignOut }) {
             paddingBottom: "max(20px, env(safe-area-inset-bottom))",
           }}
         >
-          <div style={{ marginBottom: 12 }}>
+          <div style={{ marginBottom: 14 }}>
             <span
               style={{
                 fontFamily: "'DM Sans', sans-serif",
@@ -180,7 +180,7 @@ export default function Settings({ onNavigate, onSignOut }) {
             </button>
           </div>
 
-          <div style={{ marginTop: 20, marginBottom: 10 }}>
+          <div style={{ marginTop: 18, marginBottom: 10 }}>
             <span
               style={{
                 fontFamily: "'DM Sans', sans-serif",

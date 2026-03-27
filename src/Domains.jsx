@@ -431,14 +431,14 @@ export default function Domains({ onNavigate, domains, setDomains }) {
           paddingTop: "max(10px, env(safe-area-inset-top))",
         }}
       >
-        <div style={{ height: 16, flexShrink: 0 }} />
+        <div style={{ height: 28, flexShrink: 0 }} />
 
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: 4,
+            marginBottom: 8,
             flexShrink: 0,
             paddingInline: 16,
           }}
@@ -473,7 +473,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
           style={{
             display: "flex",
             justifyContent: "center",
-            marginBottom: 8,
+            marginBottom: 14,
             flexShrink: 0,
           }}
         >
@@ -501,7 +501,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
             paddingBottom: "max(20px, env(safe-area-inset-bottom))",
           }}
         >
-          <div style={{ marginBottom: 10 }}>
+          <div style={{ marginBottom: 12 }}>
             <div
               style={{
                 fontFamily: "'DM Sans', sans-serif",
@@ -559,7 +559,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
           </div>
 
           {steadyDomains.length > 0 && (
-            <div style={{ marginBottom: 10 }}>
+            <div style={{ marginBottom: 12 }}>
               <div
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
