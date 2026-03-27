@@ -273,9 +273,9 @@ function OrientationPanel({ label, actionLabel, onAction, children }) {
         <span
           style={{
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: 600,
-            color: "#9a9a9a",
+            color: "#a8a8a8",
             lineHeight: 1.3,
           }}
         >
@@ -289,9 +289,9 @@ function OrientationPanel({ label, actionLabel, onAction, children }) {
             style={{
               background: "none",
               border: "none",
-              color: "#7f7f7f",
+              color: "#9a9a9a",
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: 500,
               cursor: "pointer",
               padding: 0,
@@ -596,11 +596,11 @@ export default function Today({
           <OrientationPanel label="Active Session">
             <div
               style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 16,
-              color: "#c7c7c7",
-              marginBottom: 4,
-            }}
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 16,
+                color: "#c7c7c7",
+                marginBottom: 4,
+              }}
             >
               {total === 0
                 ? "No day items defined."
@@ -610,7 +610,7 @@ export default function Today({
                 style={{
                   fontFamily: "'IBM Plex Mono', monospace",
                   fontSize: 13,
-                  color: "#5a5a5a",
+                  color: "#727272",
                   letterSpacing: "0.04em",
                 }}
             >
@@ -622,7 +622,7 @@ export default function Today({
                   marginTop: 4,
                   fontFamily: "'IBM Plex Mono', monospace",
                   fontSize: 13,
-                  color: "#4a4a4a",
+                  color: "#666666",
                   letterSpacing: "0.04em",
                 }}
               >
@@ -641,7 +641,7 @@ export default function Today({
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: 14,
-                  color: "#727272",
+                  color: "#8b8b8b",
                   fontStyle: "italic",
                 }}
               >
@@ -705,7 +705,7 @@ export default function Today({
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: 15,
-                  color: "#727272",
+                  color: "#8b8b8b",
                   fontStyle: "italic",
                 }}
               >
@@ -740,7 +740,7 @@ export default function Today({
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: 15,
-                  color: "#727272",
+                  color: "#8b8b8b",
                   fontStyle: "italic",
                 }}
               >
@@ -837,9 +837,9 @@ export default function Today({
             <span
               style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: 600,
-                color: "#9a9a9a",
+                color: "#a8a8a8",
                 lineHeight: 1.3,
               }}
             >
@@ -864,7 +864,7 @@ export default function Today({
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: 13,
-                    color: "#888",
+                    color: "#9a9a9a",
                     fontStyle: "italic",
                     marginBottom: 6,
                   }}
@@ -873,10 +873,11 @@ export default function Today({
                 </div>
                 <div
                   style={{
-                    fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 10,
-                    color: "#555",
-                    letterSpacing: "0.06em",
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: 14,
+                    fontWeight: 400,
+                    color: "#7f7f7f",
+                    lineHeight: 1.4,
                   }}
                 >
                   Capture what needs to be handled today

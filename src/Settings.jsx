@@ -66,7 +66,7 @@ export default function Settings({ onNavigate, onSignOut }) {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: 16,
+            marginBottom: 10,
             flexShrink: 0,
             paddingInline: 16,
           }}
@@ -101,7 +101,7 @@ export default function Settings({ onNavigate, onSignOut }) {
           style={{
             display: "flex",
             justifyContent: "center",
-            marginBottom: 16,
+            marginBottom: 12,
             flexShrink: 0,
           }}
         >

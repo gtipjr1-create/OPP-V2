@@ -30,10 +30,10 @@ export default function BottomNav({ current, onNavigate }) {
             style={{
               background: "none",
               border: "none",
-              color: isActive ? "#e0e0e0" : "#4a4a4a",
+              color: isActive ? "#ededed" : "#6f6f6f",
               fontFamily: "'IBM Plex Mono', monospace",
               fontSize: 13,
-              fontWeight: isActive ? 500 : 400,
+              fontWeight: isActive ? 600 : 500,
               letterSpacing: "0.06em",
               cursor: "pointer",
               padding: "13px 0 11px",

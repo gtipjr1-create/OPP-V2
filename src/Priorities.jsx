@@ -768,7 +768,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: 8,
+            marginBottom: 6,
             flexShrink: 0,
             paddingInline: 16,
           }}
@@ -803,7 +803,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
           style={{
             display: "flex",
             justifyContent: "center",
-            marginBottom: 10,
+            marginBottom: 8,
             flexShrink: 0,
             paddingInline: 16,
           }}
@@ -863,7 +863,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: 18,
                   fontWeight: 600,
-                  color: "#9a9a9a",
+                  color: "#a8a8a8",
                   lineHeight: 1.3,
                 }}
               >
@@ -873,8 +873,8 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
             <div
               style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 12,
-                color: "#666",
+                fontSize: 14,
+                color: "#7d7d7d",
                 lineHeight: 1.4,
                 marginBottom: 10,
               }}
@@ -899,8 +899,9 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                   <div
                     style={{
                       fontFamily: "'DM Sans', sans-serif",
-                      fontSize: 13,
-                      color: "#888",
+                      fontSize: 15,
+                      fontWeight: 500,
+                      color: "#a0a0a0",
                       fontStyle: "italic",
                       marginBottom: 6,
                     }}
@@ -912,7 +913,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                       fontFamily: "'DM Sans', sans-serif",
                       fontSize: 14,
                       fontWeight: 500,
-                      color: "#555",
+                      color: "#777",
                       lineHeight: 1.4,
                     }}
                     >
@@ -952,22 +953,28 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                 className="tappable"
                 aria-label={atCap ? "Commitment capacity reached" : "Add commitment"}
                 style={{
-                  background: "none",
-                  border: "none",
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 11,
+                  background: atCap ? "transparent" : "rgba(74,158,255,0.08)",
+                  border: `1px solid ${atCap ? "#252525" : "rgba(74,158,255,0.35)"}`,
+                  borderRadius: 10,
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 14,
                   fontWeight: 500,
-                  color: atCap ? "#252525" : "#383838",
-                  letterSpacing: "0.08em",
+                  color: atCap ? "#3a3a3a" : "#78b6ff",
                   cursor: atCap ? "default" : "pointer",
-                  padding: "8px 0",
-                  transition: "color 0.15s ease",
+                  padding: "9px 12px",
+                  transition: "all 0.15s ease",
                 }}
                 onMouseEnter={(e) => {
-                  if (!atCap) e.currentTarget.style.color = "#4A9EFF";
+                  if (!atCap) {
+                    e.currentTarget.style.color = "#9fceff";
+                    e.currentTarget.style.borderColor = "rgba(74,158,255,0.55)";
+                  }
                 }}
                 onMouseLeave={(e) => {
-                  if (!atCap) e.currentTarget.style.color = "#383838";
+                  if (!atCap) {
+                    e.currentTarget.style.color = "#78b6ff";
+                    e.currentTarget.style.borderColor = "rgba(74,158,255,0.35)";
+                  }
                 }}
               >
                 {atCap ? "- at capacity" : "+ Add Commitment"}
@@ -983,7 +990,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: 18,
                     fontWeight: 600,
-                    color: "#6e6e6e",
+                    color: "#8e8e8e",
                     lineHeight: 1.3,
                   }}
                 >
@@ -993,8 +1000,8 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
               <div
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 12,
-                  color: "#5b5b5b",
+                  fontSize: 14,
+                  color: "#7a7a7a",
                   lineHeight: 1.4,
                   marginBottom: 8,
                 }}

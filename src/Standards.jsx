@@ -98,9 +98,9 @@ function StandardRow({ standard, ruleNumber, onDelete, onTap, isDragging, isOver
               fontFamily: "'IBM Plex Mono', monospace",
               fontSize: 12,
               fontWeight: 500,
-              color: "#5d5d5d",
+              color: "#7a7a7a",
               letterSpacing: "0.08em",
-              marginBottom: 5,
+              marginBottom: 7,
             }}
           >
             RULE {ruleNumber}
@@ -382,7 +382,7 @@ export default function Standards({
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: 10,
+            marginBottom: 6,
             flexShrink: 0,
             paddingInline: 16,
           }}
@@ -417,7 +417,7 @@ export default function Standards({
           style={{
             display: "flex",
             justifyContent: "center",
-            marginBottom: 16,
+            marginBottom: 12,
             flexShrink: 0,
           }}
         >
@@ -504,6 +504,7 @@ export default function Standards({
                 color: hasReachedMax ? "#444" : "#c8c8c8",
                 fontSize: 12,
                 fontFamily: "'IBM Plex Mono', monospace",
+                fontWeight: 600,
                 cursor: hasReachedMax || isSaving ? "default" : "pointer",
               }}
             >
@@ -514,10 +515,11 @@ export default function Standards({
           <div
             style={{
               marginBottom: 10,
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 10,
-              color: "#525252",
-              letterSpacing: "0.04em",
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 13,
+              fontWeight: 500,
+              color: "#7a7a7a",
+              lineHeight: 1.35,
             }}
           >
             Direct · Operational · Repeatable

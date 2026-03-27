@@ -291,9 +291,9 @@ function ActiveDomainCard({ domain, onTap }) {
         <div
           style={{
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: 13,
-            color: "#888",
-            lineHeight: 1.4,
+            fontSize: 14,
+            color: "#9a9a9a",
+            lineHeight: 1.42,
           }}
         >
           {domain.focus}
@@ -344,9 +344,9 @@ function SteadyDomainRow({ domain, onTap, isLast }) {
           <div
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: 12,
-              color: "#777",
-              lineHeight: 1.35,
+              fontSize: 14,
+              color: "#8c8c8c",
+              lineHeight: 1.42,
             }}
           >
             {domain.focus}
@@ -516,10 +516,10 @@ export default function Domains({ onNavigate, domains, setDomains }) {
             <div
               style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 12,
-                color: "#5f5f5f",
-                lineHeight: 1.35,
-                marginBottom: 8,
+                fontSize: 14,
+                color: "#7a7a7a",
+                lineHeight: 1.42,
+                marginBottom: 10,
               }}
             >
               Active lanes receive deliberate advancement now.
@@ -530,8 +530,8 @@ export default function Domains({ onNavigate, domains, setDomains }) {
                 <div
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 13,
-                    color: "#2e2e2e",
+                    fontSize: 14,
+                    color: "#686868",
                     fontStyle: "italic",
                     marginBottom: 4,
                   }}
@@ -540,10 +540,10 @@ export default function Domains({ onNavigate, domains, setDomains }) {
                 </div>
                 <div
                   style={{
-                    fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 10,
-                    color: "#222",
-                    letterSpacing: "0.06em",
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: 13,
+                    color: "#5e5e5e",
+                    lineHeight: 1.35,
                   }}
                 >
                   Promote a lane to active when it needs deliberate push
@@ -566,7 +566,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
                   fontSize: 18,
                   fontWeight: 600,
                   color: "#333",
-                  marginBottom: 8,
+                  marginBottom: 10,
                 }}
               >
                 Steady
@@ -574,10 +574,10 @@ export default function Domains({ onNavigate, domains, setDomains }) {
               <div
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 12,
-                  color: "#595959",
-                  lineHeight: 1.35,
-                  marginBottom: 8,
+                  fontSize: 14,
+                  color: "#787878",
+                  lineHeight: 1.42,
+                  marginBottom: 10,
                 }}
               >
                 Steady lanes remain maintained and visible.
