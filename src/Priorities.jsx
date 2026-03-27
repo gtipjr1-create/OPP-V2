@@ -768,7 +768,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: 8,
+            marginBottom: 10,
             flexShrink: 0,
             paddingInline: 16,
           }}
@@ -781,7 +781,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
               color: "#f0f0f0",
               lineHeight: "36px",
               textAlign: "center",
-              marginBottom: 6,
+              marginBottom: 7,
             }}
           >
             Priorities
@@ -803,7 +803,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
           style={{
             display: "flex",
             justifyContent: "center",
-            marginBottom: 14,
+            marginBottom: 12,
             flexShrink: 0,
             paddingInline: 16,
           }}
@@ -860,13 +860,13 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
             <div style={{ marginBottom: 12, flexShrink: 0 }}>
               <span
                 style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 18,
-                  fontWeight: 600,
-                  color: "#a8a8a8",
-                  lineHeight: 1.3,
-                }}
-              >
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 18,
+                fontWeight: 600,
+                color: "#9a9a9a",
+                lineHeight: 1.3,
+              }}
+            >
                 In Focus
               </span>
             </div>

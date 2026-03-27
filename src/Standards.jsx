@@ -122,12 +122,12 @@ function StandardRow({ standard, ruleNumber, onDelete, onTap, isDragging, isOver
               fontFamily: "'IBM Plex Mono', monospace",
               fontSize: 12,
               fontWeight: 500,
-              color: "#3f3f3f",
-              letterSpacing: "0.06em",
+              color: "#666666",
+              letterSpacing: "0.04em",
               marginTop: 6,
             }}
           >
-            Tap to edit
+            Tap to edit rule
           </div>
         </div>
 
@@ -137,7 +137,7 @@ function StandardRow({ standard, ruleNumber, onDelete, onTap, isDragging, isOver
             flexDirection: "column",
             gap: 3,
             flexShrink: 0,
-            opacity: 0.18,
+            opacity: 0.26,
           }}
         >
           {[0, 1, 2].map((i) => (
@@ -382,7 +382,7 @@ export default function Standards({
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: 8,
+            marginBottom: 10,
             flexShrink: 0,
             paddingInline: 16,
           }}
@@ -395,7 +395,7 @@ export default function Standards({
               color: "#f0f0f0",
               lineHeight: "36px",
               textAlign: "center",
-              marginBottom: 6,
+              marginBottom: 7,
             }}
           >
             Standards
@@ -417,7 +417,7 @@ export default function Standards({
           style={{
             display: "flex",
             justifyContent: "center",
-            marginBottom: 14,
+            marginBottom: 12,
             flexShrink: 0,
           }}
         >
@@ -464,7 +464,8 @@ export default function Standards({
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: 18,
                 fontWeight: 600,
-                color: "#555",
+                color: "#9a9a9a",
+                lineHeight: 1.3,
               }}
             >
               How I Operate

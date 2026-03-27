@@ -353,7 +353,7 @@ function SteadyDomainRow({ domain, onTap, isLast }) {
           </div>
         )}
       </div>
-      <span style={{ color: "#222", fontSize: 14, flexShrink: 0 }}>&rsaquo;</span>
+      <span style={{ color: "#4a4a4a", fontSize: 16, flexShrink: 0 }}>&rsaquo;</span>
     </div>
   );
 }
@@ -438,7 +438,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: 8,
+            marginBottom: 10,
             flexShrink: 0,
             paddingInline: 16,
           }}
@@ -451,7 +451,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
               color: "#f0f0f0",
               lineHeight: "36px",
               textAlign: "center",
-              marginBottom: 6,
+              marginBottom: 7,
             }}
           >
             Domains
@@ -473,7 +473,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
           style={{
             display: "flex",
             justifyContent: "center",
-            marginBottom: 14,
+            marginBottom: 12,
             flexShrink: 0,
           }}
         >
@@ -507,7 +507,8 @@ export default function Domains({ onNavigate, domains, setDomains }) {
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: 18,
                 fontWeight: 600,
-                color: activeDomains.length > 0 ? "#555" : "#333",
+                color: "#9a9a9a",
+                lineHeight: 1.3,
                 marginBottom: 8,
               }}
             >
@@ -565,7 +566,8 @@ export default function Domains({ onNavigate, domains, setDomains }) {
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: 18,
                   fontWeight: 600,
-                  color: "#333",
+                  color: "#9a9a9a",
+                  lineHeight: 1.3,
                   marginBottom: 10,
                 }}
               >

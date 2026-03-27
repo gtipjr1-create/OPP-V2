@@ -238,7 +238,7 @@ function TaskRow({ task, onToggle, onDelete, isDragging, isOver }) {
             flexDirection: "column",
             gap: 3,
             flexShrink: 0,
-            opacity: 0.18,
+            opacity: 0.26,
           }}
         >
           {[0, 1, 2].map((i) => (
@@ -500,7 +500,7 @@ export default function Today({
       >
         <div
           style={{
-            height: 40,
+            height: 38,
             flexShrink: 0,
             display: "flex",
             alignItems: "center",
@@ -513,15 +513,16 @@ export default function Today({
             className="tappable"
             aria-label="Open settings"
             style={{
-              background: "none",
-              border: "none",
-              color: "#4a4a4a",
+              background: "#0b0b0b",
+              border: "1px solid #232323",
+              borderRadius: 999,
+              color: "#6e6e6e",
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 500,
-              letterSpacing: "0.08em",
+              letterSpacing: "0.06em",
               cursor: "pointer",
-              padding: "8px 0",
+              padding: "6px 10px",
             }}
           >
             Settings
@@ -838,9 +839,9 @@ export default function Today({
             <span
               style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 16,
+                fontSize: 18,
                 fontWeight: 600,
-                color: "#a8a8a8",
+                color: "#9a9a9a",
                 lineHeight: 1.3,
               }}
             >
