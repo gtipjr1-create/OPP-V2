@@ -96,7 +96,8 @@ function StandardRow({ standard, ruleNumber, onDelete, onTap, isDragging, isOver
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
+              fontSize: 12,
+              fontWeight: 500,
               color: "#5d5d5d",
               letterSpacing: "0.08em",
               marginBottom: 5,
@@ -108,7 +109,7 @@ function StandardRow({ standard, ruleNumber, onDelete, onTap, isDragging, isOver
             style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: 15,
-              fontWeight: 500,
+              fontWeight: 400,
               color: "#e6e6e6",
               lineHeight: 1.45,
               margin: 0,
@@ -119,13 +120,14 @@ function StandardRow({ standard, ruleNumber, onDelete, onTap, isDragging, isOver
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
+              fontSize: 12,
+              fontWeight: 500,
               color: "#3f3f3f",
               letterSpacing: "0.06em",
               marginTop: 6,
             }}
           >
-            TAP TO EDIT
+            Tap to edit
           </div>
         </div>
 
@@ -388,11 +390,10 @@ export default function Standards({
           <h1
             style={{
               fontFamily: "'DM Serif Display', serif",
-              fontSize: 28,
+              fontSize: 32,
               fontWeight: 400,
               color: "#f0f0f0",
-              letterSpacing: "-0.01em",
-              lineHeight: 1.1,
+              lineHeight: "36px",
               textAlign: "center",
               marginBottom: 6,
             }}
@@ -401,10 +402,11 @@ export default function Standards({
           </h1>
           <span
             style={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 10,
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 13,
+              fontWeight: 500,
               color: "#383838",
-              letterSpacing: "0.06em",
+              lineHeight: 1.35,
             }}
           >
             Governing layer
@@ -459,14 +461,13 @@ export default function Standards({
           <div style={{ marginBottom: 12 }}>
             <span
               style={{
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 10,
-                fontWeight: 500,
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 18,
+                fontWeight: 600,
                 color: "#555",
-                letterSpacing: "0.1em",
               }}
             >
-              HOW I OPERATE
+              How I Operate
             </span>
           </div>
 
@@ -484,7 +485,7 @@ export default function Standards({
                 border: "1px solid #1d1d1d",
                 borderRadius: 14,
                 color: "#d6d6d6",
-                fontSize: 14,
+                fontSize: 16,
                 padding: "13px 12px",
                 fontFamily: "'DM Sans', sans-serif",
                 outline: "none",
@@ -506,7 +507,7 @@ export default function Standards({
                 cursor: hasReachedMax || isSaving ? "default" : "pointer",
               }}
             >
-              ADD
+              Add
             </button>
           </div>
 
@@ -519,7 +520,7 @@ export default function Standards({
               letterSpacing: "0.04em",
             }}
           >
-            DIRECT · OPERATIONAL · REPEATABLE
+            Direct · Operational · Repeatable
           </div>
 
           {localError ? (
@@ -573,8 +574,8 @@ export default function Standards({
                           border: "1px solid #262626",
                           borderRadius: 10,
                           color: "#d6d6d6",
-                          fontSize: 14,
-                          lineHeight: 1.5,
+                          fontSize: 16,
+                          lineHeight: 1.45,
                           padding: "10px 12px",
                           fontFamily: "'DM Sans', sans-serif",
                           outline: "none",

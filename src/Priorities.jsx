@@ -108,7 +108,7 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
       />
       <div style={SHEET_STYLE}>
         <div style={SHEET_HANDLE} />
-        <div style={SHEET_LABEL}>ADD COMMITMENT</div>
+        <div style={SHEET_LABEL}>Add Commitment</div>
 
         <input
           autoFocus
@@ -141,7 +141,7 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
             marginBottom: 8,
           }}
         >
-          DOMAIN
+          Domain
         </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
           {domainChoices.map((choice) => (
@@ -171,8 +171,8 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
           }}
         >
           {domainChoices.find((choice) => choice.name === domain)?.status === "Steady"
-            ? "STEADY DOMAIN - maintenance lane"
-            : "ACTIVE DOMAIN - current push lane"}
+            ? "Steady domain - maintenance lane"
+            : "Active domain - current push lane"}
         </div>
 
         <div
@@ -184,7 +184,7 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
             marginBottom: 8,
           }}
         >
-          HORIZON
+          Horizon
         </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
           {HORIZONS.map((h) => (
@@ -258,22 +258,22 @@ function PriorityRow({ priority, onPark, onDelete, isDragging, isOver }) {
           <span
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
+              fontSize: 10,
               color: "#4e4e4e",
               letterSpacing: "0.08em",
             }}
           >
-            COMMITMENT
+            Commitment
           </span>
           <span
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
+              fontSize: 10,
               color: "#4A9EFF",
               letterSpacing: "0.06em",
             }}
           >
-            IN FOCUS
+            In Focus
           </span>
         </div>
 
@@ -294,7 +294,7 @@ function PriorityRow({ priority, onPark, onDelete, isDragging, isOver }) {
           <span
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
+              fontSize: 10,
               fontWeight: 500,
               color: "#444",
               border: "1px solid #2a2a2a",
@@ -309,7 +309,7 @@ function PriorityRow({ priority, onPark, onDelete, isDragging, isOver }) {
             <span
               style={{
                 fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 9,
+                fontSize: 10,
                 color: "#4a4a4a",
                 letterSpacing: "0.05em",
               }}
@@ -340,7 +340,7 @@ function PriorityRow({ priority, onPark, onDelete, isDragging, isOver }) {
               lineHeight: 1,
             }}
           >
-            PAUSE
+            Pause
           </button>
 
           <button
@@ -363,7 +363,7 @@ function PriorityRow({ priority, onPark, onDelete, isDragging, isOver }) {
               lineHeight: 1,
             }}
           >
-            REMOVE
+            Remove
           </button>
         </div>
       </div>
@@ -402,7 +402,7 @@ function NotNowRow({ priority, onActivate }) {
           <span
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
+              fontSize: 10,
               color: "#222",
               border: "1px solid #1e1e1e",
               borderRadius: 4,
@@ -416,7 +416,7 @@ function NotNowRow({ priority, onActivate }) {
             <span
               style={{
                 fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 9,
+                fontSize: 10,
                 color: "#252525",
                 letterSpacing: "0.04em",
               }}
@@ -445,7 +445,7 @@ function NotNowRow({ priority, onActivate }) {
           lineHeight: 1,
         }}
       >
-        ACTIVATE
+        Activate
       </button>
     </div>
   );
@@ -776,11 +776,10 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
           <h1
             style={{
               fontFamily: "'DM Serif Display', serif",
-              fontSize: 28,
+              fontSize: 32,
               fontWeight: 400,
               color: "#f0f0f0",
-              letterSpacing: "-0.01em",
-              lineHeight: 1.1,
+              lineHeight: "36px",
               textAlign: "center",
               marginBottom: 6,
             }}
@@ -789,10 +788,11 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
           </h1>
           <span
             style={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 10,
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 13,
+              fontWeight: 500,
               color: "#383838",
-              letterSpacing: "0.06em",
+              lineHeight: 1.35,
             }}
           >
             Focus management layer
@@ -860,14 +860,14 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
             <div style={{ marginBottom: 12, flexShrink: 0 }}>
               <span
                 style={{
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 10,
-                  fontWeight: 500,
-                  color: "#555",
-                  letterSpacing: "0.1em",
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 18,
+                  fontWeight: 600,
+                  color: "#9a9a9a",
+                  lineHeight: 1.3,
                 }}
               >
-                IN FOCUS
+                In Focus
               </span>
             </div>
             <div
@@ -909,10 +909,11 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                   </div>
                   <div
                     style={{
-                      fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: 10,
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 14,
+                      fontWeight: 500,
                       color: "#555",
-                      letterSpacing: "0.06em",
+                      lineHeight: 1.4,
                     }}
                     >
                       Set 1-3 commitments that deserve attention now
@@ -937,13 +938,13 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                 <div
                   style={{
                     fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 9,
+                    fontSize: 10,
                     color: "#454545",
                     letterSpacing: "0.05em",
                     marginBottom: 8,
                   }}
                 >
-                  HOLD AND DRAG TO REORDER FOCUS WEIGHT
+                  Hold and drag to reorder focus weight
                 </div>
               )}
               <button
@@ -979,14 +980,14 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
               <div style={{ marginBottom: 12 }}>
                 <span
                   style={{
-                    fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 10,
-                    fontWeight: 500,
-                    color: "#2e2e2e",
-                    letterSpacing: "0.1em",
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: 18,
+                    fontWeight: 600,
+                    color: "#6e6e6e",
+                    lineHeight: 1.3,
                   }}
                 >
-                  NOT NOW
+                  Not Now
                 </span>
               </div>
               <div

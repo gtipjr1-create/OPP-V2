@@ -59,26 +59,26 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
 
         <div
           style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 10,
-            color: "#555",
-            letterSpacing: "0.1em",
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 16,
+            fontWeight: 600,
+            color: "#b0b0b0",
             marginBottom: 16,
           }}
         >
-          {domain.name.toUpperCase()}
+          {domain.name}
         </div>
 
         <div
           style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 10,
-            color: "#444",
-            letterSpacing: "0.08em",
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 13,
+            fontWeight: 500,
+            color: "#7a7a7a",
             marginBottom: 8,
           }}
         >
-          STATUS
+          Status
         </div>
 
         <div style={{ display: "flex", gap: 8, marginBottom: atActiveCap && status !== "Active" ? 8 : 18 }}>
@@ -145,14 +145,14 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
 
         <div
           style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 10,
-            color: "#444",
-            letterSpacing: "0.08em",
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 13,
+            fontWeight: 500,
+            color: "#7a7a7a",
             marginBottom: 8,
           }}
         >
-          PURPOSE
+          Purpose
         </div>
 
         <div
@@ -169,14 +169,14 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
 
         <div
           style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 10,
-            color: "#444",
-            letterSpacing: "0.08em",
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 13,
+            fontWeight: 500,
+            color: "#7a7a7a",
             marginBottom: 8,
           }}
         >
-          CURRENT FOCUS
+          Current Focus
         </div>
 
         <input
@@ -261,8 +261,8 @@ function ActiveDomainCard({ domain, onTap }) {
         <span
           style={{
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: 15,
-            fontWeight: 500,
+            fontSize: 16,
+            fontWeight: 600,
             color: "#c8c8c8",
             letterSpacing: "-0.01em",
           }}
@@ -283,7 +283,7 @@ function ActiveDomainCard({ domain, onTap }) {
             flexShrink: 0,
           }}
         >
-          ACTIVE
+          Active
         </span>
       </div>
 
@@ -332,8 +332,8 @@ function SteadyDomainRow({ domain, onTap, isLast }) {
         <div
           style={{
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: 14,
-            fontWeight: 400,
+            fontSize: 16,
+            fontWeight: 600,
             color: "#bbb",
             marginBottom: domain.focus ? 3 : 0,
           }}
@@ -446,11 +446,10 @@ export default function Domains({ onNavigate, domains, setDomains }) {
           <h1
             style={{
               fontFamily: "'DM Serif Display', serif",
-              fontSize: 28,
+              fontSize: 32,
               fontWeight: 400,
               color: "#f0f0f0",
-              letterSpacing: "-0.01em",
-              lineHeight: 1.1,
+              lineHeight: "36px",
               textAlign: "center",
               marginBottom: 6,
             }}
@@ -459,10 +458,11 @@ export default function Domains({ onNavigate, domains, setDomains }) {
           </h1>
           <span
             style={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 10,
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 13,
+              fontWeight: 500,
               color: "#383838",
-              letterSpacing: "0.06em",
+              lineHeight: 1.35,
             }}
           >
             Structural life lanes
@@ -504,15 +504,14 @@ export default function Domains({ onNavigate, domains, setDomains }) {
           <div style={{ marginBottom: 10 }}>
             <div
               style={{
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 10,
-                fontWeight: 500,
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 18,
+                fontWeight: 600,
                 color: activeDomains.length > 0 ? "#555" : "#333",
-                letterSpacing: "0.1em",
                 marginBottom: 8,
               }}
             >
-              ACTIVE
+              Active
             </div>
             <div
               style={{
@@ -563,15 +562,14 @@ export default function Domains({ onNavigate, domains, setDomains }) {
             <div style={{ marginBottom: 10 }}>
               <div
                 style={{
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 10,
-                  fontWeight: 500,
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 18,
+                  fontWeight: 600,
                   color: "#333",
-                  letterSpacing: "0.1em",
                   marginBottom: 8,
                 }}
               >
-                STEADY
+                Steady
               </div>
               <div
                 style={{

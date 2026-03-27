@@ -1,3 +1,15 @@
+:root {
+  --type-size-page-title: 30px;
+  --type-size-body: 14px;
+  --type-size-support: 13px;
+  --type-size-label: 10px;
+  --type-size-meta: 10px;
+  --type-size-utility: 9px;
+  --type-leading-tight: 1.12;
+  --type-leading-body: 1.45;
+  --type-leading-support: 1.42;
+}
+
 *,
 *::before,
 *::after {
@@ -27,7 +39,7 @@ button {
 
 input::placeholder,
 textarea::placeholder {
-  color: #4f4f4f;
+  color: #646464;
 }
 
 @keyframes sheetUp {
@@ -100,8 +112,8 @@ body {
   min-height: 100dvh;
   background: #000;
   color: rgba(255, 255, 255, 0.87);
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  font-family: "DM Sans", sans-serif;
+  line-height: var(--type-leading-body);
   font-weight: 400;
   font-synthesis: none;
   text-rendering: optimizeLegibility;

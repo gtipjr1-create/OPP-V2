@@ -30,11 +30,11 @@ function normalizeHorizon(horizon) {
 
 function horizonLabel(horizon) {
   const key = normalizeHorizon(horizon);
-  if (key === "today") return "TODAY";
-  if (key === "this week") return "THIS WEEK";
-  if (key === "ongoing") return "ONGOING";
-  if (key === "season") return "SEASON";
-  return "THIS WEEK";
+  if (key === "today") return "Today";
+  if (key === "this week") return "This Week";
+  if (key === "ongoing") return "Ongoing";
+  if (key === "season") return "Season";
+  return "This Week";
 }
 
 function horizonWeight(horizon) {
@@ -272,11 +272,11 @@ function OrientationPanel({ label, actionLabel, onAction, children }) {
       >
         <span
           style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 11,
-            fontWeight: 500,
-            color: "#4a4a4a",
-            letterSpacing: "0.08em",
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 18,
+            fontWeight: 600,
+            color: "#9a9a9a",
+            lineHeight: 1.3,
           }}
         >
           {label}
@@ -289,10 +289,10 @@ function OrientationPanel({ label, actionLabel, onAction, children }) {
             style={{
               background: "none",
               border: "none",
-              color: "#3f3f3f",
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 11,
-              letterSpacing: "0.06em",
+              color: "#7f7f7f",
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 13,
+              fontWeight: 500,
               cursor: "pointer",
               padding: 0,
             }}
@@ -524,7 +524,7 @@ export default function Today({
               padding: "8px 0",
             }}
           >
-            SETTINGS
+            Settings
           </button>
         </div>
 
@@ -550,8 +550,7 @@ export default function Today({
               fontSize: 32,
               fontWeight: 400,
               color: "#f0f0f0",
-              letterSpacing: "-0.01em",
-              lineHeight: 1.1,
+              lineHeight: "36px",
               textAlign: "center",
               marginBottom: 7,
             }}
@@ -594,14 +593,14 @@ export default function Today({
             paddingBottom: "max(20px, env(safe-area-inset-bottom))",
           }}
         >
-          <OrientationPanel label="ACTIVE SESSION">
+          <OrientationPanel label="Active Session">
             <div
               style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: 14,
-                color: "#c7c7c7",
-                marginBottom: 4,
-              }}
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 16,
+              color: "#c7c7c7",
+              marginBottom: 4,
+            }}
             >
               {total === 0
                 ? "No day items defined."
@@ -610,7 +609,7 @@ export default function Today({
             <div
                 style={{
                   fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 11,
+                  fontSize: 13,
                   color: "#5a5a5a",
                   letterSpacing: "0.04em",
                 }}
@@ -622,7 +621,7 @@ export default function Today({
                 style={{
                   marginTop: 4,
                   fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 11,
+                  fontSize: 13,
                   color: "#4a4a4a",
                   letterSpacing: "0.04em",
                 }}
@@ -633,15 +632,15 @@ export default function Today({
           </OrientationPanel>
 
           <OrientationPanel
-            label="CURRENT FOCUS"
-            actionLabel="MANAGE"
+            label="Current Focus"
+            actionLabel="Manage"
             onAction={() => onNavigate("priorities")}
           >
             {previewPriorities.length === 0 ? (
               <div
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 13,
+                  fontSize: 14,
                   color: "#727272",
                   fontStyle: "italic",
                 }}
@@ -666,7 +665,7 @@ export default function Today({
                         flex: 1,
                         minWidth: 0,
                         fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 14,
+                        fontSize: 16,
                         color:
                           normalizeHorizon(priority.horizon) === "today"
                             ? "#d5d5d5"
@@ -683,7 +682,7 @@ export default function Today({
                     <span
                       style={{
                         fontFamily: "'IBM Plex Mono', monospace",
-                        fontSize: 10,
+                        fontSize: 13,
                         color:
                           normalizeHorizon(priority.horizon) === "today"
                             ? "#4A9EFF"
@@ -700,12 +699,12 @@ export default function Today({
             )}
           </OrientationPanel>
 
-          <OrientationPanel label="THIS WEEK">
+          <OrientationPanel label="This Week">
             {weekAnchors.length === 0 ? (
               <div
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 14,
+                  fontSize: 15,
                   color: "#727272",
                   fontStyle: "italic",
                 }}
@@ -719,7 +718,7 @@ export default function Today({
                     key={anchor.id}
                     style={{
                       fontFamily: "'DM Sans', sans-serif",
-                      fontSize: 14,
+                      fontSize: 15,
                       color: "#c7c7c7",
                       lineHeight: 1.35,
                     }}
@@ -732,15 +731,15 @@ export default function Today({
           </OrientationPanel>
 
           <OrientationPanel
-            label="DOMAINS"
-            actionLabel="OPEN"
+            label="Domains"
+            actionLabel="Open"
             onAction={() => onNavigate("domains")}
           >
             {activeDomains.length === 0 ? (
               <div
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 14,
+                  fontSize: 15,
                   color: "#727272",
                   fontStyle: "italic",
                 }}
@@ -754,7 +753,7 @@ export default function Today({
                     <span
                     style={{
                       fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: 11,
+                      fontSize: 13,
                       color: "#4A9EFF",
                         letterSpacing: "0.06em",
                         minWidth: 56,
@@ -766,7 +765,7 @@ export default function Today({
                     <span
                     style={{
                       fontFamily: "'DM Sans', sans-serif",
-                      fontSize: 14,
+                      fontSize: 15,
                       color: domain.focus ? "#9a9a9a" : "#6f6f6f",
                       fontStyle: domain.focus ? "normal" : "italic",
                       lineHeight: 1.35,
@@ -800,7 +799,7 @@ export default function Today({
                 borderRadius: 10,
                 color: "#ccc",
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 15,
+                fontSize: 16,
                 padding: "12px 14px",
                 outline: "none",
                 opacity: isAdding ? 0.7 : 1,
@@ -837,14 +836,14 @@ export default function Today({
           <div style={{ marginBottom: 8 }}>
             <span
               style={{
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 11,
-                fontWeight: 500,
-                color: "#555",
-                letterSpacing: "0.1em",
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 18,
+                fontWeight: 600,
+                color: "#9a9a9a",
+                lineHeight: 1.3,
               }}
             >
-              DAY ITEMS
+              Day Items
             </span>
           </div>
 

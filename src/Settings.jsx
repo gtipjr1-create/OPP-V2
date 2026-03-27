@@ -3,7 +3,7 @@ import BottomNav from "./BottomNav";
 
 const GLOSSARY_GROUPS = [
   {
-    title: "CORE STATE TERMS",
+    title: "Core State Terms",
     items: [
       { term: "Active", definition: "A lane or item receiving deliberate advancement now." },
       { term: "Steady", definition: "A lane that remains maintained and visible without current push." },
@@ -11,7 +11,7 @@ const GLOSSARY_GROUPS = [
     ],
   },
   {
-    title: "STRUCTURAL TERMS",
+    title: "Structural Terms",
     items: [
       { term: "Domain", definition: "A structural life lane that organizes long-term attention and effort." },
       { term: "Priority", definition: "A selected focus object inside the commitment layer." },
@@ -22,7 +22,7 @@ const GLOSSARY_GROUPS = [
     ],
   },
   {
-    title: "HORIZON DEFINITIONS",
+    title: "Horizon Definitions",
     items: [
       { term: "Today", definition: "Immediate day-level relevance." },
       { term: "This Week", definition: "Current weekly relevance and active short-range attention." },
@@ -74,11 +74,10 @@ export default function Settings({ onNavigate, onSignOut }) {
           <h1
             style={{
               fontFamily: "'DM Serif Display', serif",
-              fontSize: 28,
+              fontSize: 32,
               fontWeight: 400,
               color: "#f0f0f0",
-              letterSpacing: "-0.01em",
-              lineHeight: 1.1,
+              lineHeight: "36px",
               textAlign: "center",
               marginBottom: 6,
             }}
@@ -87,10 +86,11 @@ export default function Settings({ onNavigate, onSignOut }) {
           </h1>
           <span
             style={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 10,
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 13,
+              fontWeight: 500,
               color: "#383838",
-              letterSpacing: "0.06em",
+              lineHeight: 1.35,
             }}
           >
             Account and system language
@@ -131,14 +131,13 @@ export default function Settings({ onNavigate, onSignOut }) {
           <div style={{ marginBottom: 12 }}>
             <span
               style={{
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 10,
-                fontWeight: 500,
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 18,
+                fontWeight: 600,
                 color: "#555",
-                letterSpacing: "0.1em",
               }}
             >
-              SESSION
+              Session
             </span>
           </div>
 
@@ -155,7 +154,8 @@ export default function Settings({ onNavigate, onSignOut }) {
             <span
               style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 14,
+                fontSize: 15,
+                fontWeight: 500,
                 color: "#bbb",
               }}
             >
@@ -170,27 +170,26 @@ export default function Settings({ onNavigate, onSignOut }) {
                 borderRadius: 999,
                 color: "#c8c8c8",
                 fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 10,
+                fontSize: 11,
                 letterSpacing: "0.08em",
                 padding: "9px 14px",
                 cursor: "pointer",
               }}
             >
-              SIGN OUT
+              Sign Out
             </button>
           </div>
 
           <div style={{ marginTop: 20, marginBottom: 10 }}>
             <span
               style={{
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 10,
-                fontWeight: 500,
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 18,
+                fontWeight: 600,
                 color: "#555",
-                letterSpacing: "0.1em",
               }}
             >
-              GLOSSARY
+              Glossary
             </span>
           </div>
 
@@ -215,10 +214,11 @@ export default function Settings({ onNavigate, onSignOut }) {
               >
                 <span
                   style={{
-                    fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 9,
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: 13,
+                    fontWeight: 500,
                     color: "#444",
-                    letterSpacing: "0.08em",
+                    lineHeight: 1.3,
                   }}
                 >
                   {group.title}
@@ -226,7 +226,8 @@ export default function Settings({ onNavigate, onSignOut }) {
                 <span
                   style={{
                     fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 10,
+                    fontSize: 13,
+                    fontWeight: 500,
                     color: "#3f3f3f",
                     letterSpacing: "0.06em",
                   }}
@@ -246,10 +247,10 @@ export default function Settings({ onNavigate, onSignOut }) {
                     >
                       <div
                         style={{
-                          fontFamily: "'IBM Plex Mono', monospace",
-                          fontSize: 10,
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontSize: 15,
+                          fontWeight: 500,
                           color: "#c8c8c8",
-                          letterSpacing: "0.06em",
                           marginBottom: 4,
                         }}
                       >
@@ -258,7 +259,7 @@ export default function Settings({ onNavigate, onSignOut }) {
                       <div
                         style={{
                           fontFamily: "'DM Sans', sans-serif",
-                          fontSize: 13,
+                          fontSize: 14,
                           color: "#8a8a8a",
                           lineHeight: 1.4,
                         }}
