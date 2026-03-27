@@ -77,6 +77,9 @@ Recent refinement work completed:
 - Bottom navigation now has stronger legibility and active-state presence.
 - Header stacks (title, descriptor, status pill) are rhythm-aligned across Today, Domains, Priorities, Standards, and Settings.
 - Today remains intentionally denser than the other screens, but spacing is now harmonized with global screen cadence.
+- Core mobile shell is now unified across Today, Domains, Focus, Standards, and Settings (fixed header/nav with a single middle scroll container and safe-area support).
+- Mobile nav now uses `Focus` label for the priorities surface.
+- Today icon uses high-resolution source, subtle pulse motion, and sharper rendering.
 
 ## Open Decisions
 

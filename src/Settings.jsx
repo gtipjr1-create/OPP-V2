@@ -1,5 +1,5 @@
-import { useState } from "react";
-import BottomNav from "./BottomNav";
+﻿import { useState } from "react";
+import MobileShell from "./MobileShell";
 
 const GLOSSARY_GROUPS = [
   {
@@ -36,45 +36,25 @@ export default function Settings({ onNavigate, onSignOut }) {
   const [openGlossaryGroup, setOpenGlossaryGroup] = useState(null);
 
   return (
-    <div
-      style={{
-        height: "100dvh",
-        background: "#000000",
-        display: "flex",
-        justifyContent: "center",
-        fontFamily: "'DM Sans', sans-serif",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        className="screen-reveal"
-        style={{
-          width: "100%",
-          maxWidth: 430,
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          position: "relative",
-          overflow: "hidden",
-          paddingTop: "max(10px, env(safe-area-inset-top))",
-        }}
-      >
-        <div style={{ height: 28, flexShrink: 0 }} />
-
+    <MobileShell
+      currentNav="settings"
+      onNavigate={onNavigate}
+      header={
+        <>
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            paddingTop: 28,
             marginBottom: 8,
-            flexShrink: 0,
-            paddingInline: 16,
+            paddingInline: "var(--mobile-page-gutter)",
           }}
         >
           <h1
             style={{
               fontFamily: "'DM Serif Display', serif",
-              fontSize: 32,
+              fontSize: "var(--mobile-screen-title-size)",
               fontWeight: 400,
               color: "#f0f0f0",
               lineHeight: "36px",
@@ -87,7 +67,7 @@ export default function Settings({ onNavigate, onSignOut }) {
           <span
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: 13,
+              fontSize: "var(--mobile-screen-subtitle-size)",
               fontWeight: 500,
               color: "#383838",
               lineHeight: 1.35,
@@ -119,163 +99,157 @@ export default function Settings({ onNavigate, onSignOut }) {
             Account
           </span>
         </div>
-
-        <div
+        </>
+      }
+    >
+      <div style={{ marginBottom: 14 }}>
+        <span
           style={{
-            flex: 1,
-            overflowY: "auto",
-            paddingInline: 16,
-            paddingBottom: "max(20px, env(safe-area-inset-bottom))",
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "var(--mobile-section-title-size)",
+            fontWeight: 600,
+            color: "#555",
           }}
         >
-          <div style={{ marginBottom: 14 }}>
-            <span
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: 18,
-                fontWeight: 600,
-                color: "#555",
-              }}
-            >
-              Session
-            </span>
-          </div>
+          Session
+        </span>
+      </div>
 
-          <div
+      <div
+        style={{
+          borderTop: "1px solid #1e1e1e",
+          borderBottom: "1px solid #1e1e1e",
+          padding: "14px 0",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 15,
+            fontWeight: 500,
+            color: "#bbb",
+          }}
+        >
+          Sign Out
+        </span>
+        <button
+          onClick={onSignOut}
+          className="tappable"
+          style={{
+            background: "none",
+            border: "1px solid #2a2a2a",
+            borderRadius: 999,
+            color: "#c8c8c8",
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 11,
+            letterSpacing: "0.08em",
+            padding: "9px 14px",
+            cursor: "pointer",
+          }}
+        >
+          Sign Out
+        </button>
+      </div>
+
+      <div style={{ marginTop: 18, marginBottom: 10 }}>
+        <span
+          style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 18,
+            fontWeight: 600,
+            color: "#555",
+          }}
+        >
+          Glossary
+        </span>
+      </div>
+
+      {GLOSSARY_GROUPS.map((group) => (
+        <div key={group.title} style={{ marginBottom: 16 }}>
+          <button
+            type="button"
+            className="tappable"
+            onClick={() =>
+              setOpenGlossaryGroup((prev) => (prev === group.title ? null : group.title))
+            }
             style={{
-              borderTop: "1px solid #1e1e1e",
-              borderBottom: "1px solid #1e1e1e",
-              padding: "14px 0",
+              width: "100%",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
+              background: "none",
+              border: "none",
+              padding: "0 0 8px",
+              cursor: "pointer",
             }}
           >
             <span
               style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 15,
+                fontSize: 13,
                 fontWeight: 500,
-                color: "#bbb",
+                color: "#444",
+                lineHeight: 1.3,
               }}
             >
-              Sign Out
+              {group.title}
             </span>
-            <button
-              onClick={onSignOut}
-              className="tappable"
-              style={{
-                background: "none",
-                border: "1px solid #2a2a2a",
-                borderRadius: 999,
-                color: "#c8c8c8",
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 11,
-                letterSpacing: "0.08em",
-                padding: "9px 14px",
-                cursor: "pointer",
-              }}
-            >
-              Sign Out
-            </button>
-          </div>
-
-          <div style={{ marginTop: 18, marginBottom: 10 }}>
             <span
               style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: 18,
-                fontWeight: 600,
-                color: "#555",
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 13,
+                fontWeight: 500,
+                color: "#3f3f3f",
+                letterSpacing: "0.06em",
               }}
             >
-              Glossary
             </span>
-          </div>
-
-          {GLOSSARY_GROUPS.map((group) => (
-            <div key={group.title} style={{ marginBottom: 16 }}>
-              <button
-                type="button"
-                className="tappable"
-                onClick={() =>
-                  setOpenGlossaryGroup((prev) => (prev === group.title ? null : group.title))
-                }
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  background: "none",
-                  border: "none",
-                  padding: "0 0 8px",
-                  cursor: "pointer",
-                }}
-              >
-                <span
+          </button>
+          {openGlossaryGroup === group.title ? (
+            <div style={{ borderTop: "1px solid #1a1a1a", borderBottom: "1px solid #1a1a1a" }}>
+              {group.items.map((item, index) => (
+                <div
+                  key={item.term}
                   style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: "#444",
-                    lineHeight: 1.3,
+                    padding: "10px 0",
+                    borderBottom: index < group.items.length - 1 ? "1px solid #151515" : "none",
                   }}
                 >
-                  {group.title}
-                </span>
-                <span
-                  style={{
-                    fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: "#3f3f3f",
-                    letterSpacing: "0.06em",
-                  }}
-                >
-                  {openGlossaryGroup === group.title ? "-" : "+"}
-                </span>
-              </button>
-              {openGlossaryGroup === group.title ? (
-                <div style={{ borderTop: "1px solid #1a1a1a", borderBottom: "1px solid #1a1a1a" }}>
-                  {group.items.map((item, index) => (
-                    <div
-                      key={item.term}
-                      style={{
-                        padding: "10px 0",
-                        borderBottom: index < group.items.length - 1 ? "1px solid #151515" : "none",
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontFamily: "'DM Sans', sans-serif",
-                          fontSize: 15,
-                          fontWeight: 500,
-                          color: "#c8c8c8",
-                          marginBottom: 4,
-                        }}
-                      >
-                        {item.term}
-                      </div>
-                      <div
-                        style={{
-                          fontFamily: "'DM Sans', sans-serif",
-                          fontSize: 14,
-                          color: "#8a8a8a",
-                          lineHeight: 1.4,
-                        }}
-                      >
-                        {item.definition}
-                      </div>
-                    </div>
-                  ))}
+                  <div
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 15,
+                      fontWeight: 500,
+                      color: "#c8c8c8",
+                      marginBottom: 4,
+                    }}
+                  >
+                    {item.term}
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 14,
+                      color: "#8a8a8a",
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {item.definition}
+                  </div>
                 </div>
-              ) : null}
+              ))}
             </div>
-          ))}
+          ) : null}
         </div>
+      ))}
 
-        <BottomNav current="settings" onNavigate={onNavigate} />
-      </div>
-    </div>
+    </MobileShell>
   );
 }
+
+
+
+

@@ -1,7 +1,7 @@
 const NAV_ITEMS = [
   { id: "home",       label: "Today"      },
   { id: "domains",    label: "Domains"    },
-  { id: "priorities", label: "Priorities" },
+  { id: "priorities", label: "Focus"      },
   { id: "standards",  label: "Standards"  },
 ];
 
@@ -13,9 +13,10 @@ export default function BottomNav({ current, onNavigate }) {
         borderTop: "1px solid #232323",
         background: "#000",
         display: "flex",
-        paddingTop: 10,
-        paddingBottom: "max(20px, env(safe-area-inset-bottom))",
-        paddingInline: 6,
+        minHeight: "var(--shell-nav-height)",
+        paddingTop: 6,
+        paddingBottom: 6,
+        paddingInline: 4,
       }}
     >
       {NAV_ITEMS.map(({ id, label }) => {
@@ -33,11 +34,12 @@ export default function BottomNav({ current, onNavigate }) {
               border: "none",
               color: isActive ? "#f0f0f0" : "#8a8a8a",
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: isActive ? 600 : 500,
-              letterSpacing: "0.06em",
+              letterSpacing: "0.04em",
               cursor: "pointer",
-              padding: "12px 0 10px",
+              padding: "10px 0 8px",
+              minHeight: 46,
               transition: "color 0.15s ease",
               textAlign: "center",
               flex: 1,
@@ -45,13 +47,13 @@ export default function BottomNav({ current, onNavigate }) {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 6,
+              gap: 5,
             }}
           >
             {label}
             <div
               style={{
-                width: isActive ? 14 : 10,
+                width: isActive ? 12 : 9,
                 height: 2,
                 borderRadius: 99,
                 background: isActive ? "#dcdcdc" : "#2a2a2a",

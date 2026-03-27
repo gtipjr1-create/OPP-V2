@@ -8,6 +8,14 @@
   --type-leading-tight: 1.12;
   --type-leading-body: 1.45;
   --type-leading-support: 1.42;
+  --mobile-page-gutter: 16px;
+  --mobile-screen-title-size: 32px;
+  --mobile-screen-subtitle-size: 13px;
+  --mobile-section-title-size: 18px;
+  --mobile-body-size: 14px;
+  --mobile-meta-size: 12px;
+  --mobile-stack-gap-tight: 8px;
+  --mobile-stack-gap-base: 10px;
 }
 
 *,

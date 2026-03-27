@@ -1,5 +1,5 @@
 ﻿import { useState } from "react";
-import BottomNav from "./BottomNav";
+import MobileShell from "./MobileShell";
 import { updateDomain } from "./data/domains";
 
 const STATUSES = ["Active", "Steady"];
@@ -32,9 +32,9 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
   return (
     <div
       style={{
-        position: "absolute",
+        position: "fixed",
         inset: 0,
-        zIndex: 20,
+        zIndex: 60,
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-end",
@@ -408,45 +408,25 @@ export default function Domains({ onNavigate, domains, setDomains }) {
     .join(" · ");
 
   return (
-    <div
-      style={{
-        height: "100dvh",
-        background: "#000000",
-        display: "flex",
-        justifyContent: "center",
-        fontFamily: "'DM Sans', sans-serif",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        className="screen-reveal"
-        style={{
-          width: "100%",
-          maxWidth: 430,
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          position: "relative",
-          overflow: "hidden",
-          paddingTop: "max(10px, env(safe-area-inset-top))",
-        }}
-      >
-        <div style={{ height: 28, flexShrink: 0 }} />
-
+    <MobileShell
+      currentNav="domains"
+      onNavigate={onNavigate}
+      header={
+        <>
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            paddingTop: 28,
             marginBottom: 10,
-            flexShrink: 0,
-            paddingInline: 16,
+            paddingInline: "var(--mobile-page-gutter)",
           }}
         >
           <h1
             style={{
               fontFamily: "'DM Serif Display', serif",
-              fontSize: 32,
+              fontSize: "var(--mobile-screen-title-size)",
               fontWeight: 400,
               color: "#f0f0f0",
               lineHeight: "36px",
@@ -459,7 +439,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
           <span
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: 13,
+              fontSize: "var(--mobile-screen-subtitle-size)",
               fontWeight: 500,
               color: "#383838",
               lineHeight: 1.35,
@@ -492,132 +472,126 @@ export default function Domains({ onNavigate, domains, setDomains }) {
             {summaryText || "No domains defined"}
           </span>
         </div>
-
+        </>
+      }
+    >
+      <div style={{ marginBottom: 12 }}>
         <div
           style={{
-            flex: 1,
-            overflowY: "auto",
-            paddingInline: 16,
-            paddingBottom: "max(20px, env(safe-area-inset-bottom))",
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "var(--mobile-section-title-size)",
+            fontWeight: 600,
+            color: "#9a9a9a",
+            lineHeight: 1.3,
+            marginBottom: 8,
           }}
         >
-          <div style={{ marginBottom: 12 }}>
-            <div
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: 18,
-                fontWeight: 600,
-                color: "#9a9a9a",
-                lineHeight: 1.3,
-                marginBottom: 8,
-              }}
-            >
-              Active
-            </div>
-            <div
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: 14,
-                color: "#7a7a7a",
-                lineHeight: 1.42,
-                marginBottom: 10,
-              }}
-            >
-              Active lanes receive deliberate advancement now.
-            </div>
-
-            {activeDomains.length === 0 ? (
-              <div style={{ padding: "12px 0" }}>
-                <div
-                  style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 14,
-                    color: "#686868",
-                    fontStyle: "italic",
-                    marginBottom: 4,
-                  }}
-                >
-                  No active domains set
-                </div>
-                <div
-                  style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 13,
-                    color: "#5e5e5e",
-                    lineHeight: 1.35,
-                  }}
-                >
-                  Promote a lane to active when it needs deliberate push
-                </div>
-              </div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {activeDomains.map((domain) => (
-                  <ActiveDomainCard key={domain.id} domain={domain} onTap={setEditId} />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {steadyDomains.length > 0 && (
-            <div style={{ marginBottom: 12 }}>
-              <div
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 18,
-                  fontWeight: 600,
-                  color: "#9a9a9a",
-                  lineHeight: 1.3,
-                  marginBottom: 10,
-                }}
-              >
-                Steady
-              </div>
-              <div
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 14,
-                  color: "#787878",
-                  lineHeight: 1.42,
-                  marginBottom: 10,
-                }}
-              >
-                Steady lanes remain maintained and visible.
-              </div>
-              <div>
-                {steadyDomains.map((domain, i) => (
-                  <SteadyDomainRow
-                    key={domain.id}
-                    domain={domain}
-                    onTap={setEditId}
-                    isLast={i === steadyDomains.length - 1}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+          Active
+        </div>
+        <div
+          style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "var(--mobile-body-size)",
+            color: "#7a7a7a",
+            lineHeight: 1.42,
+            marginBottom: 10,
+          }}
+        >
+          Active lanes receive deliberate advancement now.
         </div>
 
-        <BottomNav current="domains" onNavigate={onNavigate} />
-
-        {editDomain && (
-          <EditSheet
-            domain={editDomain}
-            onSave={saveDomain}
-            onClose={() => {
-              if (!isSaving) {
-                setSaveError("");
-                setEditId(null);
-              }
-            }}
-            isSaving={isSaving}
-            errorMessage={saveError}
-            atActiveCap={activeDomains.length >= MAX_ACTIVE_DOMAINS && editDomain.status !== "Active"}
-          />
+        {activeDomains.length === 0 ? (
+          <div style={{ padding: "12px 0" }}>
+            <div
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "var(--mobile-body-size)",
+                color: "#686868",
+                fontStyle: "italic",
+                marginBottom: 4,
+              }}
+            >
+              No active domains set
+            </div>
+            <div
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "var(--mobile-screen-subtitle-size)",
+                color: "#5e5e5e",
+                lineHeight: 1.35,
+              }}
+            >
+              Promote a lane to active when it needs deliberate push
+            </div>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {activeDomains.map((domain) => (
+              <ActiveDomainCard key={domain.id} domain={domain} onTap={setEditId} />
+            ))}
+          </div>
         )}
       </div>
-    </div>
+
+      {steadyDomains.length > 0 && (
+        <div style={{ marginBottom: 12 }}>
+          <div
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "var(--mobile-section-title-size)",
+              fontWeight: 600,
+              color: "#9a9a9a",
+              lineHeight: 1.3,
+              marginBottom: 10,
+            }}
+          >
+            Steady
+          </div>
+          <div
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "var(--mobile-body-size)",
+              color: "#787878",
+              lineHeight: 1.42,
+              marginBottom: 10,
+            }}
+          >
+            Steady lanes remain maintained and visible.
+          </div>
+          <div>
+            {steadyDomains.map((domain, i) => (
+              <SteadyDomainRow
+                key={domain.id}
+                domain={domain}
+                onTap={setEditId}
+                isLast={i === steadyDomains.length - 1}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {editDomain && (
+        <EditSheet
+          domain={editDomain}
+          onSave={saveDomain}
+          onClose={() => {
+            if (!isSaving) {
+              setSaveError("");
+              setEditId(null);
+            }
+          }}
+          isSaving={isSaving}
+          errorMessage={saveError}
+          atActiveCap={activeDomains.length >= MAX_ACTIVE_DOMAINS && editDomain.status !== "Active"}
+        />
+      )}
+    </MobileShell>
   );
 }
+
+
+
+
 
 

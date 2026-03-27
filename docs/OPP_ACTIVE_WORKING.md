@@ -42,11 +42,16 @@ Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, 
 - Priority 4 complete (v1 depth): Standards now reads as governing rules, not lightweight notes.
 - Priority 5 complete (v1 depth): repeated information trimmed where it lacked clear purpose.
 - UI rhythm pass complete: bottom nav strengthened and top-stack spacing aligned across all core screens.
+- Mobile shell pass complete: fixed header/nav, single middle scroll surface, and safe-area spacing unified across core screens.
+- Today compression pass complete: top stack and orientation panels tightened for faster access to command surfaces above the fold.
+- Nav refinement complete: mobile label changed from Priorities to Focus for cleaner width and clarity.
+- Icon quality pass complete: sharp high-resolution source restored with subtle pulse motion.
+- Mobile token pass complete: spacing/type tokens introduced for cross-screen consistency.
 
 ## Current Focus
-- Preserve visual restraint while validating readability and interaction clarity on device.
-- Keep model-language consistent as future changes are introduced.
-- Preserve Today's denser operational cadence while keeping global spacing coherence.
+- Validate final mobile rhythm and readability on physical iPhone usage.
+- Preserve model-language consistency as future changes are introduced.
+- Keep token-driven consistency across core screens as refinements continue.
 
 ## Open Implementation Decisions
 - Day-item lifecycle policy is locked: carry-forward-until-complete.

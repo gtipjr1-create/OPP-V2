@@ -1,5 +1,5 @@
 ﻿import { useCallback, useRef, useState } from "react";
-import BottomNav from "./BottomNav";
+import MobileShell from "./MobileShell";
 import { supabase } from "./lib/supabase";
 import { createTodayTask } from "./data/todayTasks";
 
@@ -256,9 +256,9 @@ function OrientationPanel({ label, actionLabel, onAction, children }) {
       style={{
         border: "1px solid #1d1d1d",
         borderRadius: 12,
-        padding: "12px 13px",
+        padding: "10px 11px",
         background: "#090909",
-        marginBottom: 10,
+        marginBottom: 8,
       }}
     >
       <div
@@ -267,13 +267,13 @@ function OrientationPanel({ label, actionLabel, onAction, children }) {
           alignItems: "center",
           justifyContent: "space-between",
           gap: 8,
-          marginBottom: 8,
+          marginBottom: 6,
         }}
       >
         <span
           style={{
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: 600,
             color: "#a8a8a8",
             lineHeight: 1.3,
@@ -291,7 +291,7 @@ function OrientationPanel({ label, actionLabel, onAction, children }) {
               border: "none",
               color: "#9a9a9a",
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: 500,
               cursor: "pointer",
               padding: 0,
@@ -471,137 +471,123 @@ export default function Today({
   }, []);
 
   return (
-    <div
-      style={{
-        height: "100dvh",
-        background: "#000000",
-        display: "flex",
-        justifyContent: "center",
-        fontFamily: "'DM Sans', sans-serif",
-        overflow: "hidden",
-      }}
+    <MobileShell
+      currentNav="home"
+      onNavigate={onNavigate}
+      header={
+        <div
+          style={{
+            paddingTop: 6,
+            paddingBottom: 2,
+          }}
+        >
+          <div
+            style={{
+              height: 34,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              paddingInline: "var(--mobile-page-gutter)",
+            }}
+          >
+            <button
+              onClick={() => onNavigate("settings")}
+              className="tappable"
+              aria-label="Open settings"
+              style={{
+                background: "#0b0b0b",
+                border: "1px solid #232323",
+                borderRadius: 999,
+                color: "#6e6e6e",
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 12,
+                fontWeight: 500,
+                letterSpacing: "0.06em",
+                cursor: "pointer",
+                padding: "6px 10px",
+              }}
+            >
+              Settings
+            </button>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              marginBottom: 6,
+              paddingInline: "var(--mobile-page-gutter)",
+            }}
+          >
+            <div
+              aria-hidden="true"
+              style={{
+                width: 35,
+                height: 35,
+                marginBottom: 10,
+                animation: "iconPulse 2.8s ease-in-out infinite",
+                transformOrigin: "center",
+              }}
+            >
+              <img
+                src="/icons/icon-192.png"
+                alt=""
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  display: "block",
+                  objectFit: "contain",
+                }}
+              />
+            </div>
+            <h1
+              style={{
+                fontFamily: "'DM Serif Display', serif",
+                fontSize: "var(--type-size-page-title)",
+                fontWeight: 400,
+                color: "#f0f0f0",
+                lineHeight: "34px",
+                textAlign: "center",
+                marginBottom: 4,
+              }}
+            >
+              {dateLabel}
+            </h1>
+          </div>
+        </div>
+      }
     >
       <style>{`
         @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes iconPulse {
+          0%, 100% { transform: scale(1); opacity: 0.84; }
+          50% { transform: scale(1.06); opacity: 1; }
+        }
       `}</style>
 
-      <div
-        className="screen-reveal"
-        style={{
-          width: "100%",
-          maxWidth: 430,
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          position: "relative",
-          overflow: "hidden",
-          paddingTop: "max(10px, env(safe-area-inset-top))",
-        }}
-      >
+      {actionError ? (
         <div
           style={{
-            height: 38,
-            flexShrink: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-end",
-            paddingInline: 16,
+            paddingInline: "var(--mobile-page-gutter)",
+            marginBottom: 8,
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "var(--mobile-meta-size)",
+            color: "#d27d7d",
+            textAlign: "center",
           }}
         >
-          <button
-            onClick={() => onNavigate("settings")}
-            className="tappable"
-            aria-label="Open settings"
-            style={{
-              background: "#0b0b0b",
-              border: "1px solid #232323",
-              borderRadius: 999,
-              color: "#6e6e6e",
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 12,
-              fontWeight: 500,
-              letterSpacing: "0.06em",
-              cursor: "pointer",
-              padding: "6px 10px",
-            }}
-          >
-            Settings
-          </button>
+          {actionError}
         </div>
+      ) : null}
 
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            marginBottom: 14,
-            flexShrink: 0,
-            paddingInline: 16,
-          }}
-        >
-          <img
-            src="/icons/favicon-32.png"
-            alt=""
-            aria-hidden="true"
-            style={{ width: 28, height: 28, opacity: 0.5, marginBottom: 14 }}
-          />
-          <h1
-            style={{
-              fontFamily: "'DM Serif Display', serif",
-              fontSize: 32,
-              fontWeight: 400,
-              color: "#f0f0f0",
-              lineHeight: "36px",
-              textAlign: "center",
-              marginBottom: 10,
-            }}
-          >
-            {dateLabel}
-          </h1>
-          <span
-            style={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 11,
-              color: "#383838",
-              letterSpacing: "0.06em",
-              lineHeight: 1.3,
-            }}
-          >
-            Today
-          </span>
-        </div>
-
-        {actionError ? (
-          <div
-            style={{
-              paddingInline: 16,
-              marginBottom: 8,
-              flexShrink: 0,
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 13,
-              color: "#d27d7d",
-              textAlign: "center",
-            }}
-          >
-            {actionError}
-          </div>
-        ) : null}
-
-        <div
-          style={{
-            flex: 1,
-            overflowY: "auto",
-            paddingInline: 16,
-            paddingBottom: "max(20px, env(safe-area-inset-bottom))",
-          }}
-        >
-          <OrientationPanel label="Active Session">
+      <OrientationPanel label="Active Session">
             <div
               style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 16,
+                fontSize: 15,
                 color: "#c7c7c7",
-                marginBottom: 4,
+                marginBottom: 3,
               }}
             >
               {total === 0
@@ -611,7 +597,7 @@ export default function Today({
             <div
                 style={{
                   fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 13,
+                  fontSize: 12,
                   color: "#727272",
                   letterSpacing: "0.04em",
                 }}
@@ -621,9 +607,9 @@ export default function Today({
             {(todayHorizonCount > 0 || weeklyHorizonCount > 0) && (
               <div
                 style={{
-                  marginTop: 4,
+                  marginTop: 3,
                   fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 13,
+                  fontSize: 12,
                   color: "#666666",
                   letterSpacing: "0.04em",
                 }}
@@ -667,7 +653,7 @@ export default function Today({
                         flex: 1,
                         minWidth: 0,
                         fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 16,
+                        fontSize: 15,
                         color:
                           normalizeHorizon(priority.horizon) === "today"
                             ? "#d5d5d5"
@@ -684,7 +670,7 @@ export default function Today({
                     <span
                       style={{
                         fontFamily: "'IBM Plex Mono', monospace",
-                        fontSize: 13,
+                        fontSize: 12,
                         color:
                           normalizeHorizon(priority.horizon) === "today"
                             ? "#4A9EFF"
@@ -714,15 +700,15 @@ export default function Today({
                 No weekly anchors yet.
               </div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {weekAnchors.slice(0, 3).map((anchor) => (
                   <div
                     key={anchor.id}
                     style={{
                       fontFamily: "'DM Sans', sans-serif",
-                      fontSize: 15,
+                      fontSize: 14,
                       color: "#c7c7c7",
-                      lineHeight: 1.35,
+                      lineHeight: 1.3,
                     }}
                   >
                     {anchor.text}
@@ -749,16 +735,16 @@ export default function Today({
                 No active domains set.
               </div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-                {activeDomains.slice(0, 3).map((domain) => (
+              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                {activeDomains.slice(0, 2).map((domain) => (
                   <div key={domain.id} style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
                     <span
                     style={{
                       fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: 13,
+                      fontSize: 12,
                       color: "#4A9EFF",
                         letterSpacing: "0.06em",
-                        minWidth: 56,
+                        minWidth: 52,
                         flexShrink: 0,
                       }}
                     >
@@ -767,10 +753,10 @@ export default function Today({
                     <span
                     style={{
                       fontFamily: "'DM Sans', sans-serif",
-                      fontSize: 15,
+                      fontSize: 14,
                       color: domain.focus ? "#9a9a9a" : "#6f6f6f",
                       fontStyle: domain.focus ? "normal" : "italic",
-                      lineHeight: 1.35,
+                      lineHeight: 1.3,
                       }}
                     >
                       {domain.focus || "No emphasis set"}
@@ -781,7 +767,7 @@ export default function Today({
             )}
           </OrientationPanel>
 
-          <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+          <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
             <input
               ref={quickAddInputRef}
               value={quickAdd}
@@ -801,8 +787,8 @@ export default function Today({
                 borderRadius: 10,
                 color: "#ccc",
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 16,
-                padding: "12px 14px",
+                fontSize: 15,
+                padding: "11px 13px",
                 outline: "none",
                 opacity: isAdding ? 0.7 : 1,
               }}
@@ -813,8 +799,8 @@ export default function Today({
               aria-label="Add day item"
               disabled={!quickAdd.trim() || isAdding}
               style={{
-                width: 44,
-                height: 44,
+                width: 42,
+                height: 42,
                 borderRadius: 10,
                 background:
                   quickAdd.trim() && !isAdding ? "rgba(74,158,255,0.1)" : "transparent",
@@ -822,7 +808,7 @@ export default function Today({
                   quickAdd.trim() && !isAdding ? "rgba(74,158,255,0.35)" : "#222"
                 }`,
                 color: quickAdd.trim() && !isAdding ? "#4A9EFF" : "#2e2e2e",
-                fontSize: 22,
+                fontSize: 20,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -835,11 +821,11 @@ export default function Today({
             </button>
           </div>
 
-          <div style={{ marginBottom: 10 }}>
+          <div style={{ marginBottom: 8 }}>
             <span
               style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 18,
+                fontSize: "var(--mobile-section-title-size)",
                 fontWeight: 600,
                 color: "#9a9a9a",
                 lineHeight: 1.3,
@@ -849,7 +835,7 @@ export default function Today({
             </span>
           </div>
 
-          <div
+      <div
             ref={listRef}
             style={{
               overflow: dragId ? "visible" : "hidden",
@@ -898,11 +884,7 @@ export default function Today({
               ))
             )}
           </div>
-        </div>
-
-        <BottomNav current="home" onNavigate={onNavigate} />
-      </div>
-    </div>
+    </MobileShell>
   );
 }
 

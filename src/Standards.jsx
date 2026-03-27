@@ -1,5 +1,5 @@
 ﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import BottomNav from "./BottomNav";
+import MobileShell from "./MobileShell";
 
 function formatRuleNumber(index) {
   return String(index + 1).padStart(2, "0");
@@ -352,45 +352,25 @@ export default function Standards({
   }, []);
 
   return (
-    <div
-      style={{
-        height: "100dvh",
-        background: "#000000",
-        display: "flex",
-        justifyContent: "center",
-        fontFamily: "'DM Sans', sans-serif",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        className="screen-reveal"
-        style={{
-          width: "100%",
-          maxWidth: 430,
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          position: "relative",
-          overflow: "hidden",
-          paddingTop: "max(10px, env(safe-area-inset-top))",
-        }}
-      >
-        <div style={{ height: 28, flexShrink: 0 }} />
-
+    <MobileShell
+      currentNav="standards"
+      onNavigate={onNavigate}
+      header={
+        <>
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            paddingTop: 28,
             marginBottom: 10,
-            flexShrink: 0,
-            paddingInline: 16,
+            paddingInline: "var(--mobile-page-gutter)",
           }}
         >
           <h1
             style={{
               fontFamily: "'DM Serif Display', serif",
-              fontSize: 32,
+              fontSize: "var(--mobile-screen-title-size)",
               fontWeight: 400,
               color: "#f0f0f0",
               lineHeight: "36px",
@@ -403,7 +383,7 @@ export default function Standards({
           <span
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: 13,
+              fontSize: "var(--mobile-screen-subtitle-size)",
               fontWeight: 500,
               color: "#383838",
               lineHeight: 1.35,
@@ -435,179 +415,172 @@ export default function Standards({
             Non-Negotiables · {sortedStandards.length}/{maxStandards}
           </span>
         </div>
+        </>
+      }
+    >
+      <div
+        style={{
+          marginBottom: 14,
+          textAlign: "center",
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: "var(--mobile-meta-size)",
+          color: "#666",
+          lineHeight: 1.4,
+        }}
+      >
+        These rules govern behavior across mood, energy, and circumstances.
+      </div>
 
-        <div
+      <div style={{ marginBottom: 14 }}>
+        <span
           style={{
-            marginBottom: 14,
-            paddingInline: 16,
-            textAlign: "center",
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: 12,
-            color: "#666",
-            lineHeight: 1.4,
+            fontSize: "var(--mobile-section-title-size)",
+            fontWeight: 600,
+            color: "#9a9a9a",
+            lineHeight: 1.3,
           }}
         >
-          These rules govern behavior across mood, energy, and circumstances.
-        </div>
+          How I Operate
+        </span>
+      </div>
 
-        <div
+      <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 10 }}>
+        <input
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={handleDraftKeyDown}
+          placeholder={hasReachedMax ? "Maximum reached" : "Write a governing rule"}
+          disabled={hasReachedMax || isSaving}
           style={{
             flex: 1,
-            overflowY: "auto",
-            paddingInline: 16,
-            paddingBottom: "max(20px, env(safe-area-inset-bottom))",
+            minWidth: 0,
+            background: "#0a0a0a",
+            border: "1px solid #1d1d1d",
+            borderRadius: 14,
+            color: "#d6d6d6",
+            fontSize: 16,
+            padding: "13px 12px",
+            fontFamily: "'DM Sans', sans-serif",
+            outline: "none",
+          }}
+        />
+        <button
+          onClick={handleAdd}
+          className="tappable"
+          disabled={hasReachedMax || isSaving}
+          style={{
+            flexShrink: 0,
+            padding: "13px 12px",
+            borderRadius: 14,
+            border: "1px solid #2a2a2a",
+            background: "transparent",
+            color: hasReachedMax ? "#444" : "#c8c8c8",
+            fontSize: 12,
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontWeight: 600,
+            cursor: hasReachedMax || isSaving ? "default" : "pointer",
           }}
         >
-          <div style={{ marginBottom: 14 }}>
-            <span
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: 18,
-                fontWeight: 600,
-                color: "#9a9a9a",
-                lineHeight: 1.3,
-              }}
-            >
-              How I Operate
-            </span>
-          </div>
-
-          <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 10 }}>
-            <input
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={handleDraftKeyDown}
-              placeholder={hasReachedMax ? "Maximum reached" : "Write a governing rule"}
-              disabled={hasReachedMax || isSaving}
-              style={{
-                flex: 1,
-                minWidth: 0,
-                background: "#0a0a0a",
-                border: "1px solid #1d1d1d",
-                borderRadius: 14,
-                color: "#d6d6d6",
-                fontSize: 16,
-                padding: "13px 12px",
-                fontFamily: "'DM Sans', sans-serif",
-                outline: "none",
-              }}
-            />
-            <button
-              onClick={handleAdd}
-              className="tappable"
-              disabled={hasReachedMax || isSaving}
-              style={{
-                flexShrink: 0,
-                padding: "13px 12px",
-                borderRadius: 14,
-                border: "1px solid #2a2a2a",
-                background: "transparent",
-                color: hasReachedMax ? "#444" : "#c8c8c8",
-                fontSize: 12,
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontWeight: 600,
-                cursor: hasReachedMax || isSaving ? "default" : "pointer",
-              }}
-            >
-              Add
-            </button>
-          </div>
-
-          <div
-            style={{
-              marginBottom: 10,
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 13,
-              fontWeight: 500,
-              color: "#7a7a7a",
-              lineHeight: 1.35,
-            }}
-          >
-            Direct · Operational · Repeatable
-          </div>
-
-          {localError ? (
-            <div style={{ marginBottom: 8, fontSize: 12, color: "#8a8a8a", lineHeight: 1.4 }}>
-              {localError}
-            </div>
-          ) : null}
-
-          {displayStandards.length === 0 ? (
-            <div style={{ paddingTop: 16 }}>
-              <p style={{ color: "#b0b0b0", fontSize: 14, lineHeight: 1.6 }}>
-                No governing rules defined yet.
-              </p>
-              <p style={{ color: "#6a6a6a", fontSize: 13, lineHeight: 1.6, marginTop: 4 }}>
-                Standards should be clear enough to follow even when motivation is low.
-              </p>
-              <p style={{ color: "#4f4f4f", fontSize: 12, lineHeight: 1.6, marginTop: 6 }}>
-                Example shape: "Finish planned work before drift."
-              </p>
-            </div>
-          ) : (
-            <div
-              ref={listRef}
-              style={{
-                overflow: dragId ? "visible" : "hidden",
-                touchAction: dragId ? "none" : "pan-y",
-              }}
-              onPointerDown={onContainerPointerDown}
-              onPointerMove={onContainerPointerMove}
-              onPointerUp={onContainerPointerUp}
-              onPointerLeave={onContainerPointerLeave}
-            >
-              {displayStandards.map((standard, index) => {
-                const isEditing = editingId === standard.id;
-
-                if (isEditing) {
-                  return (
-                    <div
-                      key={standard.id}
-                      style={{ borderTop: "1px solid #1e1e1e", padding: "14px 0" }}
-                    >
-                      <input
-                        autoFocus
-                        value={editingText}
-                        onChange={(e) => setEditingText(e.target.value)}
-                        onKeyDown={handleEditKeyDown}
-                        onBlur={handleSaveEdit}
-                        style={{
-                          width: "100%",
-                          background: "#0a0a0a",
-                          border: "1px solid #262626",
-                          borderRadius: 10,
-                          color: "#d6d6d6",
-                          fontSize: 16,
-                          lineHeight: 1.45,
-                          padding: "10px 12px",
-                          fontFamily: "'DM Sans', sans-serif",
-                          outline: "none",
-                        }}
-                      />
-                    </div>
-                  );
-                }
-
-                return (
-                  <StandardRow
-                    key={standard.id}
-                    standard={standard}
-                    ruleNumber={formatRuleNumber(index)}
-                    onDelete={handleDelete}
-                    onTap={startEdit}
-                    isDragging={dragId === standard.id}
-                    isOver={overIndex === index && dragId !== standard.id}
-                  />
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        <BottomNav current="standards" onNavigate={onNavigate} />
+          Add
+        </button>
       </div>
-    </div>
+
+      <div
+        style={{
+          marginBottom: 10,
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: "var(--mobile-screen-subtitle-size)",
+          fontWeight: 500,
+          color: "#7a7a7a",
+          lineHeight: 1.35,
+        }}
+      >
+        Direct · Operational · Repeatable
+      </div>
+
+      {localError ? (
+        <div style={{ marginBottom: 8, fontSize: "var(--mobile-meta-size)", color: "#8a8a8a", lineHeight: 1.4 }}>
+          {localError}
+        </div>
+      ) : null}
+
+      {displayStandards.length === 0 ? (
+        <div style={{ paddingTop: 16 }}>
+          <p style={{ color: "#b0b0b0", fontSize: "var(--mobile-body-size)", lineHeight: 1.6 }}>
+            No governing rules defined yet.
+          </p>
+          <p style={{ color: "#6a6a6a", fontSize: "var(--mobile-screen-subtitle-size)", lineHeight: 1.6, marginTop: 4 }}>
+            Standards should be clear enough to follow even when motivation is low.
+          </p>
+          <p style={{ color: "#4f4f4f", fontSize: "var(--mobile-meta-size)", lineHeight: 1.6, marginTop: 6 }}>
+            Example shape: "Finish planned work before drift."
+          </p>
+        </div>
+      ) : (
+        <div
+          ref={listRef}
+          style={{
+            overflow: dragId ? "visible" : "hidden",
+            touchAction: dragId ? "none" : "pan-y",
+          }}
+          onPointerDown={onContainerPointerDown}
+          onPointerMove={onContainerPointerMove}
+          onPointerUp={onContainerPointerUp}
+          onPointerLeave={onContainerPointerLeave}
+        >
+          {displayStandards.map((standard, index) => {
+            const isEditing = editingId === standard.id;
+
+            if (isEditing) {
+              return (
+                <div
+                  key={standard.id}
+                  style={{ borderTop: "1px solid #1e1e1e", padding: "14px 0" }}
+                >
+                  <input
+                    autoFocus
+                    value={editingText}
+                    onChange={(e) => setEditingText(e.target.value)}
+                    onKeyDown={handleEditKeyDown}
+                    onBlur={handleSaveEdit}
+                    style={{
+                      width: "100%",
+                      background: "#0a0a0a",
+                      border: "1px solid #262626",
+                      borderRadius: 10,
+                      color: "#d6d6d6",
+                      fontSize: 16,
+                      lineHeight: 1.45,
+                      padding: "10px 12px",
+                      fontFamily: "'DM Sans', sans-serif",
+                      outline: "none",
+                    }}
+                  />
+                </div>
+              );
+            }
+
+            return (
+              <StandardRow
+                key={standard.id}
+                standard={standard}
+                ruleNumber={formatRuleNumber(index)}
+                onDelete={handleDelete}
+                onTap={startEdit}
+                isDragging={dragId === standard.id}
+                isOver={overIndex === index && dragId !== standard.id}
+              />
+            );
+          })}
+        </div>
+      )}
+    </MobileShell>
   );
 }
+
+
+
+
 
 

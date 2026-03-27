@@ -67,3 +67,25 @@ Language-architecture lock for Today vs Priorities.
 
 ### Verification
 - build passed
+
+## March 27, 2026 (Mobile Refinement Pass)
+
+### Session Focus
+Mobile shell stabilization and command-surface polish for iPhone behavior.
+
+### What I Completed
+- implemented a shared mobile shell for core screens with fixed header/nav and single middle scroll surface
+- enforced safe-area behavior and dynamic shell measurements to prevent header/nav underlap or clipping
+- tightened Today above-the-fold spacing and panel density for faster orientation
+- changed mobile bottom-nav label from Priorities to Focus for better compact readability
+- restored icon sharpness using high-resolution asset and brought back subtle pulse motion
+- introduced mobile spacing/type tokens and applied them across Today, Domains, Focus, Standards, and Settings
+- added LAN URL startup helper so phone reconnect URL is printed on every dev start
+
+### Key Decisions
+- mobile shell behavior is now standardized rather than screen-by-screen
+- keep icon motion subtle and premium (no blur/glow softening)
+- maintain calm visual language while improving above-the-fold utility
+
+### Verification
+- build passed

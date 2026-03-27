@@ -1,5 +1,5 @@
 ﻿import { useState, useRef, useCallback } from "react";
-import BottomNav from "./BottomNav";
+import MobileShell from "./MobileShell";
 import { supabase } from "./lib/supabase";
 import {
   createPriority,
@@ -94,9 +94,9 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
   return (
     <div
       style={{
-        position: "absolute",
+        position: "fixed",
         inset: 0,
-        zIndex: 20,
+        zIndex: 60,
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-end",
@@ -738,45 +738,25 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
   }
 
   return (
-    <div
-      style={{
-        height: "100dvh",
-        background: "#000000",
-        display: "flex",
-        justifyContent: "center",
-        fontFamily: "'DM Sans', sans-serif",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        className="screen-reveal"
-        style={{
-          width: "100%",
-          maxWidth: 430,
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          position: "relative",
-          overflow: "hidden",
-          paddingTop: "max(10px, env(safe-area-inset-top))",
-        }}
-      >
-        <div style={{ height: 28, flexShrink: 0 }} />
-
+    <MobileShell
+      currentNav="priorities"
+      onNavigate={onNavigate}
+      header={
+        <>
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            paddingTop: 28,
             marginBottom: 10,
-            flexShrink: 0,
-            paddingInline: 16,
+            paddingInline: "var(--mobile-page-gutter)",
           }}
         >
           <h1
             style={{
               fontFamily: "'DM Serif Display', serif",
-              fontSize: 32,
+              fontSize: "var(--mobile-screen-title-size)",
               fontWeight: 400,
               color: "#f0f0f0",
               lineHeight: "36px",
@@ -789,7 +769,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
           <span
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: 13,
+              fontSize: "var(--mobile-screen-subtitle-size)",
               fontWeight: 500,
               color: "#383838",
               lineHeight: 1.35,
@@ -805,7 +785,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
             justifyContent: "center",
             marginBottom: 12,
             flexShrink: 0,
-            paddingInline: 16,
+            paddingInline: "var(--mobile-page-gutter)",
           }}
         >
           <span
@@ -824,218 +804,209 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
             {active.length === 0 ? "No focus locked" : capacityText}
           </span>
         </div>
-
-        {actionError ? (
-          <div
-            style={{
-              paddingInline: 16,
-              marginBottom: 10,
-              flexShrink: 0,
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 13,
-              color: "#d27d7d",
-              textAlign: "center",
-            }}
-          >
-            {actionError}
-          </div>
-        ) : null}
-
+        </>
+      }
+    >
+      {actionError ? (
         <div
           style={{
-            flex: 1,
-            overflowY: "auto",
-            paddingInline: 16,
-            paddingBottom: "max(20px, env(safe-area-inset-bottom))",
+            marginBottom: 10,
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "var(--mobile-meta-size)",
+            color: "#d27d7d",
+            textAlign: "center",
           }}
         >
-          <div
+          {actionError}
+        </div>
+      ) : null}
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          overflow: dragId ? "visible" : "hidden",
+          marginBottom: 14,
+        }}
+      >
+        <div style={{ marginBottom: 12, flexShrink: 0 }}>
+          <span
             style={{
-              display: "flex",
-              flexDirection: "column",
-              overflow: dragId ? "visible" : "hidden",
-              marginBottom: 14,
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "var(--mobile-section-title-size)",
+              fontWeight: 600,
+              color: "#9a9a9a",
+              lineHeight: 1.3,
             }}
           >
-            <div style={{ marginBottom: 12, flexShrink: 0 }}>
-              <span
-                style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: 18,
-                fontWeight: 600,
-                color: "#9a9a9a",
-                lineHeight: 1.3,
-              }}
-            >
-                In Focus
-              </span>
-            </div>
-            <div
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: 14,
-                color: "#7d7d7d",
-                lineHeight: 1.4,
-                marginBottom: 10,
-              }}
-            >
-              Chosen commitments receiving active advancement now.
-            </div>
+            In Focus
+          </span>
+        </div>
+        <div
+          style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "var(--mobile-body-size)",
+            color: "#7d7d7d",
+            marginBottom: 10,
+            lineHeight: 1.4,
+          }}
+        >
+          Chosen commitments receiving active advancement now.
+        </div>
 
-            <div
-              ref={listRef}
-              style={{
-                maxHeight: "42dvh",
-                overflowY: dragId ? "visible" : "auto",
-                touchAction: dragId ? "none" : "pan-y",
-              }}
-              onPointerDown={onContainerPointerDown}
-              onPointerMove={onContainerPointerMove}
-              onPointerUp={onContainerPointerUp}
-              onPointerLeave={onContainerPointerLeave}
-            >
-              {active.length === 0 ? (
-                <div style={{ padding: "28px 0 20px" }}>
-                  <div
-                    style={{
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: 15,
-                      fontWeight: 500,
-                      color: "#a0a0a0",
-                      fontStyle: "italic",
-                      marginBottom: 6,
-                    }}
-                  >
-                    No commitments in focus
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: 14,
-                      fontWeight: 500,
-                      color: "#777",
-                      lineHeight: 1.4,
-                    }}
-                    >
-                      Set 1-3 commitments that deserve attention now
-                    </div>
-                  </div>
-              ) : (
-                active.map((p, index) => (
-                  <PriorityRow
-                    key={p.id}
-                    priority={p}
-                    onPark={parkPriority}
-                    onDelete={removePriority}
-                    isDragging={dragId === p.id}
-                    isOver={overIndex === index && dragId !== p.id}
-                  />
-                ))
-              )}
-            </div>
-
-            <div style={{ paddingTop: 10, paddingBottom: 6, flexShrink: 0 }}>
-              {active.length > 1 && (
-                <div
-                  style={{
-                    fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 10,
-                    color: "#454545",
-                    letterSpacing: "0.05em",
-                    marginBottom: 8,
-                  }}
-                >
-                  Hold and drag to reorder focus weight
-                </div>
-              )}
-              <button
-                onClick={() => !atCap && setAddOpen(true)}
-                className="tappable"
-                aria-label={atCap ? "Commitment capacity reached" : "Add commitment"}
+        <div
+          ref={listRef}
+          style={{
+            overflow: dragId ? "visible" : "hidden",
+            touchAction: dragId ? "none" : "pan-y",
+          }}
+          onPointerDown={onContainerPointerDown}
+          onPointerMove={onContainerPointerMove}
+          onPointerUp={onContainerPointerUp}
+          onPointerLeave={onContainerPointerLeave}
+        >
+          {active.length === 0 ? (
+            <div style={{ padding: "28px 0 20px" }}>
+              <div
                 style={{
-                  background: atCap ? "transparent" : "rgba(74,158,255,0.08)",
-                  border: `1px solid ${atCap ? "#252525" : "rgba(74,158,255,0.35)"}`,
-                  borderRadius: 10,
                   fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 14,
+                  fontSize: 15,
                   fontWeight: 500,
-                  color: atCap ? "#3a3a3a" : "#78b6ff",
-                  cursor: atCap ? "default" : "pointer",
-                  padding: "9px 12px",
-                  transition: "all 0.15s ease",
-                }}
-                onMouseEnter={(e) => {
-                  if (!atCap) {
-                    e.currentTarget.style.color = "#9fceff";
-                    e.currentTarget.style.borderColor = "rgba(74,158,255,0.55)";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!atCap) {
-                    e.currentTarget.style.color = "#78b6ff";
-                    e.currentTarget.style.borderColor = "rgba(74,158,255,0.35)";
-                  }
+                  color: "#a0a0a0",
+                  fontStyle: "italic",
+                  marginBottom: 6,
                 }}
               >
-                {atCap ? "- at capacity" : "+ Add Commitment"}
-              </button>
-            </div>
-          </div>
-
-          {notNow.length > 0 && (
-            <div style={{ marginBottom: 10 }}>
-              <div style={{ marginBottom: 12 }}>
-                <span
-                  style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 18,
-                    fontWeight: 600,
-                    color: "#8e8e8e",
-                    lineHeight: 1.3,
-                  }}
-                >
-                  Not Now
-                </span>
+                No commitments in focus
               </div>
               <div
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 14,
-                  color: "#7a7a7a",
+                  fontSize: "var(--mobile-body-size)",
+                  fontWeight: 500,
+                  color: "#777",
                   lineHeight: 1.4,
-                  marginBottom: 8,
                 }}
               >
-                Paused commitments that can be reactivated when focus shifts.
+                Set 1-3 commitments that deserve attention now
               </div>
-              {notNow.map((p) => (
-                <NotNowRow key={p.id} priority={p} onActivate={activatePriority} />
-              ))}
-              <div style={{ height: 6 }} />
             </div>
+          ) : (
+            active.map((p, index) => (
+              <PriorityRow
+                key={p.id}
+                priority={p}
+                onPark={parkPriority}
+                onDelete={removePriority}
+                isDragging={dragId === p.id}
+                isOver={overIndex === index && dragId !== p.id}
+              />
+            ))
           )}
         </div>
 
-        <BottomNav current="priorities" onNavigate={onNavigate} />
-
-        {addOpen && (
-          <AddSheet
-            onAdd={addPriority}
-            onClose={() => {
-              if (!isAdding) {
-                setActionError("");
-                setAddOpen(false);
+        <div style={{ paddingTop: 10, paddingBottom: 6, flexShrink: 0 }}>
+          {active.length > 1 && (
+            <div
+              style={{
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 10,
+                color: "#454545",
+                letterSpacing: "0.05em",
+                marginBottom: 8,
+              }}
+            >
+              Hold and drag to reorder focus weight
+            </div>
+          )}
+          <button
+            onClick={() => !atCap && setAddOpen(true)}
+            className="tappable"
+            aria-label={atCap ? "Commitment capacity reached" : "Add commitment"}
+            style={{
+              background: atCap ? "transparent" : "rgba(74,158,255,0.08)",
+              border: `1px solid ${atCap ? "#252525" : "rgba(74,158,255,0.35)"}`,
+              borderRadius: 10,
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "var(--mobile-body-size)",
+              fontWeight: 500,
+              color: atCap ? "#3a3a3a" : "#78b6ff",
+              cursor: atCap ? "default" : "pointer",
+              padding: "9px 12px",
+              transition: "all 0.15s ease",
+            }}
+            onMouseEnter={(e) => {
+              if (!atCap) {
+                e.currentTarget.style.color = "#9fceff";
+                e.currentTarget.style.borderColor = "rgba(74,158,255,0.55)";
               }
             }}
-            domains={domains}
-            isSaving={isAdding}
-            errorMessage={actionError}
-          />
-        )}
+            onMouseLeave={(e) => {
+              if (!atCap) {
+                e.currentTarget.style.color = "#78b6ff";
+                e.currentTarget.style.borderColor = "rgba(74,158,255,0.35)";
+              }
+            }}
+          >
+            {atCap ? "- at capacity" : "+ Add Commitment"}
+          </button>
+        </div>
       </div>
-    </div>
+
+      {notNow.length > 0 && (
+        <div style={{ marginBottom: 10 }}>
+          <div style={{ marginBottom: 12 }}>
+            <span
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "var(--mobile-section-title-size)",
+                fontWeight: 600,
+                color: "#8e8e8e",
+                lineHeight: 1.3,
+              }}
+            >
+              Not Now
+            </span>
+          </div>
+          <div
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "var(--mobile-body-size)",
+              color: "#7a7a7a",
+              lineHeight: 1.4,
+              marginBottom: 8,
+            }}
+          >
+            Paused commitments that can be reactivated when focus shifts.
+          </div>
+          {notNow.map((p) => (
+            <NotNowRow key={p.id} priority={p} onActivate={activatePriority} />
+          ))}
+          <div style={{ height: 6 }} />
+        </div>
+      )}
+
+      {addOpen && (
+        <AddSheet
+          onAdd={addPriority}
+          onClose={() => {
+            if (!isAdding) {
+              setActionError("");
+              setAddOpen(false);
+            }
+          }}
+          domains={domains}
+          isSaving={isAdding}
+          errorMessage={actionError}
+        />
+      )}
+    </MobileShell>
   );
 }
+
+
+
+
 
 
 
