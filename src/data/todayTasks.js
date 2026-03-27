@@ -9,7 +9,10 @@ export async function loadTodayTasks(userId, date = getTodayISODate()) {
     .from("today_tasks")
     .select("*")
     .eq("user_id", userId)
-    .eq("date", date)
+    // Carry unfinished day items forward until they are completed.
+    .or(`done.eq.false,date.eq.${date}`)
+    .order("done", { ascending: true })
+    .order("date", { ascending: true })
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: true });
 
@@ -77,3 +80,4 @@ export async function updateTodayTaskSortOrders(tasks) {
     throw new Error(`Today task reorder failed: ${failed.error.message}`);
   }
 }
+

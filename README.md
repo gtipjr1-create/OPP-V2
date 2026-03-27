@@ -80,7 +80,6 @@ Recent refinement work completed:
 
 ## Open Decisions
 
-- Decide day-item carry behavior:
-  - today-only persistence
-  - or carry forward until completed
+- Day-item carry behavior is locked: carry forward until completed.
 - Decide whether Settings should become a first-class top-level nav destination from every screen.
+

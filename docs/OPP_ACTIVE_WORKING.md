@@ -49,7 +49,7 @@ Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, 
 - Preserve Today's denser operational cadence while keeping global spacing coherence.
 
 ## Open Implementation Decisions
-- Day-item lifecycle policy is still open: today-only vs carry-forward-until-complete.
+- Day-item lifecycle policy is locked: carry-forward-until-complete.
 - Settings access model is still open: current direct entry from Today vs full top-level parity.
 
 ## In Scope Right Now
@@ -72,3 +72,4 @@ Before shipping a change, confirm:
 3. Does it preserve calm, low-noise surfaces?
 4. Does it make one screen more clearly itself?
 5. Does it avoid feature breadth for its own sake?
+
