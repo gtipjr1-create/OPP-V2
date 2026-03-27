@@ -69,4 +69,18 @@ Recent refinement work completed:
 - strengthened Standards as a governing layer
 - refined Domains as structural life lanes
 - added Settings glossary (collapsed by default, expandable groups)
-- completed final UI polish pass (type scale, spacing rhythm, icon restoration, nav typography)
+- completed UI polish pass (type scale, spacing rhythm, icon restoration, nav typography)
+- completed bottom-nav and cross-screen spacing consistency pass
+
+## Current UI State
+
+- Bottom navigation now has stronger legibility and active-state presence.
+- Header stacks (title, descriptor, status pill) are rhythm-aligned across Today, Domains, Priorities, Standards, and Settings.
+- Today remains intentionally denser than the other screens, but spacing is now harmonized with global screen cadence.
+
+## Open Decisions
+
+- Decide day-item carry behavior:
+  - today-only persistence
+  - or carry forward until completed
+- Decide whether Settings should become a first-class top-level nav destination from every screen.

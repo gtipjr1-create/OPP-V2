@@ -41,10 +41,16 @@ Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, 
 - Priority 3 complete (v1 depth): horizon ordering and active/steady/session semantics now influence presentation.
 - Priority 4 complete (v1 depth): Standards now reads as governing rules, not lightweight notes.
 - Priority 5 complete (v1 depth): repeated information trimmed where it lacked clear purpose.
+- UI rhythm pass complete: bottom nav strengthened and top-stack spacing aligned across all core screens.
 
 ## Current Focus
 - Preserve visual restraint while validating readability and interaction clarity on device.
 - Keep model-language consistent as future changes are introduced.
+- Preserve Today's denser operational cadence while keeping global spacing coherence.
+
+## Open Implementation Decisions
+- Day-item lifecycle policy is still open: today-only vs carry-forward-until-complete.
+- Settings access model is still open: current direct entry from Today vs full top-level parity.
 
 ## In Scope Right Now
 - Tighten language and semantics.
