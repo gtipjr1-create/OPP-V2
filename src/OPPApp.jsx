@@ -58,6 +58,7 @@ function formatTodayTaskRow(row) {
     label: row.label || "",
     done: Boolean(row.done),
     sortOrder: row.sort_order ?? 0,
+    date: row.date || null,
   };
 }
 

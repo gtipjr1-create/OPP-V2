@@ -251,3 +251,24 @@ Implement Standards v2/v3 depth by adding category structure and lightweight rev
 
 ### Verification
 - build passed
+
+## March 28, 2026 (Today Intelligence Pass - Carry Forward + Focus Signals)
+
+### Session Focus
+Increase Today orientation quality with low-noise carry-forward visibility and compact focus guidance.
+
+### What I Completed
+- added carry-forward detection on day items using task `date` metadata
+- added carry-forward count cue inside Active Session
+- added compact focus signal line (today-priority-first, fallback to active domain focus)
+- added row-level carry-forward label on unfinished carried items
+- added Day Items helper cue clarifying carry-forward behavior
+- extended Today task row formatter to include `date` from persistence layer
+
+### Key Decisions
+- keep intelligence cues lightweight and supportive rather than adding heavy control surfaces
+- preserve existing interaction model and task ordering behavior
+- prioritize clarity in-session without increasing cognitive noise
+
+### Verification
+- build passed

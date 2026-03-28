@@ -57,6 +57,7 @@ Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, 
 - Settings entry polish complete: Today uses a standalone cog icon trigger and Settings header clipping has been corrected.
 - Standards depth pass (v1) complete: live rule-quality guidance added during standard draft/edit to improve operational clarity.
 - Standards depth pass (v2/v3) complete: category model/filtering and lightweight review cadence are now integrated with persistence wiring.
+- Today intelligence pass (v1) complete: carry-forward cues and focus-signal indicators now improve orientation without increasing noise.
 
 ## Current Focus
 - Preserve stable baseline while collecting any final device-specific edge cases.
@@ -69,6 +70,7 @@ Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, 
 - Keep utility-entry iconography minimal, clear, and consistent with app chrome.
 - Continue strengthening Standards as a behavior-shaping layer, not just a storage list.
 - Keep Standards filters and review actions lightweight so governance remains actionable at a glance.
+- Preserve calm command-surface behavior while surfacing carry-forward and focus signals where they matter.
 
 ## Stability Checklist (Current)
 - Build passes on current branch.

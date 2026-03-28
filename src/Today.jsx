@@ -41,6 +41,11 @@ function horizonWeight(horizon) {
   return HORIZON_ORDER[normalizeHorizon(horizon)] ?? HORIZON_ORDER["this week"];
 }
 
+function isCarryForwardTask(taskDate, currentDate) {
+  if (!taskDate) return false;
+  return taskDate < currentDate;
+}
+
 function localISODate() {
   const now = new Date();
   const year = now.getFullYear();
@@ -119,7 +124,7 @@ const CheckIcon = ({ checked }) => (
   </div>
 );
 
-function TaskRow({ task, onToggle, onDelete, isDragging, isOver }) {
+function TaskRow({ task, onToggle, onDelete, isDragging, isOver, isCarryForward }) {
   const swipeX = useRef(0);
   const startX = useRef(0);
   const startY = useRef(0);
@@ -245,6 +250,19 @@ function TaskRow({ task, onToggle, onDelete, isDragging, isOver }) {
           >
             {task.label}
           </div>
+          {isCarryForward ? (
+            <div
+              style={{
+                marginTop: 3,
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 10,
+                color: "#5f6b78",
+                letterSpacing: "0.04em",
+              }}
+            >
+              Carry-forward
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
@@ -343,8 +361,12 @@ export default function Today({
   tasksRef.current = tasks;
 
   const dateLabel = todayDateLabel();
+  const currentDate = localISODate();
   const doneCount = tasks.filter((t) => t.done).length;
   const total = tasks.length;
+  const carryForwardOpenCount = tasks.filter(
+    (task) => !task.done && isCarryForwardTask(task.date, currentDate)
+  ).length;
   const activePriorities = priorities.filter((p) => !p.deferred);
   const activeDomains = domains.filter((d) => d.status === "Active");
   const todayHorizonCount = activePriorities.filter((p) => normalizeHorizon(p.horizon) === "today").length;
@@ -358,6 +380,8 @@ export default function Today({
   const visibleDomainCount = isShortViewport && !domainsExpanded ? 1 : 2;
   const visibleActiveDomains = activeDomains.slice(0, visibleDomainCount);
   const hiddenDomainCount = Math.max(activeDomains.length - visibleActiveDomains.length, 0);
+  const todayPriority = activePriorities.find((p) => normalizeHorizon(p.horizon) === "today") || null;
+  const topActiveDomainWithFocus = activeDomains.find((d) => d.focus && d.focus.trim()) || null;
 
   useEffect(() => {
     function handleResize() {
@@ -745,6 +769,44 @@ export default function Today({
             >
               {activePriorities.length} in focus · {activeDomains.length} active domains
             </div>
+            {todayPriority ? (
+              <div
+                style={{
+                  marginTop: 3,
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 13,
+                  color: "#8a8a8a",
+                  lineHeight: 1.35,
+                }}
+              >
+                Today signal: {todayPriority.label}
+              </div>
+            ) : topActiveDomainWithFocus ? (
+              <div
+                style={{
+                  marginTop: 3,
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 13,
+                  color: "#7f8893",
+                  lineHeight: 1.35,
+                }}
+              >
+                Domain signal: {topActiveDomainWithFocus.name} - {topActiveDomainWithFocus.focus}
+              </div>
+            ) : null}
+            {carryForwardOpenCount > 0 ? (
+              <div
+                style={{
+                  marginTop: 3,
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: 11,
+                  color: "#60738a",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                {carryForwardOpenCount} carry-forward item{carryForwardOpenCount === 1 ? "" : "s"} open
+              </div>
+            ) : null}
             {(todayHorizonCount > 0 || weeklyHorizonCount > 0) && (
               <div
                 style={{
@@ -1031,6 +1093,19 @@ export default function Today({
               Hold and drag any day item to reorder
             </div>
           )}
+          {carryForwardOpenCount > 0 && (
+            <div
+              style={{
+                marginBottom: 8,
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 13,
+                color: "#6f7f90",
+                lineHeight: 1.35,
+              }}
+            >
+              Carry-forward items are shown with a small label until completed.
+            </div>
+          )}
 
       <div
             ref={listRef}
@@ -1077,6 +1152,7 @@ export default function Today({
                   onDelete={deleteTask}
                   isDragging={dragId === task.id}
                   isOver={overIndex === index && dragId !== task.id}
+                  isCarryForward={isCarryForwardTask(task.date, currentDate)}
                 />
               ))
             )}
