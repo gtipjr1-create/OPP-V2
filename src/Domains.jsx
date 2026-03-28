@@ -433,7 +433,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
     steadyDomains.length > 0 ? `${steadyDomains.length} steady` : null,
   ]
     .filter(Boolean)
-    .join(" Â· ");
+    .join(" · ");
 
   async function saveInlineFocus(domain) {
     const nextFocus = inlineFocusValue.trim();
@@ -488,7 +488,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
             flexDirection: "column",
             alignItems: "center",
             paddingTop: 28,
-            marginBottom: 10,
+            marginBottom: 8,
             paddingInline: "var(--mobile-page-gutter)",
           }}
         >
@@ -500,7 +500,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
               color: "#f0f0f0",
               lineHeight: "36px",
               textAlign: "center",
-              marginBottom: 7,
+              marginBottom: 6,
             }}
           >
             Domains
@@ -522,7 +522,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
           style={{
             display: "flex",
             justifyContent: "center",
-            marginBottom: 12,
+            marginBottom: 10,
             flexShrink: 0,
           }}
         >
@@ -544,7 +544,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
         </>
       }
     >
-      <div style={{ marginBottom: 12 }}>
+      <div style={{ marginBottom: 10 }}>
         <div
           style={{
             fontFamily: "'DM Sans', sans-serif",
@@ -552,7 +552,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
             fontWeight: 600,
             color: "#9a9a9a",
             lineHeight: 1.3,
-            marginBottom: 8,
+            marginBottom: 6,
           }}
         >
           Active
@@ -563,7 +563,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
               fontSize: "var(--mobile-body-size)",
               color: "#7a7a7a",
               lineHeight: 1.42,
-            marginBottom: 8,
+            marginBottom: 6,
             }}
           >
           Active lanes receive deliberate advancement now. Tap focus text to edit quickly.
@@ -594,12 +594,12 @@ export default function Domains({ onNavigate, domains, setDomains }) {
             </div>
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             {activeDomains.map((domain) => (
               <div key={domain.id}>
                 <ActiveDomainCard domain={domain} onTap={setEditId} />
                 {inlineEditId === domain.id ? (
-                  <div style={{ marginTop: 8, marginBottom: 6 }}>
+                  <div style={{ marginTop: 6, marginBottom: 4 }}>
                     <input
                       autoFocus
                       value={inlineFocusValue}
@@ -641,7 +641,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
                     }}
                     disabled={isSaving}
                     style={{
-                      marginTop: 6,
+                      marginTop: 4,
                       background: "none",
                       border: "none",
                       color: "#5b5b5b",
@@ -662,7 +662,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
       </div>
 
       {steadyDomains.length > 0 && (
-        <div style={{ marginBottom: 12 }}>
+        <div style={{ marginBottom: 10 }}>
           <div
             style={{
               fontFamily: "'DM Sans', sans-serif",
@@ -670,7 +670,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
               fontWeight: 600,
               color: "#9a9a9a",
               lineHeight: 1.3,
-              marginBottom: 10,
+              marginBottom: 8,
             }}
           >
             Steady
@@ -681,7 +681,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
               fontSize: "var(--mobile-body-size)",
               color: "#787878",
               lineHeight: 1.42,
-              marginBottom: 8,
+              marginBottom: 6,
             }}
           >
             Steady lanes remain maintained and visible.

@@ -781,7 +781,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
             flexDirection: "column",
             alignItems: "center",
             paddingTop: 28,
-            marginBottom: 10,
+            marginBottom: 8,
             paddingInline: "var(--mobile-page-gutter)",
           }}
         >
@@ -793,7 +793,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
               color: "#f0f0f0",
               lineHeight: "36px",
               textAlign: "center",
-              marginBottom: 7,
+              marginBottom: 6,
             }}
           >
             Priorities
@@ -815,7 +815,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
           style={{
             display: "flex",
             justifyContent: "center",
-            marginBottom: 12,
+            marginBottom: 10,
             flexShrink: 0,
             paddingInline: "var(--mobile-page-gutter)",
           }}
@@ -858,10 +858,10 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
           display: "flex",
           flexDirection: "column",
           overflow: dragId ? "visible" : "hidden",
-          marginBottom: 14,
+          marginBottom: 12,
         }}
       >
-        <div style={{ marginBottom: 12, flexShrink: 0 }}>
+        <div style={{ marginBottom: 10, flexShrink: 0 }}>
           <span
             style={{
               fontFamily: "'DM Sans', sans-serif",
@@ -879,7 +879,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
             fontFamily: "'DM Sans', sans-serif",
             fontSize: "var(--mobile-body-size)",
             color: "#7d7d7d",
-            marginBottom: 10,
+            marginBottom: 8,
             lineHeight: 1.4,
           }}
         >
@@ -898,7 +898,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
           onPointerLeave={onContainerPointerLeave}
         >
           {active.length === 0 ? (
-            <div style={{ padding: "28px 0 20px" }}>
+            <div style={{ padding: "24px 0 16px" }}>
               <div
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
@@ -947,7 +947,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
           )}
         </div>
 
-        <div style={{ paddingTop: 10, paddingBottom: 6, flexShrink: 0 }}>
+        <div style={{ paddingTop: 8, paddingBottom: 6, flexShrink: 0 }}>
           {active.length > 1 && (
             <div
               style={{
@@ -996,8 +996,8 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
       </div>
 
       {notNow.length > 0 && (
-        <div style={{ marginBottom: 10 }}>
-          <div style={{ marginBottom: 12 }}>
+        <div style={{ marginBottom: 8 }}>
+          <div style={{ marginBottom: 10 }}>
             <span
               style={{
                 fontFamily: "'DM Sans', sans-serif",
@@ -1016,7 +1016,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
               fontSize: "var(--mobile-body-size)",
               color: "#7a7a7a",
               lineHeight: 1.4,
-              marginBottom: 8,
+              marginBottom: 6,
             }}
           >
             Paused commitments that can be reactivated when focus shifts.

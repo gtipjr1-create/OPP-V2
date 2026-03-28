@@ -161,3 +161,21 @@ Resolve iPhone sheet cut-off and keyboard alignment issues in Domains/Priorities
 
 ### Verification
 - build passed
+
+## March 28, 2026 (Domains + Focus Micro Rhythm Pass)
+
+### Session Focus
+Apply subtle mobile spacing polish to Domains and Focus screens without changing behavior.
+
+### What I Completed
+- tightened top-stack spacing and section rhythm in Domains and Focus headers
+- reduced minor vertical gaps around Active/Steady blocks and Focus list sections
+- smoothed empty-state and list cadence for faster visual scan
+- normalized summary separator rendering in Domains metadata
+
+### Key Decisions
+- keep changes low-risk and token-aligned (2-4px adjustments)
+- preserve existing interaction model and touch target comfort
+
+### Verification
+- build passed
