@@ -362,6 +362,8 @@ export default function Domains({ onNavigate, domains, setDomains }) {
   const [editId, setEditId] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [inlineEditId, setInlineEditId] = useState(null);
+  const [inlineFocusValue, setInlineFocusValue] = useState("");
 
   const editDomain = domains.find((d) => d.id === editId) || null;
 
@@ -406,6 +408,47 @@ export default function Domains({ onNavigate, domains, setDomains }) {
   ]
     .filter(Boolean)
     .join(" · ");
+
+  async function saveInlineFocus(domain) {
+    const nextFocus = inlineFocusValue.trim();
+
+    if (nextFocus === (domain.focus || "")) {
+      setInlineEditId(null);
+      setInlineFocusValue("");
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      setSaveError("");
+
+      const data = await updateDomain({
+        id: domain.id,
+        status: domain.status,
+        focus: nextFocus,
+      });
+
+      setDomains((prev) =>
+        prev.map((d) =>
+          d.id === domain.id
+            ? {
+                ...d,
+                status: data.status || domain.status,
+                focus: data.focus || "",
+              }
+            : d
+        )
+      );
+
+      setInlineEditId(null);
+      setInlineFocusValue("");
+    } catch (error) {
+      console.error("Failed to save inline focus:", error);
+      setSaveError(error.message || "Could not save focus.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
   return (
     <MobileShell
@@ -488,17 +531,17 @@ export default function Domains({ onNavigate, domains, setDomains }) {
         >
           Active
         </div>
-        <div
-          style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: "var(--mobile-body-size)",
-            color: "#7a7a7a",
-            lineHeight: 1.42,
-            marginBottom: 10,
-          }}
-        >
-          Active lanes receive deliberate advancement now.
-        </div>
+          <div
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "var(--mobile-body-size)",
+              color: "#7a7a7a",
+              lineHeight: 1.42,
+            marginBottom: 8,
+            }}
+          >
+          Active lanes receive deliberate advancement now. Tap focus text to edit quickly.
+          </div>
 
         {activeDomains.length === 0 ? (
           <div style={{ padding: "12px 0" }}>
@@ -527,7 +570,66 @@ export default function Domains({ onNavigate, domains, setDomains }) {
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {activeDomains.map((domain) => (
-              <ActiveDomainCard key={domain.id} domain={domain} onTap={setEditId} />
+              <div key={domain.id}>
+                <ActiveDomainCard domain={domain} onTap={setEditId} />
+                {inlineEditId === domain.id ? (
+                  <div style={{ marginTop: 8, marginBottom: 6 }}>
+                    <input
+                      autoFocus
+                      value={inlineFocusValue}
+                      onChange={(e) => setInlineFocusValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          saveInlineFocus(domain);
+                        }
+                        if (e.key === "Escape") {
+                          e.preventDefault();
+                          setInlineEditId(null);
+                          setInlineFocusValue("");
+                        }
+                      }}
+                      onBlur={() => saveInlineFocus(domain)}
+                      placeholder="Set current focus..."
+                      disabled={isSaving}
+                      style={{
+                        width: "100%",
+                        background: "#111",
+                        border: "1px solid #232323",
+                        borderRadius: 9,
+                        color: "#cfcfcf",
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: 14,
+                        padding: "9px 11px",
+                        outline: "none",
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="tappable"
+                    onClick={() => {
+                      setInlineEditId(domain.id);
+                      setInlineFocusValue(domain.focus || "");
+                    }}
+                    disabled={isSaving}
+                    style={{
+                      marginTop: 6,
+                      background: "none",
+                      border: "none",
+                      color: "#5b5b5b",
+                      fontFamily: "'IBM Plex Mono', monospace",
+                      fontSize: 10,
+                      letterSpacing: "0.05em",
+                      padding: 0,
+                      cursor: isSaving ? "default" : "pointer",
+                    }}
+                  >
+                    Edit Focus
+                  </button>
+                )}
+              </div>
             ))}
           </div>
         )}
@@ -553,7 +655,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
               fontSize: "var(--mobile-body-size)",
               color: "#787878",
               lineHeight: 1.42,
-              marginBottom: 10,
+              marginBottom: 8,
             }}
           >
             Steady lanes remain maintained and visible.

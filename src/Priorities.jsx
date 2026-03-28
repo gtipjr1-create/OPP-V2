@@ -726,15 +726,20 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
     clearTimeout(holdTimer.current);
   }, []);
 
-  let capacityColor = "#4A9EFF";
+  let capacityColor = "#6b6b6b";
+  let capacityBorderColor = "#2a2a2a";
   let capacityText = `${active.length} active`;
 
   if (atCap) {
     capacityColor = "#FF453A";
+    capacityBorderColor = `${capacityColor}44`;
     capacityText = `${active.length} active · at capacity`;
   } else if (crowded) {
     capacityColor = "#FF9F0A";
+    capacityBorderColor = `${capacityColor}44`;
     capacityText = `${active.length} active · focus is crowded`;
+  } else if (active.length > 0) {
+    capacityText = `${active.length} in focus`;
   }
 
   return (
@@ -796,7 +801,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
               fontFamily: "'IBM Plex Mono', monospace",
               fontWeight: 500,
               color: active.length === 0 ? "#333" : capacityColor,
-              border: `1px solid ${active.length === 0 ? "#1e1e1e" : `${capacityColor}44`}`,
+              border: `1px solid ${active.length === 0 ? "#1e1e1e" : capacityBorderColor}`,
               letterSpacing: "0.06em",
               transition: "all 0.3s ease",
             }}
@@ -872,23 +877,33 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: 15,
                   fontWeight: 500,
-                  color: "#a0a0a0",
-                  fontStyle: "italic",
+                  color: "#b7b7b7",
                   marginBottom: 6,
                 }}
               >
-                No commitments in focus
+                No commitments in focus yet
               </div>
               <div
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: "var(--mobile-body-size)",
-                  fontWeight: 500,
+                  fontWeight: 400,
                   color: "#777",
                   lineHeight: 1.4,
                 }}
               >
-                Set 1-3 commitments that deserve attention now
+                Add one commitment to start this focus window.
+              </div>
+              <div
+                style={{
+                  marginTop: 8,
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: 10,
+                  color: "#525252",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                Aim for 1-3 commitments.
               </div>
             </div>
           ) : (
@@ -948,7 +963,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
               }
             }}
           >
-            {atCap ? "- at capacity" : "+ Add Commitment"}
+            {atCap ? "- at capacity" : active.length === 0 ? "+ Add First Commitment" : "+ Add Commitment"}
           </button>
         </div>
       </div>

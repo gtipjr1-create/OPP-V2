@@ -123,3 +123,22 @@ Confirm stability of the mobile refinement baseline after interaction and shell 
 
 ### Verification
 - build passed
+
+## March 28, 2026 (Domains Inline Edit + Focus Polish)
+
+### Session Focus
+Refine Domains active-lane editing speed and smooth Focus empty-state guidance.
+
+### What I Completed
+- added inline focus editing for active domains while preserving modal edit flow for status changes
+- updated Active section helper language to make inline edit behavior discoverable
+- tightened Active/Steady section spacing rhythm for cleaner scan
+- polished Focus/Priorities capacity chip tone and empty-state copy for better clarity
+- adjusted add button label to read `+ Add First Commitment` when focus is empty
+
+### Key Decisions
+- keep status and focus edits distinct: status in modal sheet, focus quick edits inline
+- preserve low-noise visuals while improving first-action clarity in empty states
+
+### Verification
+- build passed
