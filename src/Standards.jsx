@@ -5,6 +5,73 @@ function formatRuleNumber(index) {
   return String(index + 1).padStart(2, "0");
 }
 
+const ACTION_VERBS = [
+  "start",
+  "finish",
+  "ship",
+  "review",
+  "train",
+  "write",
+  "plan",
+  "protect",
+  "close",
+  "track",
+  "publish",
+  "sleep",
+  "walk",
+  "lift",
+  "read",
+  "limit",
+  "cut",
+  "keep",
+  "lock",
+  "do",
+  "complete",
+  "maintain",
+  "avoid",
+  "stop",
+  "eat",
+];
+
+function evaluateStandard(text) {
+  const value = String(text || "").trim();
+  const firstWord = value.split(/\s+/)[0]?.toLowerCase() || "";
+  const hasActionStart = ACTION_VERBS.includes(firstWord);
+  const isConcise = value.length <= 90;
+  const isSpecific = !/\b(maybe|try|sometimes|should probably)\b/i.test(value);
+
+  return [
+    { id: "action", label: "Action-led", pass: hasActionStart },
+    { id: "concise", label: "Concise", pass: isConcise },
+    { id: "specific", label: "Specific", pass: isSpecific },
+  ];
+}
+
+function RuleQuality({ text }) {
+  const checks = evaluateStandard(text);
+
+  return (
+    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+      {checks.map((check) => (
+        <span
+          key={check.id}
+          style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 10,
+            letterSpacing: "0.04em",
+            color: check.pass ? "#6f8fb3" : "#535353",
+            border: `1px solid ${check.pass ? "rgba(74,158,255,0.3)" : "#2a2a2a"}`,
+            borderRadius: 999,
+            padding: "3px 7px",
+          }}
+        >
+          {check.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function StandardRow({ standard, ruleNumber, onDelete, onTap, isDragging, isOver }) {
   const swipeX = useRef(0);
   const startX = useRef(0);
@@ -486,6 +553,7 @@ export default function Standards({
           Add
         </button>
       </div>
+      {draft.trim() ? <RuleQuality text={draft} /> : null}
 
       <div
         style={{
@@ -558,6 +626,7 @@ export default function Standards({
                       outline: "none",
                     }}
                   />
+                  {editingText.trim() ? <RuleQuality text={editingText} /> : null}
                 </div>
               );
             }

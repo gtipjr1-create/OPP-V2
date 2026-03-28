@@ -214,3 +214,20 @@ Clean up Settings entry ergonomics by replacing the Today text button with icono
 
 ### Verification
 - build passed
+
+## March 28, 2026 (Standards Depth Pass - Rule Quality Layer)
+
+### Session Focus
+Increase practical usefulness of Standards by guiding higher-quality rule wording at the moment of writing/editing.
+
+### What I Completed
+- added live rule-quality checks in Standards add/edit flows
+- introduced three lightweight quality cues: `Action-led`, `Concise`, `Specific`
+- surfaced quality chips under draft and edit inputs without changing data schema or workflow
+
+### Key Decisions
+- keep this depth pass low-risk and behavioral (guidance), not structural (new data model)
+- prioritize operational phrasing quality over feature breadth
+
+### Verification
+- build passed

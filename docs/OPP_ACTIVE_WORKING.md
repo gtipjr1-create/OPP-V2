@@ -55,6 +55,7 @@ Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, 
 - Micro rhythm pass complete: Domains and Focus spacing tightened for cleaner mobile scan without behavior changes.
 - Header alignment pass complete: Today date stack moved higher and top breathing room standardized under divider lines on Domains/Focus/Standards.
 - Settings entry polish complete: Today uses a standalone cog icon trigger and Settings header clipping has been corrected.
+- Standards depth pass (v1) complete: live rule-quality guidance added during standard draft/edit to improve operational clarity.
 
 ## Current Focus
 - Preserve stable baseline while collecting any final device-specific edge cases.
@@ -65,6 +66,7 @@ Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, 
 - Preserve compact vertical cadence in Domains/Focus while keeping touch targets comfortable.
 - Keep top-divider spacing balanced across core screens while maintaining quick-access above-the-fold density.
 - Keep utility-entry iconography minimal, clear, and consistent with app chrome.
+- Continue strengthening Standards as a behavior-shaping layer, not just a storage list.
 
 ## Stability Checklist (Current)
 - Build passes on current branch.
