@@ -196,3 +196,21 @@ Refine top-of-screen vertical alignment so headers feel cleaner and first conten
 
 ### Verification
 - build passed
+
+## March 28, 2026 (Settings Entry Icon + Clipping Fix)
+
+### Session Focus
+Clean up Settings entry ergonomics by replacing the Today text button with iconography and resolving top clipping concerns.
+
+### What I Completed
+- replaced Today header `Settings` text button with a standalone cog icon trigger
+- removed boxed button styling around the Today settings entry for a cleaner utility-control look
+- adjusted Today top row spacing so the cog no longer clips near the top edge
+- refined Settings screen header spacing and added subtle gear motif for direction testing
+
+### Key Decisions
+- keep settings entry lightweight and chrome-like on Today
+- prefer icon-trigger clarity over text label density in the top utility row
+
+### Verification
+- build passed

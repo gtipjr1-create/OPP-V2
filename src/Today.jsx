@@ -609,13 +609,13 @@ export default function Today({
       header={
         <div
           style={{
-            paddingTop: 0,
+            paddingTop: 2,
             paddingBottom: 2,
           }}
         >
           <div
             style={{
-              height: 28,
+              height: 32,
               display: "flex",
               alignItems: "center",
               justifyContent: "flex-end",
@@ -627,19 +627,27 @@ export default function Today({
               className="tappable"
               aria-label="Open settings"
               style={{
-                background: "#0b0b0b",
-                border: "1px solid #232323",
-                borderRadius: 999,
-                color: "#6e6e6e",
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 12,
-                fontWeight: 500,
-                letterSpacing: "0.06em",
+                background: "none",
+                border: "none",
+                color: "#6a6a6a",
                 cursor: "pointer",
-                padding: "6px 10px",
+                width: 24,
+                height: 24,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 0,
               }}
             >
-              Settings
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" aria-hidden="true">
+                <path
+                  d="M11 3h2l.45 2.14a6.9 6.9 0 0 1 1.62.67l1.86-1.2 1.42 1.42-1.2 1.86c.27.51.5 1.05.67 1.62L21 11v2l-2.14.45a6.9 6.9 0 0 1-.67 1.62l1.2 1.86-1.42 1.42-1.86-1.2a6.9 6.9 0 0 1-1.62.67L13 21h-2l-.45-2.14a6.9 6.9 0 0 1-1.62-.67l-1.86 1.2-1.42-1.42 1.2-1.86a6.9 6.9 0 0 1-.67-1.62L3 13v-2l2.14-.45c.17-.57.4-1.11.67-1.62l-1.2-1.86 1.42-1.42 1.86 1.2c.51-.27 1.05-.5 1.62-.67L11 3Z"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                  strokeLinejoin="round"
+                />
+                <circle cx="12" cy="12" r="2.8" stroke="currentColor" strokeWidth="1.2" />
+              </svg>
             </button>
           </div>
 

@@ -46,11 +46,31 @@ export default function Settings({ onNavigate, onSignOut }) {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            paddingTop: 26,
+            paddingTop: 28,
             marginBottom: 8,
             paddingInline: "var(--mobile-page-gutter)",
           }}
         >
+          <div
+            aria-hidden="true"
+            style={{
+              width: 22,
+              height: 22,
+              marginBottom: 6,
+              color: "#5a5a5a",
+              opacity: 0.9,
+            }}
+          >
+            <svg viewBox="0 0 24 24" width="100%" height="100%" fill="none">
+              <path
+                d="M11 3h2l.45 2.14a6.9 6.9 0 0 1 1.62.67l1.86-1.2 1.42 1.42-1.2 1.86c.27.51.5 1.05.67 1.62L21 11v2l-2.14.45a6.9 6.9 0 0 1-.67 1.62l1.2 1.86-1.42 1.42-1.86-1.2a6.9 6.9 0 0 1-1.62.67L13 21h-2l-.45-2.14a6.9 6.9 0 0 1-1.62-.67l-1.86 1.2-1.42-1.42 1.2-1.86a6.9 6.9 0 0 1-.67-1.62L3 13v-2l2.14-.45c.17-.57.4-1.11.67-1.62l-1.2-1.86 1.42-1.42 1.86 1.2c.51-.27 1.05-.5 1.62-.67L11 3Z"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinejoin="round"
+              />
+              <circle cx="12" cy="12" r="2.8" stroke="currentColor" strokeWidth="1.2" />
+            </svg>
+          </div>
           <h1
             style={{
               fontFamily: "'DM Serif Display', serif",
@@ -102,7 +122,7 @@ export default function Settings({ onNavigate, onSignOut }) {
         </>
       }
     >
-      <div style={{ marginBottom: 14 }}>
+      <div style={{ marginTop: 6, marginBottom: 14 }}>
         <span
           style={{
             fontFamily: "'DM Sans', sans-serif",
