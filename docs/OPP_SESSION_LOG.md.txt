@@ -89,3 +89,23 @@ Mobile shell stabilization and command-surface polish for iPhone behavior.
 
 ### Verification
 - build passed
+
+## March 28, 2026 (Today Interaction Polish)
+
+### Session Focus
+Stabilize Today list behavior on mobile and remove scroll/drag friction.
+
+### What I Completed
+- fixed iOS typing shift on quick-add input by moving input size to mobile-safe value
+- removed visible drag handles and aligned day-item row visual style with the rest of the app
+- improved long-press reorder behavior with edge auto-scroll for longer day-item lists
+- refined drag activation and pointer handling to reduce sticky/accidental scroll behavior while holding items
+- enforced shell middle-viewport bounds so content no longer scrolls behind top or bottom chrome
+- added master-context update for mobile naming note (`Focus` label for Priorities) and quote normalization
+
+### Key Decisions
+- keep reorder on long-press but make it feel intentional and robust without extra visible controls
+- treat header/nav as locked system chrome; content should remain in bounded middle viewport
+
+### Verification
+- build passed

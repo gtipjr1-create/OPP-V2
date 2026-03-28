@@ -78,22 +78,31 @@ export default function MobileShell({
             zIndex: SHELL_Z.header,
             paddingTop: "env(safe-area-inset-top)",
             background: "#000",
+            borderBottom: "1px solid #121212",
+            boxShadow: "0 8px 20px rgba(0,0,0,0.45)",
+            overflow: "hidden",
           }}
         >
           {header}
         </div>
 
         <div
+          className="mobile-shell-scroll"
           style={{
             position: "absolute",
-            inset: 0,
+            left: 0,
+            right: 0,
+            top: headerHeight,
+            bottom: navHeight,
             zIndex: SHELL_Z.content,
             overflowY: "auto",
             overflowX: "hidden",
+            scrollbarGutter: "stable",
             WebkitOverflowScrolling: "touch",
-            paddingTop: headerHeight,
-            paddingBottom: navHeight,
+            overscrollBehaviorY: "contain",
             paddingInline: contentPaddingInline,
+            paddingTop: 0,
+            paddingBottom: 12,
           }}
         >
           {children}

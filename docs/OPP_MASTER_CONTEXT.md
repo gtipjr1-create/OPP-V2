@@ -121,6 +121,7 @@ It is a personal command center, not just a generic productivity app.
 Key distinction:
 - Day items shape the current day.
 - Commitments shape active focus.
+- Mobile nav uses `Focus` as the compact label for the Priorities surface.
 
 ---
 
@@ -181,7 +182,7 @@ It must avoid:
 - duplicate views of the same truth
 - too many disconnected dashboards
 - feature sprawl
-- “nice idea” accumulation without execution value
+- "nice idea" accumulation without execution value
 
 Each part of OPP should reinforce one larger system of living.
 

@@ -1,4 +1,4 @@
-﻿import { useCallback, useRef, useState } from "react";
+﻿import { useCallback, useEffect, useRef, useState } from "react";
 import MobileShell from "./MobileShell";
 import { supabase } from "./lib/supabase";
 import { createTodayTask } from "./data/todayTasks";
@@ -122,16 +122,30 @@ const CheckIcon = ({ checked }) => (
 function TaskRow({ task, onToggle, onDelete, isDragging, isOver }) {
   const swipeX = useRef(0);
   const startX = useRef(0);
+  const startY = useRef(0);
+  const isHorizontalSwipe = useRef(false);
   const [offset, setOffset] = useState(0);
   const THRESHOLD = -90;
 
   const onTouchStart = (e) => {
-    if (!isDragging) startX.current = e.touches[0].clientX;
+    if (!isDragging) {
+      startX.current = e.touches[0].clientX;
+      startY.current = e.touches[0].clientY;
+      isHorizontalSwipe.current = false;
+    }
   };
 
   const onTouchMove = (e) => {
     if (isDragging) return;
     const dx = e.touches[0].clientX - startX.current;
+    const dy = e.touches[0].clientY - startY.current;
+
+    if (!isHorizontalSwipe.current) {
+      const horizontalIntent = Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy);
+      if (!horizontalIntent) return;
+      isHorizontalSwipe.current = true;
+    }
+
     if (dx > 0) return;
     swipeX.current = Math.max(dx, -110);
     setOffset(swipeX.current);
@@ -141,6 +155,7 @@ function TaskRow({ task, onToggle, onDelete, isDragging, isOver }) {
     if (swipeX.current < THRESHOLD) onDelete(task.id);
     setOffset(0);
     swipeX.current = 0;
+    isHorizontalSwipe.current = false;
   };
 
   const reveal = Math.min(Math.abs(offset), 110);
@@ -183,15 +198,15 @@ function TaskRow({ task, onToggle, onDelete, isDragging, isOver }) {
           display: "flex",
           alignItems: "center",
           gap: 12,
-          padding: isDragging ? "14px 10px" : "14px 0",
+          padding: isDragging ? "13px 10px" : "13px 0",
           marginLeft: isDragging ? -10 : 0,
           marginRight: isDragging ? -10 : 0,
           opacity: isOver ? 0.25 : task.done ? 0.38 : 1,
           transform: isDragging ? "scale(1.03)" : `translateX(${offset}px)`,
-          background: isDragging ? "#222222" : "#111111",
+          background: isDragging ? "#1a1a1a" : "transparent",
           borderRadius: isDragging ? 12 : 0,
           boxShadow: isDragging
-            ? "0 16px 48px rgba(0,0,0,0.8), 0 4px 12px rgba(0,0,0,0.5)"
+            ? "0 14px 36px rgba(0,0,0,0.7), 0 4px 10px rgba(0,0,0,0.45)"
             : "none",
           zIndex: isDragging ? 100 : 1,
           position: "relative",
@@ -230,20 +245,6 @@ function TaskRow({ task, onToggle, onDelete, isDragging, isOver }) {
           >
             {task.label}
           </div>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 3,
-            flexShrink: 0,
-            opacity: 0.26,
-          }}
-        >
-          {[0, 1, 2].map((i) => (
-            <div key={i} style={{ width: 14, height: 1.5, background: "#555", borderRadius: 1 }} />
-          ))}
         </div>
       </div>
     </div>
@@ -320,11 +321,24 @@ export default function Today({
   const [actionError, setActionError] = useState("");
   const [dragId, setDragId] = useState(null);
   const [overIndex, setOverIndex] = useState(null);
+  const [viewportHeight, setViewportHeight] = useState(
+    typeof window !== "undefined" ? window.innerHeight : 900
+  );
+  const [domainsExpanded, setDomainsExpanded] = useState(
+    typeof window !== "undefined" ? window.innerHeight >= 780 : true
+  );
 
   const listRef = useRef(null);
   const quickAddInputRef = useRef(null);
   const holdTimer = useRef(null);
   const dragIdRef = useRef(null);
+  const scrollContainerRef = useRef(null);
+  const pointerYRef = useRef(null);
+  const autoScrollRafRef = useRef(null);
+  const pointerIdRef = useRef(null);
+  const pointerTargetRef = useRef(null);
+  const pointerStartXRef = useRef(0);
+  const pointerStartYRef = useRef(0);
   const tasksRef = useRef(tasks);
   tasksRef.current = tasks;
 
@@ -340,6 +354,29 @@ export default function Today({
   const previewPriorities = [...activePriorities]
     .sort((a, b) => horizonWeight(a.horizon) - horizonWeight(b.horizon))
     .slice(0, 4);
+  const isShortViewport = viewportHeight < 780;
+  const visibleDomainCount = isShortViewport && !domainsExpanded ? 1 : 2;
+  const visibleActiveDomains = activeDomains.slice(0, visibleDomainCount);
+  const hiddenDomainCount = Math.max(activeDomains.length - visibleActiveDomains.length, 0);
+
+  useEffect(() => {
+    function handleResize() {
+      setViewportHeight(window.innerHeight);
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (autoScrollRafRef.current) {
+        cancelAnimationFrame(autoScrollRafRef.current);
+      }
+    };
+  }, []);
 
   async function addTask() {
     const label = quickAdd.trim();
@@ -400,6 +437,22 @@ export default function Today({
     await updateTodayTaskSortOrdersForUser(nextList, userId);
   }, [userId]);
 
+  const moveDraggedTaskToIndex = useCallback((targetIndex) => {
+    if (!dragIdRef.current || targetIndex === null) return;
+    const from = tasksRef.current.findIndex((t) => t.id === dragIdRef.current);
+    if (from === -1 || targetIndex === from) return;
+
+    setOverIndex(targetIndex);
+    setTasks((prev) => {
+      const next = [...prev];
+      const f = next.findIndex((t) => t.id === dragIdRef.current);
+      if (f === -1) return prev;
+      const [moved] = next.splice(f, 1);
+      next.splice(targetIndex, 0, moved);
+      return next;
+    });
+  }, [setTasks]);
+
   const getIndexAtY = useCallback((clientY) => {
     if (!listRef.current) return null;
     const rows = Array.from(listRef.current.children);
@@ -414,6 +467,57 @@ export default function Today({
     return null;
   }, []);
 
+  const stopAutoScrollLoop = useCallback(() => {
+    if (autoScrollRafRef.current) {
+      cancelAnimationFrame(autoScrollRafRef.current);
+      autoScrollRafRef.current = null;
+    }
+  }, []);
+
+  const lockContainerScroll = useCallback(() => {
+    if (!scrollContainerRef.current) return;
+    scrollContainerRef.current.style.touchAction = "none";
+    scrollContainerRef.current.style.overscrollBehavior = "none";
+  }, []);
+
+  const unlockContainerScroll = useCallback(() => {
+    if (!scrollContainerRef.current) return;
+    scrollContainerRef.current.style.touchAction = "";
+    scrollContainerRef.current.style.overscrollBehavior = "";
+  }, []);
+
+  const runAutoScrollLoop = useCallback(() => {
+    if (!dragIdRef.current || !scrollContainerRef.current || pointerYRef.current === null) {
+      stopAutoScrollLoop();
+      return;
+    }
+
+    const container = scrollContainerRef.current;
+    const rect = container.getBoundingClientRect();
+    const threshold = 72;
+    const maxSpeed = 16;
+    let delta = 0;
+
+    if (pointerYRef.current < rect.top + threshold) {
+      const intensity = (rect.top + threshold - pointerYRef.current) / threshold;
+      delta = -Math.ceil(Math.max(2, intensity * maxSpeed));
+    } else if (pointerYRef.current > rect.bottom - threshold) {
+      const intensity = (pointerYRef.current - (rect.bottom - threshold)) / threshold;
+      delta = Math.ceil(Math.max(2, intensity * maxSpeed));
+    }
+
+    if (delta !== 0) {
+      const previousTop = container.scrollTop;
+      container.scrollTop += delta;
+      if (container.scrollTop !== previousTop) {
+        const idx = getIndexAtY(pointerYRef.current);
+        moveDraggedTaskToIndex(idx);
+      }
+    }
+
+    autoScrollRafRef.current = requestAnimationFrame(runAutoScrollLoop);
+  }, [getIndexAtY, moveDraggedTaskToIndex, stopAutoScrollLoop]);
+
   const onContainerPointerDown = useCallback((e) => {
     const rows = Array.from(listRef.current?.children || []);
     let idx = null;
@@ -427,35 +531,63 @@ export default function Today({
     const id = tasksRef.current[idx]?.id;
     if (!id) return;
 
+    pointerIdRef.current = e.pointerId;
+    pointerTargetRef.current = e.currentTarget instanceof Element ? e.currentTarget : null;
+    pointerStartXRef.current = e.clientX;
+    pointerStartYRef.current = e.clientY;
+    pointerYRef.current = e.clientY;
+
     holdTimer.current = setTimeout(() => {
       dragIdRef.current = id;
       setDragId(id);
+      const scrollContainer = listRef.current?.closest(".mobile-shell-scroll");
+      scrollContainerRef.current = scrollContainer || null;
+      lockContainerScroll();
+      if (pointerTargetRef.current && pointerIdRef.current !== null) {
+        try {
+          pointerTargetRef.current.setPointerCapture(pointerIdRef.current);
+        } catch {
+          // Ignore capture failures on non-capturable targets.
+        }
+      }
+      stopAutoScrollLoop();
+      autoScrollRafRef.current = requestAnimationFrame(runAutoScrollLoop);
       if (navigator.vibrate) navigator.vibrate(30);
-    }, 280);
-  }, []);
+    }, 240);
+  }, [lockContainerScroll, runAutoScrollLoop, stopAutoScrollLoop]);
 
   const onContainerPointerMove = useCallback((e) => {
-    if (!dragIdRef.current) return;
+    pointerYRef.current = e.clientY;
+    if (!dragIdRef.current) {
+      const movedX = Math.abs(e.clientX - pointerStartXRef.current);
+      const movedY = Math.abs(e.clientY - pointerStartYRef.current);
+      if (movedX > 14 || movedY > 14) {
+        clearTimeout(holdTimer.current);
+      }
+      return;
+    }
     e.preventDefault();
     const idx = getIndexAtY(e.clientY);
-    if (idx === null) return;
-    const from = tasksRef.current.findIndex((t) => t.id === dragIdRef.current);
-    if (idx === from) return;
-    setOverIndex(idx);
-    setTasks((prev) => {
-      const next = [...prev];
-      const f = next.findIndex((t) => t.id === dragIdRef.current);
-      if (f === -1) return prev;
-      const [moved] = next.splice(f, 1);
-      next.splice(idx, 0, moved);
-      return next;
-    });
-  }, [getIndexAtY, setTasks]);
+    moveDraggedTaskToIndex(idx);
+  }, [getIndexAtY, moveDraggedTaskToIndex]);
 
   const onContainerPointerUp = useCallback(async () => {
     clearTimeout(holdTimer.current);
+    stopAutoScrollLoop();
     const wasDragging = !!dragIdRef.current;
+    unlockContainerScroll();
+    if (pointerTargetRef.current && pointerIdRef.current !== null) {
+      try {
+        pointerTargetRef.current.releasePointerCapture(pointerIdRef.current);
+      } catch {
+        // No-op if capture was never set.
+      }
+    }
     dragIdRef.current = null;
+    pointerYRef.current = null;
+    scrollContainerRef.current = null;
+    pointerIdRef.current = null;
+    pointerTargetRef.current = null;
     setDragId(null);
     setOverIndex(null);
     if (!wasDragging) return;
@@ -464,7 +596,7 @@ export default function Today({
     } catch (error) {
       setActionError(error.message || "Could not save order.");
     }
-  }, [persistSortOrders]);
+  }, [persistSortOrders, stopAutoScrollLoop, unlockContainerScroll]);
 
   const onContainerPointerLeave = useCallback(() => {
     clearTimeout(holdTimer.current);
@@ -718,55 +850,6 @@ export default function Today({
             )}
           </OrientationPanel>
 
-          <OrientationPanel
-            label="Domains"
-            actionLabel="Open"
-            onAction={() => onNavigate("domains")}
-          >
-            {activeDomains.length === 0 ? (
-              <div
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 15,
-                  color: "#8b8b8b",
-                  fontStyle: "italic",
-                }}
-              >
-                No active domains set.
-              </div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                {activeDomains.slice(0, 2).map((domain) => (
-                  <div key={domain.id} style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
-                    <span
-                    style={{
-                      fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: 12,
-                      color: "#4A9EFF",
-                        letterSpacing: "0.06em",
-                        minWidth: 52,
-                        flexShrink: 0,
-                      }}
-                    >
-                      {domain.name.toUpperCase()}
-                    </span>
-                    <span
-                    style={{
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: 14,
-                      color: domain.focus ? "#9a9a9a" : "#6f6f6f",
-                      fontStyle: domain.focus ? "normal" : "italic",
-                      lineHeight: 1.3,
-                      }}
-                    >
-                      {domain.focus || "No emphasis set"}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </OrientationPanel>
-
           <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
             <input
               ref={quickAddInputRef}
@@ -787,8 +870,8 @@ export default function Today({
                 borderRadius: 10,
                 color: "#ccc",
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 15,
-                padding: "11px 13px",
+                fontSize: 16,
+                padding: "10px 13px",
                 outline: "none",
                 opacity: isAdding ? 0.7 : 1,
               }}
@@ -821,6 +904,97 @@ export default function Today({
             </button>
           </div>
 
+          <OrientationPanel
+            label="Domains"
+            actionLabel="Open"
+            onAction={() => onNavigate("domains")}
+          >
+            {activeDomains.length === 0 ? (
+              <div
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 15,
+                  color: "#8b8b8b",
+                  fontStyle: "italic",
+                }}
+              >
+                No active domains set.
+              </div>
+            ) : (
+              <>
+              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                {visibleActiveDomains.map((domain) => (
+                  <div key={domain.id} style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
+                    <span
+                    style={{
+                      fontFamily: "'IBM Plex Mono', monospace",
+                      fontSize: 12,
+                      color: "#4A9EFF",
+                        letterSpacing: "0.06em",
+                        minWidth: 52,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {domain.name.toUpperCase()}
+                    </span>
+                    <span
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 14,
+                      color: domain.focus ? "#9a9a9a" : "#6f6f6f",
+                      fontStyle: domain.focus ? "normal" : "italic",
+                      lineHeight: 1.3,
+                      }}
+                    >
+                      {domain.focus || "No emphasis set"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              {hiddenDomainCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setDomainsExpanded(true)}
+                  className="tappable"
+                  style={{
+                    marginTop: 6,
+                    background: "none",
+                    border: "none",
+                    color: "#5d5d5d",
+                    fontFamily: "'IBM Plex Mono', monospace",
+                    fontSize: 11,
+                    letterSpacing: "0.04em",
+                    padding: 0,
+                    cursor: "pointer",
+                  }}
+                >
+                  Show {hiddenDomainCount} more
+                </button>
+              )}
+              {isShortViewport && domainsExpanded && activeDomains.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => setDomainsExpanded(false)}
+                  className="tappable"
+                  style={{
+                    marginTop: 6,
+                    background: "none",
+                    border: "none",
+                    color: "#4f4f4f",
+                    fontFamily: "'IBM Plex Mono', monospace",
+                    fontSize: 11,
+                    letterSpacing: "0.04em",
+                    padding: 0,
+                    cursor: "pointer",
+                  }}
+                >
+                  Show less
+                </button>
+              )}
+              </>
+            )}
+          </OrientationPanel>
+
           <div style={{ marginBottom: 8 }}>
             <span
               style={{
@@ -834,6 +1008,19 @@ export default function Today({
               Day Items
             </span>
           </div>
+          {tasks.length > 1 && (
+            <div
+              style={{
+                marginBottom: 8,
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 10,
+                color: "#4f4f4f",
+                letterSpacing: "0.04em",
+              }}
+            >
+              Hold and drag any day item to reorder
+            </div>
+          )}
 
       <div
             ref={listRef}
@@ -887,4 +1074,7 @@ export default function Today({
     </MobileShell>
   );
 }
+
+
+
 

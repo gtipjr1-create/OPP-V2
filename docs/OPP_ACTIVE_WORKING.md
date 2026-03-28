@@ -47,9 +47,11 @@ Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, 
 - Nav refinement complete: mobile label changed from Priorities to Focus for cleaner width and clarity.
 - Icon quality pass complete: sharp high-resolution source restored with subtle pulse motion.
 - Mobile token pass complete: spacing/type tokens introduced for cross-screen consistency.
+- Today interaction polish complete: adaptive Domains preview behavior, earlier quick-add placement, and refined day-item drag/reorder handling.
+- Shell scroll-boundary lock complete: middle viewport is now constrained between header and nav to prevent text bleed behind chrome.
 
 ## Current Focus
-- Validate final mobile rhythm and readability on physical iPhone usage.
+- Validate final drag feel and list interaction smoothness on physical iPhone usage.
 - Preserve model-language consistency as future changes are introduced.
 - Keep token-driven consistency across core screens as refinements continue.
 
