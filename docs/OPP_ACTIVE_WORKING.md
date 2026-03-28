@@ -56,6 +56,7 @@ Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, 
 - Header alignment pass complete: Today date stack moved higher and top breathing room standardized under divider lines on Domains/Focus/Standards.
 - Settings entry polish complete: Today uses a standalone cog icon trigger and Settings header clipping has been corrected.
 - Standards depth pass (v1) complete: live rule-quality guidance added during standard draft/edit to improve operational clarity.
+- Standards depth pass (v2/v3) complete: category model/filtering and lightweight review cadence are now integrated with persistence wiring.
 
 ## Current Focus
 - Preserve stable baseline while collecting any final device-specific edge cases.
@@ -67,6 +68,7 @@ Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, 
 - Keep top-divider spacing balanced across core screens while maintaining quick-access above-the-fold density.
 - Keep utility-entry iconography minimal, clear, and consistent with app chrome.
 - Continue strengthening Standards as a behavior-shaping layer, not just a storage list.
+- Keep Standards filters and review actions lightweight so governance remains actionable at a glance.
 
 ## Stability Checklist (Current)
 - Build passes on current branch.

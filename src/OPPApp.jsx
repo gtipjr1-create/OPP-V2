@@ -7,6 +7,7 @@ import {
   deleteStandard,
   loadStandards as fetchStandards,
   normalizeStandardSortOrders,
+  markStandardReviewed,
   updateStandardText,
 } from "./data/standards";
 import { loadTodayTasks as fetchTodayTasks } from "./data/todayTasks";
@@ -88,9 +89,11 @@ function formatStandardRow(row) {
   return {
     id: row.id,
     text: row.text || "",
+    category: row.category || "Execution",
     sortOrder: row.sort_order ?? 0,
     createdAt: row.created_at || null,
     updatedAt: row.updated_at || null,
+    lastReviewedAt: row.last_reviewed_at || null,
   };
 }
 
@@ -208,12 +211,14 @@ export default function OPPApp() {
     );
   }
 
-  async function addStandard(text) {
+  async function addStandard(input) {
     if (!userId) {
       throw new Error("No user found for standard create.");
     }
 
-    const cleanText = text.trim();
+    const payload = typeof input === "string" ? { text: input, category: "Execution" } : input || {};
+    const cleanText = String(payload.text || "").trim();
+    const category = payload.category || "Execution";
     if (!cleanText) return;
     if (standards.length >= MAX_STANDARDS) return;
 
@@ -222,29 +227,50 @@ export default function OPPApp() {
     const data = await createStandard({
       userId,
       text: cleanText,
+      category,
       sortOrder: nextSortOrder,
+      lastReviewedAt: new Date().toISOString(),
     });
     const newStandard = formatStandardRow(data);
     setStandards((prev) => [...prev, newStandard]);
   }
 
-  async function updateStandard(id, text) {
+  async function updateStandard(id, input) {
     if (!userId) {
       throw new Error("No user found for standard update.");
     }
 
-    const cleanText = text.trim();
+    const payload = typeof input === "string" ? { text: input } : input || {};
+    const cleanText = String(payload.text || "").trim();
     if (!cleanText) return;
 
     const data = await updateStandardText({
       id,
       userId,
       text: cleanText,
+      category: payload.category,
     });
     const updatedStandard = formatStandardRow(data);
 
     setStandards((prev) =>
       prev.map((standard) => (standard.id === id ? updatedStandard : standard))
+    );
+  }
+
+  async function markStandardAsReviewed(id) {
+    if (!userId) {
+      throw new Error("No user found for standard review.");
+    }
+
+    const data = await markStandardReviewed({
+      id,
+      userId,
+      reviewedAt: new Date().toISOString(),
+    });
+    const reviewedStandard = formatStandardRow(data);
+
+    setStandards((prev) =>
+      prev.map((standard) => (standard.id === id ? reviewedStandard : standard))
     );
   }
 
@@ -368,6 +394,7 @@ export default function OPPApp() {
         onUpdateStandard={updateStandard}
         onRemoveStandard={removeStandard}
         onReorderStandards={reorderStandards}
+        onMarkStandardReviewed={markStandardAsReviewed}
       />
     );
   } else {

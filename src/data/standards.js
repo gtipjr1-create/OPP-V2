@@ -1,5 +1,10 @@
 import { supabase } from "../lib/supabase";
 
+function isMissingColumnError(error, columnName) {
+  const message = String(error?.message || "").toLowerCase();
+  return message.includes(columnName.toLowerCase());
+}
+
 export async function loadStandards(userId) {
   const { data, error } = await supabase
     .from("standards")
@@ -15,41 +20,132 @@ export async function loadStandards(userId) {
   return data || [];
 }
 
-export async function createStandard({ userId, text, sortOrder }) {
-  const { data, error } = await supabase
+export async function createStandard({
+  userId,
+  text,
+  sortOrder,
+  category = "Execution",
+  lastReviewedAt = null,
+}) {
+  const payloadWithDepth = {
+    user_id: userId,
+    text,
+    sort_order: sortOrder,
+    category,
+    last_reviewed_at: lastReviewedAt,
+  };
+
+  const primary = await supabase
     .from("standards")
-    .insert({
-      user_id: userId,
-      text,
-      sort_order: sortOrder,
-    })
+    .insert(payloadWithDepth)
     .select()
     .single();
 
-  if (error) {
-    throw new Error(`Standard create failed: ${error.message}`);
+  if (!primary.error) {
+    return primary.data;
   }
 
-  return data;
+  if (
+    isMissingColumnError(primary.error, "category") ||
+    isMissingColumnError(primary.error, "last_reviewed_at")
+  ) {
+    const fallback = await supabase
+      .from("standards")
+      .insert({
+        user_id: userId,
+        text,
+        sort_order: sortOrder,
+      })
+      .select()
+      .single();
+
+    if (fallback.error) {
+      throw new Error(`Standard create failed: ${fallback.error.message}`);
+    }
+
+    return fallback.data;
+  }
+
+  throw new Error(`Standard create failed: ${primary.error.message}`);
 }
 
-export async function updateStandardText({ id, userId, text }) {
-  const { data, error } = await supabase
+export async function updateStandardText({ id, userId, text, category }) {
+  const baseUpdate = {
+    text,
+    updated_at: new Date().toISOString(),
+  };
+
+  const primaryUpdate = {
+    ...baseUpdate,
+    ...(category ? { category } : {}),
+  };
+
+  const primary = await supabase
+    .from("standards")
+    .update(primaryUpdate)
+    .eq("id", id)
+    .eq("user_id", userId)
+    .select()
+    .single();
+
+  if (!primary.error) {
+    return primary.data;
+  }
+
+  if (category && isMissingColumnError(primary.error, "category")) {
+    const fallback = await supabase
+      .from("standards")
+      .update(baseUpdate)
+      .eq("id", id)
+      .eq("user_id", userId)
+      .select()
+      .single();
+
+    if (fallback.error) {
+      throw new Error(`Standard update failed: ${fallback.error.message}`);
+    }
+
+    return fallback.data;
+  }
+
+  throw new Error(`Standard update failed: ${primary.error.message}`);
+}
+
+export async function markStandardReviewed({ id, userId, reviewedAt }) {
+  const timestamp = reviewedAt || new Date().toISOString();
+
+  const primary = await supabase
     .from("standards")
     .update({
-      text,
-      updated_at: new Date().toISOString(),
+      last_reviewed_at: timestamp,
+      updated_at: timestamp,
     })
     .eq("id", id)
     .eq("user_id", userId)
     .select()
     .single();
 
-  if (error) {
-    throw new Error(`Standard update failed: ${error.message}`);
+  if (!primary.error) {
+    return primary.data;
   }
 
-  return data;
+  if (isMissingColumnError(primary.error, "last_reviewed_at")) {
+    const fallback = await supabase
+      .from("standards")
+      .update({ updated_at: timestamp })
+      .eq("id", id)
+      .eq("user_id", userId)
+      .select()
+      .single();
+
+    if (fallback.error) {
+      throw new Error(`Standard review failed: ${fallback.error.message}`);
+    }
+
+    return fallback.data;
+  }
+
+  throw new Error(`Standard review failed: ${primary.error.message}`);
 }
 
 export async function deleteStandard(id, userId) {

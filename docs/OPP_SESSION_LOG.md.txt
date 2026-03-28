@@ -231,3 +231,23 @@ Increase practical usefulness of Standards by guiding higher-quality rule wordin
 
 ### Verification
 - build passed
+
+## March 28, 2026 (Standards Depth Pass - Categories + Review Cadence)
+
+### Session Focus
+Implement Standards v2/v3 depth by adding category structure and lightweight review cadence with persistence wiring.
+
+### What I Completed
+- added standard categories (`Execution`, `Health`, `Work`, `Life`) in create/edit flows
+- added category filter chips (`All` + categories) for faster standards scanning
+- added `Mark Reviewed` action on rule rows with relative review status labels
+- extended standards data wiring for `category` and `last_reviewed_at` with compatibility fallback behavior
+- created SQL migration script for schema fields and supporting indexes
+
+### Key Decisions
+- keep category/review model additive and low-friction
+- preserve backward compatibility if schema migration is not yet applied
+- keep reorder behavior only in `All` filter context to avoid hidden-order ambiguity
+
+### Verification
+- build passed

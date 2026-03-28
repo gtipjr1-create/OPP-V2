@@ -5,6 +5,29 @@ function formatRuleNumber(index) {
   return String(index + 1).padStart(2, "0");
 }
 
+const STANDARD_CATEGORIES = ["Execution", "Health", "Work", "Life"];
+
+function formatReviewedLabel(iso) {
+  if (!iso) return "Not reviewed";
+  const reviewed = new Date(iso);
+  if (Number.isNaN(reviewed.getTime())) return "Not reviewed";
+
+  const now = new Date();
+  const dayMs = 24 * 60 * 60 * 1000;
+  const startNow = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startReviewed = new Date(
+    reviewed.getFullYear(),
+    reviewed.getMonth(),
+    reviewed.getDate()
+  ).getTime();
+  const diff = Math.floor((startNow - startReviewed) / dayMs);
+
+  if (diff <= 0) return "Reviewed today";
+  if (diff === 1) return "Reviewed yesterday";
+  if (diff < 7) return `Reviewed ${diff}d ago`;
+  return `Reviewed ${reviewed.getMonth() + 1}/${reviewed.getDate()}`;
+}
+
 const ACTION_VERBS = [
   "start",
   "finish",
@@ -72,7 +95,16 @@ function RuleQuality({ text }) {
   );
 }
 
-function StandardRow({ standard, ruleNumber, onDelete, onTap, isDragging, isOver }) {
+function StandardRow({
+  standard,
+  ruleNumber,
+  onDelete,
+  onTap,
+  onMarkReviewed,
+  isDragging,
+  isOver,
+  reorderEnabled,
+}) {
   const swipeX = useRef(0);
   const startX = useRef(0);
   const [offset, setOffset] = useState(0);
@@ -192,25 +224,55 @@ function StandardRow({ standard, ruleNumber, onDelete, onTap, isDragging, isOver
               color: "#666666",
               letterSpacing: "0.04em",
               marginTop: 6,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 10,
             }}
           >
-            Tap to edit rule
+            <span>{standard.category || "Execution"}</span>
+            <span>{formatReviewedLabel(standard.lastReviewedAt)}</span>
+          </div>
+          <div style={{ marginTop: 7 }}>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onMarkReviewed(standard.id);
+              }}
+              className="tappable"
+              style={{
+                background: "none",
+                border: "1px solid #2a2a2a",
+                borderRadius: 999,
+                color: "#7a7a7a",
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 10,
+                letterSpacing: "0.05em",
+                padding: "4px 8px",
+                cursor: "pointer",
+              }}
+            >
+              Mark Reviewed
+            </button>
           </div>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 3,
-            flexShrink: 0,
-            opacity: 0.26,
-          }}
-        >
-          {[0, 1, 2].map((i) => (
-            <div key={i} style={{ width: 14, height: 1.5, background: "#555", borderRadius: 1 }} />
-          ))}
-        </div>
+        {reorderEnabled ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 3,
+              flexShrink: 0,
+              opacity: 0.26,
+            }}
+          >
+            {[0, 1, 2].map((i) => (
+              <div key={i} style={{ width: 14, height: 1.5, background: "#555", borderRadius: 1 }} />
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -224,10 +286,14 @@ export default function Standards({
   onUpdateStandard,
   onRemoveStandard,
   onReorderStandards,
+  onMarkStandardReviewed,
 }) {
   const [draft, setDraft] = useState("");
+  const [draftCategory, setDraftCategory] = useState("Execution");
   const [editingId, setEditingId] = useState(null);
   const [editingText, setEditingText] = useState("");
+  const [editingCategory, setEditingCategory] = useState("Execution");
+  const [categoryFilter, setCategoryFilter] = useState("All");
   const [localError, setLocalError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [dragId, setDragId] = useState(null);
@@ -254,16 +320,23 @@ export default function Standards({
   }, [sortedStandards]);
 
   const hasReachedMax = sortedStandards.length >= maxStandards;
+  const reorderEnabled = categoryFilter === "All";
+  const filteredStandards =
+    categoryFilter === "All"
+      ? displayStandards
+      : displayStandards.filter((standard) => (standard.category || "Execution") === categoryFilter);
 
   function startEdit(standard) {
     setEditingId(standard.id);
     setEditingText(standard.text);
+    setEditingCategory(standard.category || "Execution");
     setLocalError("");
   }
 
   function cancelEdit() {
     setEditingId(null);
     setEditingText("");
+    setEditingCategory("Execution");
     setLocalError("");
   }
 
@@ -281,8 +354,9 @@ export default function Standards({
     try {
       setIsSaving(true);
       setLocalError("");
-      await onAddStandard(cleanDraft);
+      await onAddStandard({ text: cleanDraft, category: draftCategory });
       setDraft("");
+      setDraftCategory("Execution");
     } catch (error) {
       setLocalError(error.message || "Failed to add standard.");
     } finally {
@@ -301,7 +375,10 @@ export default function Standards({
     try {
       setIsSaving(true);
       setLocalError("");
-      await onUpdateStandard(editingId, cleanText);
+      await onUpdateStandard(editingId, {
+        text: cleanText,
+        category: editingCategory,
+      });
       cancelEdit();
     } catch (error) {
       setLocalError(error.message || "Failed to update standard.");
@@ -318,6 +395,18 @@ export default function Standards({
       if (editingId === id) cancelEdit();
     } catch (error) {
       setLocalError(error.message || "Failed to delete standard.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function handleMarkReviewed(id) {
+    try {
+      setIsSaving(true);
+      setLocalError("");
+      await onMarkStandardReviewed(id);
+    } catch (error) {
+      setLocalError(error.message || "Failed to mark review.");
     } finally {
       setIsSaving(false);
     }
@@ -356,7 +445,7 @@ export default function Standards({
   }, []);
 
   const onContainerPointerDown = useCallback((e) => {
-    if (isSaving || editingId) return;
+    if (isSaving || editingId || !reorderEnabled) return;
     const rows = Array.from(listRef.current?.children || []);
     let idx = null;
     for (let i = 0; i < rows.length; i++) {
@@ -374,7 +463,7 @@ export default function Standards({
       setDragId(id);
       if (navigator.vibrate) navigator.vibrate(30);
     }, 280);
-  }, [isSaving, editingId]);
+  }, [isSaving, editingId, reorderEnabled]);
 
   const onContainerPointerMove = useCallback((e) => {
     if (!dragIdRef.current) return;
@@ -513,6 +602,30 @@ export default function Standards({
         </span>
       </div>
 
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+        {STANDARD_CATEGORIES.map((category) => (
+          <button
+            key={`draft-${category}`}
+            type="button"
+            className="tappable"
+            onClick={() => setDraftCategory(category)}
+            style={{
+              padding: "6px 10px",
+              borderRadius: 999,
+              border: `1px solid ${draftCategory === category ? "rgba(74,158,255,0.35)" : "#2a2a2a"}`,
+              background: draftCategory === category ? "rgba(74,158,255,0.08)" : "transparent",
+              color: draftCategory === category ? "#6f8fb3" : "#5a5a5a",
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 10,
+              letterSpacing: "0.04em",
+              cursor: "pointer",
+            }}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+
       <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 10 }}>
         <input
           value={draft}
@@ -568,16 +681,42 @@ export default function Standards({
         Direct · Operational · Repeatable
       </div>
 
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+        {["All", ...STANDARD_CATEGORIES].map((category) => (
+          <button
+            key={`filter-${category}`}
+            type="button"
+            className="tappable"
+            onClick={() => setCategoryFilter(category)}
+            style={{
+              padding: "5px 10px",
+              borderRadius: 999,
+              border: `1px solid ${categoryFilter === category ? "#3a3a3a" : "#252525"}`,
+              background: categoryFilter === category ? "#111" : "transparent",
+              color: categoryFilter === category ? "#9a9a9a" : "#5a5a5a",
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 10,
+              letterSpacing: "0.04em",
+              cursor: "pointer",
+            }}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+
       {localError ? (
         <div style={{ marginBottom: 8, fontSize: "var(--mobile-meta-size)", color: "#8a8a8a", lineHeight: 1.4 }}>
           {localError}
         </div>
       ) : null}
 
-      {displayStandards.length === 0 ? (
+      {filteredStandards.length === 0 ? (
         <div style={{ paddingTop: 16 }}>
           <p style={{ color: "#b0b0b0", fontSize: "var(--mobile-body-size)", lineHeight: 1.6 }}>
-            No governing rules defined yet.
+            {categoryFilter === "All"
+              ? "No governing rules defined yet."
+              : `No ${categoryFilter} standards yet.`}
           </p>
           <p style={{ color: "#6a6a6a", fontSize: "var(--mobile-screen-subtitle-size)", lineHeight: 1.6, marginTop: 4 }}>
             Standards should be clear enough to follow even when motivation is low.
@@ -591,14 +730,14 @@ export default function Standards({
           ref={listRef}
           style={{
             overflow: dragId ? "visible" : "hidden",
-            touchAction: dragId ? "none" : "pan-y",
+            touchAction: dragId && reorderEnabled ? "none" : "pan-y",
           }}
           onPointerDown={onContainerPointerDown}
           onPointerMove={onContainerPointerMove}
           onPointerUp={onContainerPointerUp}
           onPointerLeave={onContainerPointerLeave}
         >
-          {displayStandards.map((standard, index) => {
+          {filteredStandards.map((standard, index) => {
             const isEditing = editingId === standard.id;
 
             if (isEditing) {
@@ -626,6 +765,30 @@ export default function Standards({
                       outline: "none",
                     }}
                   />
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+                    {STANDARD_CATEGORIES.map((category) => (
+                      <button
+                        key={`edit-${category}`}
+                        type="button"
+                        className="tappable"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => setEditingCategory(category)}
+                        style={{
+                          padding: "5px 9px",
+                          borderRadius: 999,
+                          border: `1px solid ${editingCategory === category ? "rgba(74,158,255,0.35)" : "#2a2a2a"}`,
+                          background: editingCategory === category ? "rgba(74,158,255,0.08)" : "transparent",
+                          color: editingCategory === category ? "#6f8fb3" : "#5a5a5a",
+                          fontFamily: "'IBM Plex Mono', monospace",
+                          fontSize: 10,
+                          letterSpacing: "0.04em",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {category}
+                      </button>
+                    ))}
+                  </div>
                   {editingText.trim() ? <RuleQuality text={editingText} /> : null}
                 </div>
               );
@@ -638,8 +801,10 @@ export default function Standards({
                 ruleNumber={formatRuleNumber(index)}
                 onDelete={handleDelete}
                 onTap={startEdit}
+                onMarkReviewed={handleMarkReviewed}
                 isDragging={dragId === standard.id}
                 isOver={overIndex === index && dragId !== standard.id}
+                reorderEnabled={reorderEnabled}
               />
             );
           })}
