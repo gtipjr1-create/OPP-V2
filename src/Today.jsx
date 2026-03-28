@@ -207,16 +207,16 @@ function TaskRow({ task, onToggle, onDelete, isDragging, isOver, isCarryForward 
           marginLeft: isDragging ? -10 : 0,
           marginRight: isDragging ? -10 : 0,
           opacity: isOver ? 0.25 : task.done ? 0.38 : 1,
-          transform: isDragging ? "scale(1.03)" : `translateX(${offset}px)`,
+          transform: isDragging ? "scale(1.015)" : `translateX(${offset}px)`,
           background: isDragging ? "#1a1a1a" : "transparent",
           borderRadius: isDragging ? 12 : 0,
           boxShadow: isDragging
-            ? "0 14px 36px rgba(0,0,0,0.7), 0 4px 10px rgba(0,0,0,0.45)"
+            ? "0 10px 26px rgba(0,0,0,0.62), 0 2px 8px rgba(0,0,0,0.36)"
             : "none",
           zIndex: isDragging ? 100 : 1,
           position: "relative",
           transition: isDragging
-            ? "transform 0.01s, box-shadow 0.2s ease"
+            ? "transform 0.06s ease-out, box-shadow 0.18s ease"
             : offset !== 0
             ? "none"
             : "transform 0.38s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease",
@@ -357,6 +357,7 @@ export default function Today({
   const pointerTargetRef = useRef(null);
   const pointerStartXRef = useRef(0);
   const pointerStartYRef = useRef(0);
+  const lastReorderYRef = useRef(null);
   const tasksRef = useRef(tasks);
   tasksRef.current = tasks;
 
@@ -467,12 +468,19 @@ export default function Today({
     await updateTodayTaskSortOrdersForUser(nextList, userId);
   }, [userId]);
 
-  const moveDraggedTaskToIndex = useCallback((targetIndex) => {
+  const moveDraggedTaskToIndex = useCallback((targetIndex, clientY) => {
     if (!dragIdRef.current || targetIndex === null) return;
     const from = tasksRef.current.findIndex((t) => t.id === dragIdRef.current);
     if (from === -1 || targetIndex === from) return;
+    if (typeof clientY === "number" && lastReorderYRef.current !== null) {
+      const dragDistanceSinceLastMove = Math.abs(clientY - lastReorderYRef.current);
+      if (dragDistanceSinceLastMove < 8) return;
+    }
 
     setOverIndex(targetIndex);
+    if (typeof clientY === "number") {
+      lastReorderYRef.current = clientY;
+    }
     setTasks((prev) => {
       const next = [...prev];
       const f = next.findIndex((t) => t.id === dragIdRef.current);
@@ -486,16 +494,25 @@ export default function Today({
   const getIndexAtY = useCallback((clientY) => {
     if (!listRef.current) return null;
     const rows = Array.from(listRef.current.children);
+    if (rows.length === 0) return null;
     for (let i = 0; i < rows.length; i++) {
       const r = rows[i].getBoundingClientRect();
-      if (clientY >= r.top && clientY <= r.bottom) return i;
+      const midpoint = r.top + r.height / 2;
+      if (clientY < midpoint) return i;
     }
-    if (rows.length > 0) {
-      if (clientY > rows[rows.length - 1].getBoundingClientRect().bottom) return rows.length - 1;
-      if (clientY < rows[0].getBoundingClientRect().top) return 0;
-    }
-    return null;
+    if (clientY < rows[0].getBoundingClientRect().top) return 0;
+    if (clientY > rows[rows.length - 1].getBoundingClientRect().bottom) return rows.length - 1;
+    return rows.length - 1;
   }, []);
+
+  const DRAG_HOLD_MS = 240;
+  const EDGE_SCROLL_THRESHOLD = 84;
+  const EDGE_SCROLL_MAX_SPEED = 12;
+
+  const easeAutoScrollSpeed = (intensity) => {
+    const clamped = Math.min(Math.max(intensity, 0), 1);
+    return Math.ceil(Math.max(1, Math.pow(clamped, 1.35) * EDGE_SCROLL_MAX_SPEED));
+  };
 
   const stopAutoScrollLoop = useCallback(() => {
     if (autoScrollRafRef.current) {
@@ -524,16 +541,15 @@ export default function Today({
 
     const container = scrollContainerRef.current;
     const rect = container.getBoundingClientRect();
-    const threshold = 72;
-    const maxSpeed = 16;
     let delta = 0;
 
-    if (pointerYRef.current < rect.top + threshold) {
-      const intensity = (rect.top + threshold - pointerYRef.current) / threshold;
-      delta = -Math.ceil(Math.max(2, intensity * maxSpeed));
-    } else if (pointerYRef.current > rect.bottom - threshold) {
-      const intensity = (pointerYRef.current - (rect.bottom - threshold)) / threshold;
-      delta = Math.ceil(Math.max(2, intensity * maxSpeed));
+    if (pointerYRef.current < rect.top + EDGE_SCROLL_THRESHOLD) {
+      const intensity = (rect.top + EDGE_SCROLL_THRESHOLD - pointerYRef.current) / EDGE_SCROLL_THRESHOLD;
+      delta = -easeAutoScrollSpeed(intensity);
+    } else if (pointerYRef.current > rect.bottom - EDGE_SCROLL_THRESHOLD) {
+      const intensity =
+        (pointerYRef.current - (rect.bottom - EDGE_SCROLL_THRESHOLD)) / EDGE_SCROLL_THRESHOLD;
+      delta = easeAutoScrollSpeed(intensity);
     }
 
     if (delta !== 0) {
@@ -541,7 +557,7 @@ export default function Today({
       container.scrollTop += delta;
       if (container.scrollTop !== previousTop) {
         const idx = getIndexAtY(pointerYRef.current);
-        moveDraggedTaskToIndex(idx);
+        moveDraggedTaskToIndex(idx, pointerYRef.current);
       }
     }
 
@@ -586,7 +602,7 @@ export default function Today({
       stopAutoScrollLoop();
       autoScrollRafRef.current = requestAnimationFrame(runAutoScrollLoop);
       if (navigator.vibrate) navigator.vibrate(30);
-    }, 240);
+    }, DRAG_HOLD_MS);
   }, [lockContainerScroll, runAutoScrollLoop, stopAutoScrollLoop]);
 
   const onContainerPointerMove = useCallback((e) => {
@@ -600,8 +616,8 @@ export default function Today({
       return;
     }
     e.preventDefault();
-    const idx = getIndexAtY(e.clientY);
-    moveDraggedTaskToIndex(idx);
+      const idx = getIndexAtY(e.clientY);
+      moveDraggedTaskToIndex(idx, e.clientY);
   }, [getIndexAtY, moveDraggedTaskToIndex]);
 
   const onContainerPointerUp = useCallback(async () => {
@@ -617,6 +633,7 @@ export default function Today({
       }
     }
     dragIdRef.current = null;
+    lastReorderYRef.current = null;
     pointerYRef.current = null;
     scrollContainerRef.current = null;
     pointerIdRef.current = null;
@@ -634,6 +651,29 @@ export default function Today({
   const onContainerPointerLeave = useCallback(() => {
     clearTimeout(holdTimer.current);
   }, []);
+
+  const onContainerTouchMove = useCallback((e) => {
+    if (!dragIdRef.current) return;
+    e.preventDefault();
+    const touch = e.touches?.[0];
+    if (!touch) return;
+    pointerYRef.current = touch.clientY;
+    const idx = getIndexAtY(touch.clientY);
+    moveDraggedTaskToIndex(idx, touch.clientY);
+  }, [getIndexAtY, moveDraggedTaskToIndex]);
+
+  const onContainerTouchEnd = useCallback(() => {
+    void onContainerPointerUp();
+  }, [onContainerPointerUp]);
+
+  useEffect(() => {
+    if (!dragId) return;
+    const blockTouchScroll = (event) => event.preventDefault();
+    document.addEventListener("touchmove", blockTouchScroll, { passive: false });
+    return () => {
+      document.removeEventListener("touchmove", blockTouchScroll);
+    };
+  }, [dragId]);
 
   return (
     <MobileShell
@@ -1122,9 +1162,13 @@ export default function Today({
               overflow: dragId ? "visible" : "hidden",
               touchAction: dragId ? "none" : "pan-y",
             }}
+            onTouchMove={onContainerTouchMove}
+            onTouchEnd={onContainerTouchEnd}
+            onTouchCancel={onContainerTouchEnd}
             onPointerDown={onContainerPointerDown}
             onPointerMove={onContainerPointerMove}
             onPointerUp={onContainerPointerUp}
+            onPointerCancel={onContainerPointerUp}
             onPointerLeave={onContainerPointerLeave}
           >
             {tasks.length === 0 ? (

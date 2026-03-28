@@ -181,16 +181,16 @@ function StandardRow({
           marginLeft: isDragging ? -10 : 0,
           marginRight: isDragging ? -10 : 0,
           opacity: isOver ? 0.25 : 1,
-          transform: isDragging ? "scale(1.03)" : `translateX(${offset}px)`,
+          transform: isDragging ? "scale(1.015)" : `translateX(${offset}px)`,
           background: isDragging ? "#222222" : "#000000",
           borderRadius: isDragging ? 12 : 0,
           boxShadow: isDragging
-            ? "0 16px 48px rgba(0,0,0,0.8), 0 4px 12px rgba(0,0,0,0.5)"
+            ? "0 10px 26px rgba(0,0,0,0.62), 0 2px 8px rgba(0,0,0,0.36)"
             : "none",
           zIndex: isDragging ? 100 : 1,
           position: "relative",
           transition: isDragging
-            ? "transform 0.01s, box-shadow 0.2s ease"
+            ? "transform 0.06s ease-out, box-shadow 0.18s ease"
             : offset !== 0
             ? "none"
             : "transform 0.38s cubic-bezier(0.16,1,0.3,1), opacity 0.15s ease",
@@ -321,7 +321,12 @@ export default function Standards({
   const pointerTargetRef = useRef(null);
   const pointerStartXRef = useRef(0);
   const pointerStartYRef = useRef(0);
+  const lastReorderYRef = useRef(null);
   displayRef.current = displayStandards;
+
+  const DRAG_HOLD_MS = 240;
+  const EDGE_SCROLL_THRESHOLD = 84;
+  const EDGE_SCROLL_MAX_SPEED = 12;
 
   const lockContainerScroll = useCallback(() => {
     if (!scrollContainerRef.current) return;
@@ -490,12 +495,19 @@ export default function Standards({
     }
   }
 
-  const moveDraggedStandardToIndex = useCallback((targetIndex) => {
+  const moveDraggedStandardToIndex = useCallback((targetIndex, clientY) => {
     if (!dragIdRef.current || targetIndex === null) return;
     const from = displayRef.current.findIndex((s) => s.id === dragIdRef.current);
     if (from === -1 || targetIndex === from) return;
+    if (typeof clientY === "number" && lastReorderYRef.current !== null) {
+      const dragDistanceSinceLastMove = Math.abs(clientY - lastReorderYRef.current);
+      if (dragDistanceSinceLastMove < 8) return;
+    }
 
     setOverIndex(targetIndex);
+    if (typeof clientY === "number") {
+      lastReorderYRef.current = clientY;
+    }
     setDisplayStandards((prev) => {
       const next = [...prev];
       const f = next.findIndex((s) => s.id === dragIdRef.current);
@@ -509,15 +521,15 @@ export default function Standards({
   const getIndexAtY = useCallback((clientY) => {
     if (!listRef.current) return null;
     const rows = Array.from(listRef.current.children);
+    if (rows.length === 0) return null;
     for (let i = 0; i < rows.length; i++) {
       const r = rows[i].getBoundingClientRect();
-      if (clientY >= r.top && clientY <= r.bottom) return i;
+      const midpoint = r.top + r.height / 2;
+      if (clientY < midpoint) return i;
     }
-    if (rows.length > 0) {
-      if (clientY > rows[rows.length - 1].getBoundingClientRect().bottom) return rows.length - 1;
-      if (clientY < rows[0].getBoundingClientRect().top) return 0;
-    }
-    return null;
+    if (clientY < rows[0].getBoundingClientRect().top) return 0;
+    if (clientY > rows[rows.length - 1].getBoundingClientRect().bottom) return rows.length - 1;
+    return rows.length - 1;
   }, []);
 
   const stopAutoScrollLoop = useCallback(() => {
@@ -527,6 +539,11 @@ export default function Standards({
     }
   }, []);
 
+  const easeAutoScrollSpeed = (intensity) => {
+    const clamped = Math.min(Math.max(intensity, 0), 1);
+    return Math.ceil(Math.max(1, Math.pow(clamped, 1.35) * EDGE_SCROLL_MAX_SPEED));
+  };
+
   const runAutoScrollLoop = useCallback(() => {
     if (!dragIdRef.current || !scrollContainerRef.current || pointerYRef.current === null) {
       stopAutoScrollLoop();
@@ -535,16 +552,15 @@ export default function Standards({
 
     const container = scrollContainerRef.current;
     const rect = container.getBoundingClientRect();
-    const threshold = 72;
-    const maxSpeed = 16;
     let delta = 0;
 
-    if (pointerYRef.current < rect.top + threshold) {
-      const intensity = (rect.top + threshold - pointerYRef.current) / threshold;
-      delta = -Math.ceil(Math.max(2, intensity * maxSpeed));
-    } else if (pointerYRef.current > rect.bottom - threshold) {
-      const intensity = (pointerYRef.current - (rect.bottom - threshold)) / threshold;
-      delta = Math.ceil(Math.max(2, intensity * maxSpeed));
+    if (pointerYRef.current < rect.top + EDGE_SCROLL_THRESHOLD) {
+      const intensity = (rect.top + EDGE_SCROLL_THRESHOLD - pointerYRef.current) / EDGE_SCROLL_THRESHOLD;
+      delta = -easeAutoScrollSpeed(intensity);
+    } else if (pointerYRef.current > rect.bottom - EDGE_SCROLL_THRESHOLD) {
+      const intensity =
+        (pointerYRef.current - (rect.bottom - EDGE_SCROLL_THRESHOLD)) / EDGE_SCROLL_THRESHOLD;
+      delta = easeAutoScrollSpeed(intensity);
     }
 
     if (delta !== 0) {
@@ -552,7 +568,7 @@ export default function Standards({
       container.scrollTop += delta;
       if (container.scrollTop !== previousTop) {
         const idx = getIndexAtY(pointerYRef.current);
-        moveDraggedStandardToIndex(idx);
+        moveDraggedStandardToIndex(idx, pointerYRef.current);
       }
     }
 
@@ -598,7 +614,7 @@ export default function Standards({
       stopAutoScrollLoop();
       autoScrollRafRef.current = requestAnimationFrame(runAutoScrollLoop);
       if (navigator.vibrate) navigator.vibrate(30);
-    }, 280);
+    }, DRAG_HOLD_MS);
   }, [isSaving, editingId, reorderEnabled, lockContainerScroll, runAutoScrollLoop, stopAutoScrollLoop]);
 
   const onContainerPointerMove = useCallback((e) => {
@@ -613,7 +629,7 @@ export default function Standards({
     }
     e.preventDefault();
     const idx = getIndexAtY(e.clientY);
-    moveDraggedStandardToIndex(idx);
+    moveDraggedStandardToIndex(idx, e.clientY);
   }, [getIndexAtY, moveDraggedStandardToIndex]);
 
   const onContainerPointerUp = useCallback(async () => {
@@ -630,6 +646,7 @@ export default function Standards({
     }
     pointerIdRef.current = null;
     pointerTargetRef.current = null;
+    lastReorderYRef.current = null;
     pointerYRef.current = null;
     dragIdRef.current = null;
     setDragId(null);
@@ -659,7 +676,7 @@ export default function Standards({
     if (!touch) return;
     pointerYRef.current = touch.clientY;
     const idx = getIndexAtY(touch.clientY);
-    moveDraggedStandardToIndex(idx);
+    moveDraggedStandardToIndex(idx, touch.clientY);
   }, [getIndexAtY, moveDraggedStandardToIndex]);
 
   const onContainerTouchEnd = useCallback(() => {

@@ -312,3 +312,20 @@ Make Standards drag/reorder match Today behavior on iPhone where touch scroll wa
 ### Verification
 - build passed
 - device check passed (Standards drag confirmed working)
+
+## March 28, 2026 (Drag Feel Polish - Today + Standards)
+
+### Session Focus
+Reduce residual drag jitter and make reorder feel smoother while keeping behavior unchanged.
+
+### What I Completed
+- softened active-drag lift treatment (lower scale + lighter shadow) on Today and Standards rows
+- added small drag hysteresis threshold to suppress micro index flips from tiny finger jitter
+- kept midpoint reorder targeting and touch fallback paths from prior pass
+
+### Key Decisions
+- prioritize stability and smoothness over aggressive immediate swapping
+- preserve existing interaction model and long-press gesture semantics
+
+### Verification
+- build passed
