@@ -1,7 +1,7 @@
 # OPP - Active Work
 
 ## Current Phase
-v1 refinement (tightening, not expansion).
+v1 refinement (stable baseline achieved).
 
 ## Phase Objective
 Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, sharper, and more governed.
@@ -51,9 +51,17 @@ Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, 
 - Shell scroll-boundary lock complete: middle viewport is now constrained between header and nav to prevent text bleed behind chrome.
 
 ## Current Focus
-- Validate final drag feel and list interaction smoothness on physical iPhone usage.
+- Preserve stable baseline while collecting any final device-specific edge cases.
 - Preserve model-language consistency as future changes are introduced.
 - Keep token-driven consistency across core screens as refinements continue.
+
+## Stability Checklist (Current)
+- Build passes on current branch.
+- Core screens share one mobile shell behavior (fixed header/nav, bounded middle scroll).
+- No text bleed behind top or bottom chrome during list scroll.
+- Today quick-add input no longer triggers iOS typing shift.
+- Day-item long-press reorder is functional with edge auto-scroll and improved hold behavior.
+- Bottom-nav readability and label compactness validated (`Focus`).
 
 ## Open Implementation Decisions
 - Day-item lifecycle policy is locked: carry-forward-until-complete.

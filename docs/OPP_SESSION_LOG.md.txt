@@ -109,3 +109,17 @@ Stabilize Today list behavior on mobile and remove scroll/drag friction.
 
 ### Verification
 - build passed
+
+## March 28, 2026 (Stability QA Checkpoint)
+
+### Session Focus
+Confirm stability of the mobile refinement baseline after interaction and shell fixes.
+
+### What I Completed
+- ran final build verification on current branch
+- confirmed middle-viewport shell lock behavior and no chrome underlap in latest implementation
+- finalized active-work status wording to reflect stable baseline
+- recorded current stability checklist in active docs
+
+### Verification
+- build passed
