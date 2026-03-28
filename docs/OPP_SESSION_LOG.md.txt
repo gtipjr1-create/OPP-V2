@@ -272,3 +272,23 @@ Increase Today orientation quality with low-noise carry-forward visibility and c
 
 ### Verification
 - build passed
+
+## March 28, 2026 (Today Intelligence Hardening - Gesture + Edge Cases)
+
+### Session Focus
+Harden Today/Standards interaction reliability and finish release prep for the intelligence pass.
+
+### What I Completed
+- ensured newly added day items carry `date` in local state so carry-forward cues remain consistent
+- added drag-start guardrails to avoid long-press drag activation from buttons/inputs/interactive controls
+- improved Standards long-press behavior by canceling drag intent when users are clearly scrolling
+- added pointer-capture lifecycle handling for Standards drag to reduce sticky/partial drag states
+- added safety reset when filter/edit/reorder context changes to prevent stale drag state collisions
+- prevented `Mark Reviewed` interaction from competing with drag initiation
+
+### Key Decisions
+- prioritize predictable touch intent over aggressive drag activation
+- keep hardening low-risk and interaction-focused without changing core screen behavior
+
+### Verification
+- build passed

@@ -107,16 +107,22 @@ function StandardRow({
 }) {
   const swipeX = useRef(0);
   const startX = useRef(0);
+  const startY = useRef(0);
   const [offset, setOffset] = useState(0);
   const THRESHOLD = -90;
 
   const onTouchStart = (e) => {
-    if (!isDragging) startX.current = e.touches[0].clientX;
+    if (!isDragging) {
+      startX.current = e.touches[0].clientX;
+      startY.current = e.touches[0].clientY;
+    }
   };
 
   const onTouchMove = (e) => {
     if (isDragging) return;
     const dx = e.touches[0].clientX - startX.current;
+    const dy = Math.abs(e.touches[0].clientY - startY.current);
+    if (Math.abs(dx) < 8 || Math.abs(dx) < dy) return;
     if (dx > 0) return;
     swipeX.current = Math.max(dx, -110);
     setOffset(swipeX.current);
@@ -240,6 +246,7 @@ function StandardRow({
                 e.stopPropagation();
                 onMarkReviewed(standard.id);
               }}
+              onPointerDown={(e) => e.stopPropagation()}
               className="tappable"
               style={{
                 background: "none",
@@ -304,6 +311,10 @@ export default function Standards({
   const holdTimer = useRef(null);
   const dragIdRef = useRef(null);
   const displayRef = useRef(displayStandards);
+  const pointerIdRef = useRef(null);
+  const pointerTargetRef = useRef(null);
+  const pointerStartXRef = useRef(0);
+  const pointerStartYRef = useRef(0);
   displayRef.current = displayStandards;
 
   const sortedStandards = useMemo(() => {
@@ -325,6 +336,22 @@ export default function Standards({
     categoryFilter === "All"
       ? displayStandards
       : displayStandards.filter((standard) => (standard.category || "Execution") === categoryFilter);
+
+  useEffect(() => {
+    clearTimeout(holdTimer.current);
+    dragIdRef.current = null;
+    setDragId(null);
+    setOverIndex(null);
+    if (pointerTargetRef.current && pointerIdRef.current !== null) {
+      try {
+        pointerTargetRef.current.releasePointerCapture(pointerIdRef.current);
+      } catch {
+        // No-op if capture was never set.
+      }
+    }
+    pointerIdRef.current = null;
+    pointerTargetRef.current = null;
+  }, [categoryFilter, editingId, reorderEnabled]);
 
   function startEdit(standard) {
     setEditingId(standard.id);
@@ -446,6 +473,9 @@ export default function Standards({
 
   const onContainerPointerDown = useCallback((e) => {
     if (isSaving || editingId || !reorderEnabled) return;
+    if (e.target instanceof Element && e.target.closest("button, input, textarea, a, [data-no-drag='true']")) {
+      return;
+    }
     const rows = Array.from(listRef.current?.children || []);
     let idx = null;
     for (let i = 0; i < rows.length; i++) {
@@ -458,15 +488,34 @@ export default function Standards({
     const id = displayRef.current[idx]?.id;
     if (!id) return;
 
+    pointerIdRef.current = e.pointerId;
+    pointerTargetRef.current = e.currentTarget instanceof Element ? e.currentTarget : null;
+    pointerStartXRef.current = e.clientX;
+    pointerStartYRef.current = e.clientY;
+
     holdTimer.current = setTimeout(() => {
       dragIdRef.current = id;
       setDragId(id);
+      if (pointerTargetRef.current && pointerIdRef.current !== null) {
+        try {
+          pointerTargetRef.current.setPointerCapture(pointerIdRef.current);
+        } catch {
+          // Ignore capture failures on non-capturable targets.
+        }
+      }
       if (navigator.vibrate) navigator.vibrate(30);
     }, 280);
   }, [isSaving, editingId, reorderEnabled]);
 
   const onContainerPointerMove = useCallback((e) => {
-    if (!dragIdRef.current) return;
+    if (!dragIdRef.current) {
+      const movedX = Math.abs(e.clientX - pointerStartXRef.current);
+      const movedY = Math.abs(e.clientY - pointerStartYRef.current);
+      if (movedX > 14 || movedY > 14) {
+        clearTimeout(holdTimer.current);
+      }
+      return;
+    }
     e.preventDefault();
     const idx = getIndexAtY(e.clientY);
     if (idx === null) return;
@@ -486,6 +535,15 @@ export default function Standards({
   const onContainerPointerUp = useCallback(async () => {
     clearTimeout(holdTimer.current);
     const wasDragging = !!dragIdRef.current;
+    if (pointerTargetRef.current && pointerIdRef.current !== null) {
+      try {
+        pointerTargetRef.current.releasePointerCapture(pointerIdRef.current);
+      } catch {
+        // No-op if capture was never set.
+      }
+    }
+    pointerIdRef.current = null;
+    pointerTargetRef.current = null;
     dragIdRef.current = null;
     setDragId(null);
     setOverIndex(null);

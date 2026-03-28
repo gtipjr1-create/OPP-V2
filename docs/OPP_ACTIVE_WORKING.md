@@ -58,6 +58,7 @@ Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, 
 - Standards depth pass (v1) complete: live rule-quality guidance added during standard draft/edit to improve operational clarity.
 - Standards depth pass (v2/v3) complete: category model/filtering and lightweight review cadence are now integrated with persistence wiring.
 - Today intelligence pass (v1) complete: carry-forward cues and focus-signal indicators now improve orientation without increasing noise.
+- Today intelligence hardening pass complete: drag/press intent conflicts were reduced and Standards interactions now guard better against accidental drag starts.
 
 ## Current Focus
 - Preserve stable baseline while collecting any final device-specific edge cases.
@@ -71,6 +72,7 @@ Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, 
 - Continue strengthening Standards as a behavior-shaping layer, not just a storage list.
 - Keep Standards filters and review actions lightweight so governance remains actionable at a glance.
 - Preserve calm command-surface behavior while surfacing carry-forward and focus signals where they matter.
+- Preserve gesture reliability by keeping drag activation separate from tap/edit/review actions.
 
 ## Stability Checklist (Current)
 - Build passes on current branch.

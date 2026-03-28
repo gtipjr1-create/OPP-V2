@@ -419,7 +419,13 @@ export default function Today({
 
       setTasks((prev) => [
         ...prev,
-        { id: data.id, label: data.label, done: data.done, sortOrder: data.sort_order },
+        {
+          id: data.id,
+          label: data.label,
+          done: data.done,
+          sortOrder: data.sort_order,
+          date: data.date || localISODate(),
+        },
       ]);
       setQuickAdd("");
     } catch (error) {
@@ -543,6 +549,9 @@ export default function Today({
   }, [getIndexAtY, moveDraggedTaskToIndex, stopAutoScrollLoop]);
 
   const onContainerPointerDown = useCallback((e) => {
+    if (e.target instanceof Element && e.target.closest("button, input, textarea, a, [data-no-drag='true']")) {
+      return;
+    }
     const rows = Array.from(listRef.current?.children || []);
     let idx = null;
     for (let i = 0; i < rows.length; i++) {
