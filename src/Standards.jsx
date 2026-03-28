@@ -119,7 +119,10 @@ function StandardRow({
   };
 
   const onTouchMove = (e) => {
-    if (isDragging) return;
+    if (isDragging) {
+      e.preventDefault();
+      return;
+    }
     const dx = e.touches[0].clientX - startX.current;
     const dy = Math.abs(e.touches[0].clientY - startY.current);
     if (Math.abs(dx) < 8 || Math.abs(dx) < dy) return;
@@ -311,11 +314,35 @@ export default function Standards({
   const holdTimer = useRef(null);
   const dragIdRef = useRef(null);
   const displayRef = useRef(displayStandards);
+  const scrollContainerRef = useRef(null);
+  const pointerYRef = useRef(null);
+  const autoScrollRafRef = useRef(null);
   const pointerIdRef = useRef(null);
   const pointerTargetRef = useRef(null);
   const pointerStartXRef = useRef(0);
   const pointerStartYRef = useRef(0);
   displayRef.current = displayStandards;
+
+  const lockContainerScroll = useCallback(() => {
+    if (!scrollContainerRef.current) return;
+    scrollContainerRef.current.style.touchAction = "none";
+    scrollContainerRef.current.style.overscrollBehavior = "none";
+  }, []);
+
+  const unlockContainerScroll = useCallback(() => {
+    if (!scrollContainerRef.current) return;
+    scrollContainerRef.current.style.touchAction = "";
+    scrollContainerRef.current.style.overscrollBehavior = "";
+    scrollContainerRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (autoScrollRafRef.current) {
+        cancelAnimationFrame(autoScrollRafRef.current);
+      }
+    };
+  }, []);
 
   const sortedStandards = useMemo(() => {
     return [...standards].sort((a, b) => {
@@ -339,9 +366,15 @@ export default function Standards({
 
   useEffect(() => {
     clearTimeout(holdTimer.current);
+    if (autoScrollRafRef.current) {
+      cancelAnimationFrame(autoScrollRafRef.current);
+      autoScrollRafRef.current = null;
+    }
     dragIdRef.current = null;
+    pointerYRef.current = null;
     setDragId(null);
     setOverIndex(null);
+    unlockContainerScroll();
     if (pointerTargetRef.current && pointerIdRef.current !== null) {
       try {
         pointerTargetRef.current.releasePointerCapture(pointerIdRef.current);
@@ -351,7 +384,7 @@ export default function Standards({
     }
     pointerIdRef.current = null;
     pointerTargetRef.current = null;
-  }, [categoryFilter, editingId, reorderEnabled]);
+  }, [categoryFilter, editingId, reorderEnabled, unlockContainerScroll]);
 
   function startEdit(standard) {
     setEditingId(standard.id);
@@ -457,6 +490,22 @@ export default function Standards({
     }
   }
 
+  const moveDraggedStandardToIndex = useCallback((targetIndex) => {
+    if (!dragIdRef.current || targetIndex === null) return;
+    const from = displayRef.current.findIndex((s) => s.id === dragIdRef.current);
+    if (from === -1 || targetIndex === from) return;
+
+    setOverIndex(targetIndex);
+    setDisplayStandards((prev) => {
+      const next = [...prev];
+      const f = next.findIndex((s) => s.id === dragIdRef.current);
+      if (f === -1) return prev;
+      const [moved] = next.splice(f, 1);
+      next.splice(targetIndex, 0, moved);
+      return next;
+    });
+  }, []);
+
   const getIndexAtY = useCallback((clientY) => {
     if (!listRef.current) return null;
     const rows = Array.from(listRef.current.children);
@@ -470,6 +519,45 @@ export default function Standards({
     }
     return null;
   }, []);
+
+  const stopAutoScrollLoop = useCallback(() => {
+    if (autoScrollRafRef.current) {
+      cancelAnimationFrame(autoScrollRafRef.current);
+      autoScrollRafRef.current = null;
+    }
+  }, []);
+
+  const runAutoScrollLoop = useCallback(() => {
+    if (!dragIdRef.current || !scrollContainerRef.current || pointerYRef.current === null) {
+      stopAutoScrollLoop();
+      return;
+    }
+
+    const container = scrollContainerRef.current;
+    const rect = container.getBoundingClientRect();
+    const threshold = 72;
+    const maxSpeed = 16;
+    let delta = 0;
+
+    if (pointerYRef.current < rect.top + threshold) {
+      const intensity = (rect.top + threshold - pointerYRef.current) / threshold;
+      delta = -Math.ceil(Math.max(2, intensity * maxSpeed));
+    } else if (pointerYRef.current > rect.bottom - threshold) {
+      const intensity = (pointerYRef.current - (rect.bottom - threshold)) / threshold;
+      delta = Math.ceil(Math.max(2, intensity * maxSpeed));
+    }
+
+    if (delta !== 0) {
+      const previousTop = container.scrollTop;
+      container.scrollTop += delta;
+      if (container.scrollTop !== previousTop) {
+        const idx = getIndexAtY(pointerYRef.current);
+        moveDraggedStandardToIndex(idx);
+      }
+    }
+
+    autoScrollRafRef.current = requestAnimationFrame(runAutoScrollLoop);
+  }, [getIndexAtY, moveDraggedStandardToIndex, stopAutoScrollLoop]);
 
   const onContainerPointerDown = useCallback((e) => {
     if (isSaving || editingId || !reorderEnabled) return;
@@ -492,10 +580,14 @@ export default function Standards({
     pointerTargetRef.current = e.currentTarget instanceof Element ? e.currentTarget : null;
     pointerStartXRef.current = e.clientX;
     pointerStartYRef.current = e.clientY;
+    pointerYRef.current = e.clientY;
 
     holdTimer.current = setTimeout(() => {
       dragIdRef.current = id;
       setDragId(id);
+      const scrollContainer = listRef.current?.closest(".mobile-shell-scroll");
+      scrollContainerRef.current = scrollContainer || null;
+      lockContainerScroll();
       if (pointerTargetRef.current && pointerIdRef.current !== null) {
         try {
           pointerTargetRef.current.setPointerCapture(pointerIdRef.current);
@@ -503,11 +595,14 @@ export default function Standards({
           // Ignore capture failures on non-capturable targets.
         }
       }
+      stopAutoScrollLoop();
+      autoScrollRafRef.current = requestAnimationFrame(runAutoScrollLoop);
       if (navigator.vibrate) navigator.vibrate(30);
     }, 280);
-  }, [isSaving, editingId, reorderEnabled]);
+  }, [isSaving, editingId, reorderEnabled, lockContainerScroll, runAutoScrollLoop, stopAutoScrollLoop]);
 
   const onContainerPointerMove = useCallback((e) => {
+    pointerYRef.current = e.clientY;
     if (!dragIdRef.current) {
       const movedX = Math.abs(e.clientX - pointerStartXRef.current);
       const movedY = Math.abs(e.clientY - pointerStartYRef.current);
@@ -518,23 +613,14 @@ export default function Standards({
     }
     e.preventDefault();
     const idx = getIndexAtY(e.clientY);
-    if (idx === null) return;
-    const from = displayRef.current.findIndex((s) => s.id === dragIdRef.current);
-    if (idx === from) return;
-    setOverIndex(idx);
-    setDisplayStandards((prev) => {
-      const next = [...prev];
-      const f = next.findIndex((s) => s.id === dragIdRef.current);
-      if (f === -1) return prev;
-      const [moved] = next.splice(f, 1);
-      next.splice(idx, 0, moved);
-      return next;
-    });
-  }, [getIndexAtY]);
+    moveDraggedStandardToIndex(idx);
+  }, [getIndexAtY, moveDraggedStandardToIndex]);
 
   const onContainerPointerUp = useCallback(async () => {
     clearTimeout(holdTimer.current);
+    stopAutoScrollLoop();
     const wasDragging = !!dragIdRef.current;
+    unlockContainerScroll();
     if (pointerTargetRef.current && pointerIdRef.current !== null) {
       try {
         pointerTargetRef.current.releasePointerCapture(pointerIdRef.current);
@@ -544,6 +630,7 @@ export default function Standards({
     }
     pointerIdRef.current = null;
     pointerTargetRef.current = null;
+    pointerYRef.current = null;
     dragIdRef.current = null;
     setDragId(null);
     setOverIndex(null);
@@ -559,11 +646,34 @@ export default function Standards({
     } finally {
       setIsSaving(false);
     }
-  }, [onReorderStandards]);
+  }, [onReorderStandards, stopAutoScrollLoop, unlockContainerScroll]);
 
   const onContainerPointerLeave = useCallback(() => {
     clearTimeout(holdTimer.current);
   }, []);
+
+  const onContainerTouchMove = useCallback((e) => {
+    if (!dragIdRef.current) return;
+    e.preventDefault();
+    const touch = e.touches?.[0];
+    if (!touch) return;
+    pointerYRef.current = touch.clientY;
+    const idx = getIndexAtY(touch.clientY);
+    moveDraggedStandardToIndex(idx);
+  }, [getIndexAtY, moveDraggedStandardToIndex]);
+
+  const onContainerTouchEnd = useCallback(() => {
+    void onContainerPointerUp();
+  }, [onContainerPointerUp]);
+
+  useEffect(() => {
+    if (!dragId) return;
+    const blockTouchScroll = (event) => event.preventDefault();
+    document.addEventListener("touchmove", blockTouchScroll, { passive: false });
+    return () => {
+      document.removeEventListener("touchmove", blockTouchScroll);
+    };
+  }, [dragId]);
 
   return (
     <MobileShell
@@ -790,9 +900,13 @@ export default function Standards({
             overflow: dragId ? "visible" : "hidden",
             touchAction: dragId && reorderEnabled ? "none" : "pan-y",
           }}
+          onTouchMove={onContainerTouchMove}
+          onTouchEnd={onContainerTouchEnd}
+          onTouchCancel={onContainerTouchEnd}
           onPointerDown={onContainerPointerDown}
           onPointerMove={onContainerPointerMove}
           onPointerUp={onContainerPointerUp}
+          onPointerCancel={onContainerPointerUp}
           onPointerLeave={onContainerPointerLeave}
         >
           {filteredStandards.map((standard, index) => {

@@ -292,3 +292,23 @@ Harden Today/Standards interaction reliability and finish release prep for the i
 
 ### Verification
 - build passed
+
+## March 28, 2026 (Standards Drag Parity - iPhone Touch Path)
+
+### Session Focus
+Make Standards drag/reorder match Today behavior on iPhone where touch scroll was overriding drag motion.
+
+### What I Completed
+- aligned Standards drag flow with Today-style long-press + pointer capture lifecycle
+- added edge auto-scroll loop while dragging near top/bottom bounds
+- added active-drag container lock/unlock so middle scroll cannot drift during reorder
+- added touch-native reorder fallback (`touchmove`) for iOS paths where pointer move is inconsistent
+- added temporary global touch-scroll block only while drag is active, then full cleanup on release/cancel
+
+### Key Decisions
+- prioritize reliable touch intent on real device over minimal implementation symmetry
+- keep drag available without requiring visible handles
+
+### Verification
+- build passed
+- device check passed (Standards drag confirmed working)
