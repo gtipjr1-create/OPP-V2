@@ -1,6 +1,8 @@
-﻿import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import MobileShell from "./MobileShell";
 import { supabase } from "./lib/supabase";
+import useKeyboardInset from "./useKeyboardInset";
 import {
   createPriority,
 } from "./data/priorities";
@@ -52,6 +54,7 @@ function formatPriorityRow(row, domainsList) {
 }
 
 const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
+  const { keyboardInset, viewportHeight } = useKeyboardInset();
   const domainChoices = domains.length > 0
     ? [...domains]
         .sort((a, b) => {
@@ -91,7 +94,9 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
     opacity: isSaving ? 0.7 : 1,
   });
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div
       style={{
         position: "fixed",
@@ -100,13 +105,25 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-end",
+        paddingBottom: keyboardInset,
+        transition: "padding-bottom 0.2s ease",
       }}
     >
       <div
         onClick={isSaving ? undefined : onClose}
-        style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)" }}
+        style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.86)" }}
       />
-      <div style={SHEET_STYLE}>
+      <div
+        style={{
+          ...SHEET_STYLE,
+          maxHeight: `${Math.max(260, viewportHeight - 16)}px`,
+          overflowY: "auto",
+          overscrollBehavior: "contain",
+          WebkitOverflowScrolling: "touch",
+          touchAction: "pan-y",
+          paddingBottom: "max(20px, calc(env(safe-area-inset-bottom) + 20px))",
+        }}
+      >
         <div style={SHEET_HANDLE} />
         <div style={SHEET_LABEL}>Add Commitment</div>
 
@@ -194,42 +211,52 @@ const AddSheet = ({ onAdd, onClose, domains, isSaving, errorMessage }) => {
           ))}
         </div>
 
-        {errorMessage ? (
-          <div
-            style={{
-              marginBottom: 12,
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 13,
-              color: "#d27d7d",
-              lineHeight: 1.4,
-            }}
-          >
-            {errorMessage}
-          </div>
-        ) : null}
-
-        <button
-          onClick={handleAdd}
-          className="tappable"
-          disabled={!label.trim() || isSaving}
+        <div
           style={{
-            width: "100%",
-            padding: "14px",
-            borderRadius: 14,
-            background: label.trim() && !isSaving ? "#4A9EFF" : "#161616",
-            border: `1px solid ${label.trim() && !isSaving ? "transparent" : "#222"}`,
-            color: label.trim() && !isSaving ? "white" : "#333",
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: 14,
-            fontWeight: 600,
-            cursor: label.trim() && !isSaving ? "pointer" : "default",
-            transition: "all 0.2s ease",
+            position: "static",
+            background: "transparent",
+            paddingTop: 0,
           }}
         >
-          {isSaving ? "Adding..." : "Add Commitment"}
-        </button>
+          {errorMessage ? (
+            <div
+              style={{
+                marginBottom: 12,
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 13,
+                color: "#d27d7d",
+                lineHeight: 1.4,
+              }}
+            >
+              {errorMessage}
+            </div>
+          ) : null}
+
+          <button
+            onClick={handleAdd}
+            className="tappable"
+            disabled={!label.trim() || isSaving}
+            style={{
+              width: "100%",
+              padding: "14px",
+              borderRadius: 14,
+              background: label.trim() && !isSaving ? "#4A9EFF" : "#161616",
+              border: `1px solid ${label.trim() && !isSaving ? "transparent" : "#222"}`,
+              color: label.trim() && !isSaving ? "white" : "#333",
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: label.trim() && !isSaving ? "pointer" : "default",
+              transition: "all 0.2s ease",
+            }}
+          >
+            {isSaving ? "Adding..." : "Add Commitment"}
+          </button>
+        </div>
       </div>
     </div>
+    ,
+    document.body
   );
 };
 
@@ -1018,9 +1045,6 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
     </MobileShell>
   );
 }
-
-
-
 
 
 

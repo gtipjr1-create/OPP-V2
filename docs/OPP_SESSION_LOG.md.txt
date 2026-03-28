@@ -142,3 +142,22 @@ Refine Domains active-lane editing speed and smooth Focus empty-state guidance.
 
 ### Verification
 - build passed
+
+## March 28, 2026 (Keyboard Sheet Alignment + Overlay Fix)
+
+### Session Focus
+Resolve iPhone sheet cut-off and keyboard alignment issues in Domains/Priorities form flows.
+
+### What I Completed
+- added keyboard viewport metrics hook (`useKeyboardInset`) to track live visual viewport changes
+- moved Domains edit sheet and Priorities add sheet into portal overlays (`document.body`) so sheets render above app chrome
+- added viewport-aware sheet max height and keyboard bottom lift handling
+- removed sticky action-strip behavior that produced bottom blue-band artifacts
+- improved keyboard-open alignment by surfacing `Current Focus` earlier in Domains edit flow
+
+### Key Decisions
+- use portal layering for all critical bottom-sheet flows where nav/header collision risk exists
+- prioritize field visibility and actionable controls over descriptive copy while keyboard is open
+
+### Verification
+- build passed

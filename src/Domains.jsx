@@ -1,5 +1,7 @@
-﻿import { useState } from "react";
+import { useState } from "react";
+import { createPortal } from "react-dom";
 import MobileShell from "./MobileShell";
+import useKeyboardInset from "./useKeyboardInset";
 import { updateDomain } from "./data/domains";
 
 const STATUSES = ["Active", "Steady"];
@@ -18,6 +20,8 @@ function domainPurpose(name) {
 }
 
 const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCap }) => {
+  const { keyboardInset, viewportHeight } = useKeyboardInset();
+  const keyboardOpen = keyboardInset > 0;
   const [status, setStatus] = useState(domain.status === "Active" ? "Active" : "Steady");
   const [focus, setFocus] = useState(domain.focus || "");
 
@@ -29,7 +33,9 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
     });
   };
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div
       style={{
         position: "fixed",
@@ -38,11 +44,13 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-end",
+        paddingBottom: keyboardInset,
+        transition: "padding-bottom 0.2s ease",
       }}
     >
       <div
         onClick={isSaving ? undefined : onClose}
-        style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)" }}
+        style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.86)" }}
       />
       <div
         style={{
@@ -52,6 +60,12 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
           border: "1px solid #1e1e1e",
           borderBottom: "none",
           padding: "20px 20px 36px",
+          maxHeight: `${Math.max(260, viewportHeight - (keyboardOpen ? 6 : 16))}px`,
+          overflowY: "auto",
+          overscrollBehavior: "contain",
+          WebkitOverflowScrolling: "touch",
+          touchAction: "pan-y",
+          paddingBottom: "max(20px, calc(env(safe-area-inset-bottom) + 20px))",
           animation: "sheetUp 0.38s cubic-bezier(0.16,1,0.3,1) forwards",
         }}
       >
@@ -121,7 +135,7 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
             color: status === "Active" ? "#6f86a1" : "#6a6a6a",
             lineHeight: 1.4,
             marginTop: -10,
-            marginBottom: 14,
+            marginBottom: keyboardOpen ? 10 : 14,
           }}
         >
           {status === "Active"
@@ -136,10 +150,10 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
               fontSize: 10,
               color: "#555",
               letterSpacing: "0.06em",
-              marginBottom: 18,
+              marginBottom: keyboardOpen ? 12 : 18,
             }}
           >
-            {MAX_ACTIVE_DOMAINS} active · at capacity
+            {MAX_ACTIVE_DOMAINS} active - at capacity
           </div>
         )}
 
@@ -150,6 +164,7 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
             fontWeight: 500,
             color: "#7a7a7a",
             marginBottom: 8,
+            display: keyboardOpen ? "none" : "block",
           }}
         >
           Purpose
@@ -162,6 +177,7 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
             color: "#707070",
             lineHeight: 1.4,
             marginBottom: 12,
+            display: keyboardOpen ? "none" : "block",
           }}
         >
           {domainPurpose(domain.name)}
@@ -173,7 +189,7 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
             fontSize: 13,
             fontWeight: 500,
             color: "#7a7a7a",
-            marginBottom: 8,
+            marginBottom: 6,
           }}
         >
           Current Focus
@@ -196,46 +212,56 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
             fontSize: 16,
             padding: "10px 12px",
             outline: "none",
-            marginBottom: 12,
+            marginBottom: keyboardOpen ? 10 : 12,
             opacity: isSaving ? 0.7 : 1,
           }}
         />
 
-        {errorMessage ? (
-          <div
-            style={{
-              marginBottom: 12,
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 13,
-              color: "#d27d7d",
-              lineHeight: 1.4,
-            }}
-          >
-            {errorMessage}
-          </div>
-        ) : null}
-
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
+        <div
           style={{
-            width: "100%",
-            padding: "13px",
-            borderRadius: 12,
-            background: "#4A9EFF",
-            border: "none",
-            color: "white",
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: 14,
-            fontWeight: 600,
-            cursor: isSaving ? "default" : "pointer",
-            opacity: isSaving ? 0.7 : 1,
+            position: "static",
+            background: "transparent",
+            paddingTop: 0,
           }}
         >
-          {isSaving ? "Saving..." : "Save"}
-        </button>
+          {errorMessage ? (
+            <div
+              style={{
+                marginBottom: 12,
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 13,
+                color: "#d27d7d",
+                lineHeight: 1.4,
+              }}
+            >
+              {errorMessage}
+            </div>
+          ) : null}
+
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            style={{
+              width: "100%",
+              padding: "13px",
+              borderRadius: 12,
+              background: "#4A9EFF",
+              border: "none",
+              color: "white",
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: isSaving ? "default" : "pointer",
+              opacity: isSaving ? 0.7 : 1,
+            }}
+          >
+            {isSaving ? "Saving..." : "Save"}
+          </button>
+        </div>
       </div>
     </div>
+    ,
+    document.body
   );
 };
 
@@ -407,7 +433,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
     steadyDomains.length > 0 ? `${steadyDomains.length} steady` : null,
   ]
     .filter(Boolean)
-    .join(" · ");
+    .join(" Â· ");
 
   async function saveInlineFocus(domain) {
     const nextFocus = inlineFocusValue.trim();
@@ -691,9 +717,6 @@ export default function Domains({ onNavigate, domains, setDomains }) {
     </MobileShell>
   );
 }
-
-
-
 
 
 

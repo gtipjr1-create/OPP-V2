@@ -51,12 +51,14 @@ Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, 
 - Shell scroll-boundary lock complete: middle viewport is now constrained between header and nav to prevent text bleed behind chrome.
 - Domains inline-focus pass complete: active-domain focus text can now be edited inline while status changes remain in modal edit flow.
 - Focus empty-state polish complete: Priorities messaging and capacity badge tone adjusted for calmer guidance.
+- Keyboard-sheet pass complete: Domains/Priorities sheets now render in portal overlay with viewport-aware sizing and improved keyboard alignment on iPhone.
 
 ## Current Focus
 - Preserve stable baseline while collecting any final device-specific edge cases.
 - Preserve model-language consistency as future changes are introduced.
 - Keep token-driven consistency across core screens as refinements continue.
 - Continue polishing touch interactions where inline edits and drag gestures can overlap.
+- Preserve stable sheet ergonomics during keyboard-open edits across all mobile form flows.
 
 ## Stability Checklist (Current)
 - Build passes on current branch.
@@ -66,6 +68,7 @@ Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, 
 - Day-item long-press reorder is functional with edge auto-scroll and improved hold behavior.
 - Bottom-nav readability and label compactness validated (`Focus`).
 - Domains active-lane focus can be edited inline without changing status flow.
+- Domains/Priorities bottom-sheet actions remain reachable while keyboard is open.
 
 ## Open Implementation Decisions
 - Day-item lifecycle policy is locked: carry-forward-until-complete.
