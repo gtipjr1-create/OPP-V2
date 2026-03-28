@@ -53,6 +53,7 @@ Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, 
 - Focus empty-state polish complete: Priorities messaging and capacity badge tone adjusted for calmer guidance.
 - Keyboard-sheet pass complete: Domains/Priorities sheets now render in portal overlay with viewport-aware sizing and improved keyboard alignment on iPhone.
 - Micro rhythm pass complete: Domains and Focus spacing tightened for cleaner mobile scan without behavior changes.
+- Header alignment pass complete: Today date stack moved higher and top breathing room standardized under divider lines on Domains/Focus/Standards.
 
 ## Current Focus
 - Preserve stable baseline while collecting any final device-specific edge cases.
@@ -61,6 +62,7 @@ Strengthen conceptual precision and screen-role coherence so OPP feels cleaner, 
 - Continue polishing touch interactions where inline edits and drag gestures can overlap.
 - Preserve stable sheet ergonomics during keyboard-open edits across all mobile form flows.
 - Preserve compact vertical cadence in Domains/Focus while keeping touch targets comfortable.
+- Keep top-divider spacing balanced across core screens while maintaining quick-access above-the-fold density.
 
 ## Stability Checklist (Current)
 - Build passes on current branch.

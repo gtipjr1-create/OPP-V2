@@ -46,7 +46,7 @@ export default function Settings({ onNavigate, onSignOut }) {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            paddingTop: 28,
+            paddingTop: 26,
             marginBottom: 8,
             paddingInline: "var(--mobile-page-gutter)",
           }}

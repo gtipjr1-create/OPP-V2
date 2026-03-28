@@ -780,7 +780,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            paddingTop: 28,
+            paddingTop: 26,
             marginBottom: 8,
             paddingInline: "var(--mobile-page-gutter)",
           }}
@@ -855,6 +855,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
 
       <div
         style={{
+          marginTop: 6,
           display: "flex",
           flexDirection: "column",
           overflow: dragId ? "visible" : "hidden",

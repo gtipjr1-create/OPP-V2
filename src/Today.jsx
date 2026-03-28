@@ -609,13 +609,13 @@ export default function Today({
       header={
         <div
           style={{
-            paddingTop: 6,
+            paddingTop: 0,
             paddingBottom: 2,
           }}
         >
           <div
             style={{
-              height: 34,
+              height: 28,
               display: "flex",
               alignItems: "center",
               justifyContent: "flex-end",
@@ -648,7 +648,7 @@ export default function Today({
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              marginBottom: 6,
+              marginBottom: 4,
               paddingInline: "var(--mobile-page-gutter)",
             }}
           >
@@ -657,7 +657,7 @@ export default function Today({
               style={{
                 width: 35,
                 height: 35,
-                marginBottom: 10,
+                marginBottom: 8,
                 animation: "iconPulse 2.8s ease-in-out infinite",
                 transformOrigin: "center",
               }}
@@ -681,7 +681,7 @@ export default function Today({
                 color: "#f0f0f0",
                 lineHeight: "34px",
                 textAlign: "center",
-                marginBottom: 4,
+                marginBottom: 2,
               }}
             >
               {dateLabel}
@@ -713,7 +713,8 @@ export default function Today({
         </div>
       ) : null}
 
-      <OrientationPanel label="Active Session">
+      <div style={{ marginTop: 4 }}>
+        <OrientationPanel label="Active Session">
             <div
               style={{
                 fontFamily: "'DM Sans', sans-serif",
@@ -750,6 +751,7 @@ export default function Today({
               </div>
             )}
           </OrientationPanel>
+      </div>
 
           <OrientationPanel
             label="Current Focus"

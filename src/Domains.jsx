@@ -487,7 +487,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            paddingTop: 28,
+            paddingTop: 26,
             marginBottom: 8,
             paddingInline: "var(--mobile-page-gutter)",
           }}
@@ -544,7 +544,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
         </>
       }
     >
-      <div style={{ marginBottom: 10 }}>
+      <div style={{ marginTop: 6, marginBottom: 10 }}>
         <div
           style={{
             fontFamily: "'DM Sans', sans-serif",

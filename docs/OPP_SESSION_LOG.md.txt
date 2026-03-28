@@ -179,3 +179,20 @@ Apply subtle mobile spacing polish to Domains and Focus screens without changing
 
 ### Verification
 - build passed
+
+## March 28, 2026 (Header Lift + Divider Breathing Pass)
+
+### Session Focus
+Refine top-of-screen vertical alignment so headers feel cleaner and first content cards are not crowded against divider lines.
+
+### What I Completed
+- moved Today date/header stack slightly higher for cleaner command-surface entry
+- applied consistent top breathing room under header divider lines on Domains, Focus, and Standards
+- carried the same top-stack alignment language across Settings for visual consistency
+
+### Key Decisions
+- keep this pass strictly spatial (no behavior or interaction changes)
+- use small, repeatable vertical offsets for cross-screen coherence
+
+### Verification
+- build passed

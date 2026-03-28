@@ -362,7 +362,7 @@ export default function Standards({
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            paddingTop: 28,
+            paddingTop: 26,
             marginBottom: 10,
             paddingInline: "var(--mobile-page-gutter)",
           }}
@@ -420,6 +420,7 @@ export default function Standards({
     >
       <div
         style={{
+          marginTop: 6,
           marginBottom: 14,
           textAlign: "center",
           fontFamily: "'DM Sans', sans-serif",
