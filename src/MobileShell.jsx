@@ -54,6 +54,7 @@ export default function MobileShell({
         display: "flex",
         justifyContent: "center",
         fontFamily: "'DM Sans', sans-serif",
+        color: "var(--text-primary)",
         overflow: "hidden",
       }}
     >
@@ -66,6 +67,7 @@ export default function MobileShell({
           position: "relative",
           overflow: "hidden",
           background: "#000",
+          color: "var(--text-primary)",
         }}
       >
         <div
@@ -81,6 +83,7 @@ export default function MobileShell({
             borderBottom: "1px solid #121212",
             boxShadow: "0 8px 20px rgba(0,0,0,0.45)",
             overflow: "hidden",
+            color: "var(--text-primary)",
           }}
         >
           {header}
@@ -103,6 +106,7 @@ export default function MobileShell({
             paddingInline: contentPaddingInline,
             paddingTop: 0,
             paddingBottom: 12,
+            color: "var(--text-primary)",
           }}
         >
           {children}

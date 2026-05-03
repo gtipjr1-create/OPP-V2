@@ -1,7 +1,8 @@
 import { supabase } from "../lib/supabase";
+import { getLocalISODate } from "../lib/date";
 
 export function getTodayISODate() {
-  return new Date().toISOString().slice(0, 10);
+  return getLocalISODate();
 }
 
 export async function loadTodayTasks(userId, date = getTodayISODate()) {

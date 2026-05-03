@@ -206,7 +206,7 @@ function StandardRow({
               fontFamily: "'IBM Plex Mono', monospace",
               fontSize: 12,
               fontWeight: 500,
-              color: "#7a7a7a",
+              color: "#9a9a9a",
               letterSpacing: "0.08em",
               marginBottom: 7,
             }}
@@ -255,7 +255,7 @@ function StandardRow({
                 background: "none",
                 border: "1px solid #2a2a2a",
                 borderRadius: 999,
-                color: "#7a7a7a",
+                color: "#9a9a9a",
                 fontFamily: "'IBM Plex Mono', monospace",
                 fontSize: 10,
                 letterSpacing: "0.05em",
@@ -322,6 +322,7 @@ export default function Standards({
   const pointerStartXRef = useRef(0);
   const pointerStartYRef = useRef(0);
   const lastReorderYRef = useRef(null);
+  const preDragDisplayRef = useRef(null);
   displayRef.current = displayStandards;
 
   const DRAG_HOLD_MS = 240;
@@ -599,6 +600,7 @@ export default function Standards({
     pointerYRef.current = e.clientY;
 
     holdTimer.current = setTimeout(() => {
+      preDragDisplayRef.current = [...displayRef.current];
       dragIdRef.current = id;
       setDragId(id);
       const scrollContainer = listRef.current?.closest(".mobile-shell-scroll");
@@ -659,8 +661,12 @@ export default function Standards({
       setLocalError("");
       await onReorderStandards(nextIds);
     } catch (error) {
+      if (preDragDisplayRef.current) {
+        setDisplayStandards(preDragDisplayRef.current);
+      }
       setLocalError(error.message || "Failed to reorder standards.");
     } finally {
+      preDragDisplayRef.current = null;
       setIsSaving(false);
     }
   }, [onReorderStandards, stopAutoScrollLoop, unlockContainerScroll]);
@@ -730,7 +736,7 @@ export default function Standards({
               lineHeight: 1.35,
             }}
           >
-            Governing layer
+            Behavior rules layer
           </span>
         </div>
 
@@ -748,8 +754,8 @@ export default function Standards({
               borderRadius: 20,
               fontSize: 10,
               fontFamily: "'IBM Plex Mono', monospace",
-              color: "#555",
-              border: "1px solid #2a2a2a",
+              color: "#8a8a8a",
+              border: "1px solid #2f2f2f",
               letterSpacing: "0.06em",
             }}
           >
@@ -770,7 +776,7 @@ export default function Standards({
           lineHeight: 1.4,
         }}
       >
-        These rules govern behavior across mood, energy, and circumstances.
+        Rules that hold across mood, energy, and context.
       </div>
 
       <div style={{ marginBottom: 14 }}>
@@ -779,7 +785,7 @@ export default function Standards({
             fontFamily: "'DM Sans', sans-serif",
             fontSize: "var(--mobile-section-title-size)",
             fontWeight: 600,
-            color: "#9a9a9a",
+            color: "#b3b3b3",
             lineHeight: 1.3,
           }}
         >
@@ -859,7 +865,7 @@ export default function Standards({
           fontFamily: "'DM Sans', sans-serif",
           fontSize: "var(--mobile-screen-subtitle-size)",
           fontWeight: 500,
-          color: "#7a7a7a",
+          color: "#9a9a9a",
           lineHeight: 1.35,
         }}
       >
@@ -878,7 +884,7 @@ export default function Standards({
               borderRadius: 999,
               border: `1px solid ${categoryFilter === category ? "#3a3a3a" : "#252525"}`,
               background: categoryFilter === category ? "#111" : "transparent",
-              color: categoryFilter === category ? "#9a9a9a" : "#5a5a5a",
+              color: categoryFilter === category ? "#b3b3b3" : "#7a7a7a",
               fontFamily: "'IBM Plex Mono', monospace",
               fontSize: 10,
               letterSpacing: "0.04em",
@@ -904,7 +910,7 @@ export default function Standards({
               : `No ${categoryFilter} standards yet.`}
           </p>
           <p style={{ color: "#6a6a6a", fontSize: "var(--mobile-screen-subtitle-size)", lineHeight: 1.6, marginTop: 4 }}>
-            Standards should be clear enough to follow even when motivation is low.
+            Standards should stay followable when motivation drops.
           </p>
           <p style={{ color: "#4f4f4f", fontSize: "var(--mobile-meta-size)", lineHeight: 1.6, marginTop: 6 }}>
             Example shape: "Finish planned work before drift."

@@ -2,6 +2,7 @@
 import MobileShell from "./MobileShell";
 import { supabase } from "./lib/supabase";
 import { createTodayTask } from "./data/todayTasks";
+import { getLocalISODate } from "./lib/date";
 
 const HORIZON_ORDER = {
   today: 0,
@@ -44,14 +45,6 @@ function horizonWeight(horizon) {
 function isCarryForwardTask(taskDate, currentDate) {
   if (!taskDate) return false;
   return taskDate < currentDate;
-}
-
-function localISODate() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
 }
 
 async function updateTodayTaskDoneForUser(id, done, userId) {
@@ -308,7 +301,7 @@ function OrientationPanel({ label, actionLabel, onAction, children }) {
             style={{
               background: "none",
               border: "none",
-              color: "#9a9a9a",
+              color: "#b3b3b3",
               fontFamily: "'DM Sans', sans-serif",
               fontSize: 13,
               fontWeight: 500,
@@ -345,6 +338,7 @@ export default function Today({
   const [domainsExpanded, setDomainsExpanded] = useState(
     typeof window !== "undefined" ? window.innerHeight >= 780 : true
   );
+  const [weekExpanded, setWeekExpanded] = useState(false);
 
   const listRef = useRef(null);
   const quickAddInputRef = useRef(null);
@@ -358,11 +352,12 @@ export default function Today({
   const pointerStartXRef = useRef(0);
   const pointerStartYRef = useRef(0);
   const lastReorderYRef = useRef(null);
+  const preDragTasksRef = useRef(null);
   const tasksRef = useRef(tasks);
   tasksRef.current = tasks;
 
   const dateLabel = todayDateLabel();
-  const currentDate = localISODate();
+  const currentDate = getLocalISODate();
   const doneCount = tasks.filter((t) => t.done).length;
   const total = tasks.length;
   const carryForwardOpenCount = tasks.filter(
@@ -370,17 +365,16 @@ export default function Today({
   ).length;
   const activePriorities = priorities.filter((p) => !p.deferred);
   const activeDomains = domains.filter((d) => d.status === "Active");
-  const todayHorizonCount = activePriorities.filter((p) => normalizeHorizon(p.horizon) === "today").length;
-  const weeklyHorizonCount = activePriorities.filter(
-    (p) => normalizeHorizon(p.horizon) === "this week"
-  ).length;
   const previewPriorities = [...activePriorities]
     .sort((a, b) => horizonWeight(a.horizon) - horizonWeight(b.horizon))
-    .slice(0, 4);
+    .slice(0, 3);
   const isShortViewport = viewportHeight < 780;
   const visibleDomainCount = isShortViewport && !domainsExpanded ? 1 : 2;
   const visibleActiveDomains = activeDomains.slice(0, visibleDomainCount);
   const hiddenDomainCount = Math.max(activeDomains.length - visibleActiveDomains.length, 0);
+  const visibleWeekAnchorCount = weekExpanded ? 3 : 1;
+  const visibleWeekAnchors = weekAnchors.slice(0, visibleWeekAnchorCount);
+  const hiddenWeekAnchorCount = Math.max(weekAnchors.length - visibleWeekAnchors.length, 0);
   const todayPriority = activePriorities.find((p) => normalizeHorizon(p.horizon) === "today") || null;
   const topActiveDomainWithFocus = activeDomains.find((d) => d.focus && d.focus.trim()) || null;
 
@@ -415,7 +409,7 @@ export default function Today({
         userId,
         label,
         sortOrder: tasks.length,
-        date: localISODate(),
+        date: getLocalISODate(),
       });
 
       setTasks((prev) => [
@@ -425,7 +419,7 @@ export default function Today({
           label: data.label,
           done: data.done,
           sortOrder: data.sort_order,
-          date: data.date || localISODate(),
+          date: data.date || getLocalISODate(),
         },
       ]);
       setQuickAdd("");
@@ -587,6 +581,7 @@ export default function Today({
     pointerYRef.current = e.clientY;
 
     holdTimer.current = setTimeout(() => {
+      preDragTasksRef.current = [...tasksRef.current];
       dragIdRef.current = id;
       setDragId(id);
       const scrollContainer = listRef.current?.closest(".mobile-shell-scroll");
@@ -644,9 +639,14 @@ export default function Today({
     try {
       await persistSortOrders(tasksRef.current);
     } catch (error) {
+      if (preDragTasksRef.current) {
+        setTasks(preDragTasksRef.current);
+      }
       setActionError(error.message || "Could not save order.");
+    } finally {
+      preDragTasksRef.current = null;
     }
-  }, [persistSortOrders, stopAutoScrollLoop, unlockContainerScroll]);
+  }, [persistSortOrders, setTasks, stopAutoScrollLoop, unlockContainerScroll]);
 
   const onContainerPointerLeave = useCallback(() => {
     clearTimeout(holdTimer.current);
@@ -736,9 +736,9 @@ export default function Today({
             <div
               aria-hidden="true"
               style={{
-                width: 35,
-                height: 35,
-                marginBottom: 8,
+                width: 36,
+                height: 36,
+                marginBottom: 6,
                 animation: "iconPulse 2.8s ease-in-out infinite",
                 transformOrigin: "center",
               }}
@@ -757,10 +757,12 @@ export default function Today({
             <h1
               style={{
                 fontFamily: "'DM Serif Display', serif",
-                fontSize: "var(--type-size-page-title)",
-                fontWeight: 400,
-                color: "#f0f0f0",
-                lineHeight: "34px",
+                fontSize: "var(--mobile-screen-title-size)",
+                fontWeight: 500,
+                color: "#fafafa",
+                lineHeight: "32px",
+                letterSpacing: "0.01em",
+                textShadow: "0 1px 0 rgba(0,0,0,0.35)",
                 textAlign: "center",
                 marginBottom: 2,
               }}
@@ -816,7 +818,7 @@ export default function Today({
                   letterSpacing: "0.04em",
                 }}
             >
-              {activePriorities.length} in focus · {activeDomains.length} active domains
+              {activePriorities.length} commitments in focus
             </div>
             {todayPriority ? (
               <div
@@ -856,19 +858,7 @@ export default function Today({
                 {carryForwardOpenCount} carry-forward item{carryForwardOpenCount === 1 ? "" : "s"} open
               </div>
             ) : null}
-            {(todayHorizonCount > 0 || weeklyHorizonCount > 0) && (
-              <div
-                style={{
-                  marginTop: 3,
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 12,
-                  color: "#666666",
-                  letterSpacing: "0.04em",
-                }}
-              >
-                {todayHorizonCount} today-facing · {weeklyHorizonCount} week-facing
-              </div>
-            )}
+            {/* Keep session signal concise; avoid stacked secondary counters. */}
           </OrientationPanel>
       </div>
 
@@ -882,7 +872,7 @@ export default function Today({
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: 14,
-                  color: "#8b8b8b",
+                  color: "#a6a6a6",
                   fontStyle: "italic",
                 }}
               >
@@ -912,7 +902,7 @@ export default function Today({
                             ? "#d5d5d5"
                             : normalizeHorizon(priority.horizon) === "this week"
                             ? "#c7c7c7"
-                            : "#9a9a9a",
+                            : "#b0b0b0",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
@@ -946,15 +936,15 @@ export default function Today({
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: 15,
-                  color: "#8b8b8b",
+                  color: "#a6a6a6",
                   fontStyle: "italic",
                 }}
               >
-                No weekly anchors yet.
+                No weekly anchors set.
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {weekAnchors.slice(0, 3).map((anchor) => (
+                {visibleWeekAnchors.map((anchor) => (
                   <div
                     key={anchor.id}
                     style={{
@@ -969,6 +959,46 @@ export default function Today({
                 ))}
               </div>
             )}
+            {hiddenWeekAnchorCount > 0 ? (
+              <button
+                type="button"
+                onClick={() => setWeekExpanded(true)}
+                className="tappable"
+                style={{
+                  marginTop: 6,
+                  background: "none",
+                  border: "none",
+                  color: "#5d5d5d",
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: 11,
+                  letterSpacing: "0.04em",
+                  padding: 0,
+                  cursor: "pointer",
+                }}
+              >
+                Show {hiddenWeekAnchorCount} more
+              </button>
+            ) : null}
+            {weekExpanded && weekAnchors.length > 1 ? (
+              <button
+                type="button"
+                onClick={() => setWeekExpanded(false)}
+                className="tappable"
+                style={{
+                  marginTop: 6,
+                  background: "none",
+                  border: "none",
+                  color: "#4f4f4f",
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: 11,
+                  letterSpacing: "0.04em",
+                  padding: 0,
+                  cursor: "pointer",
+                }}
+              >
+                Show less
+              </button>
+            ) : null}
           </OrientationPanel>
 
           <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
@@ -1062,7 +1092,7 @@ export default function Today({
                     style={{
                       fontFamily: "'DM Sans', sans-serif",
                       fontSize: 14,
-                      color: domain.focus ? "#9a9a9a" : "#6f6f6f",
+                      color: domain.focus ? "#b0b0b0" : "#929292",
                       fontStyle: domain.focus ? "normal" : "italic",
                       lineHeight: 1.3,
                       }}
@@ -1122,7 +1152,7 @@ export default function Today({
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: "var(--mobile-section-title-size)",
                 fontWeight: 600,
-                color: "#9a9a9a",
+                color: "#b3b3b3",
                 lineHeight: 1.3,
               }}
             >
@@ -1142,20 +1172,6 @@ export default function Today({
               Hold and drag any day item to reorder
             </div>
           )}
-          {carryForwardOpenCount > 0 && (
-            <div
-              style={{
-                marginBottom: 8,
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: 13,
-                color: "#6f7f90",
-                lineHeight: 1.35,
-              }}
-            >
-              Carry-forward items are shown with a small label until completed.
-            </div>
-          )}
-
       <div
             ref={listRef}
             style={{
@@ -1177,7 +1193,7 @@ export default function Today({
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: 13,
-                    color: "#9a9a9a",
+                    color: "#b3b3b3",
                     fontStyle: "italic",
                     marginBottom: 6,
                   }}
@@ -1193,7 +1209,7 @@ export default function Today({
                     lineHeight: 1.4,
                   }}
                 >
-                  Capture what needs to be handled today
+                  Capture today execution items.
                 </div>
               </div>
             ) : (

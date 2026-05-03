@@ -19,20 +19,15 @@ import {
   updateWeeklyAnchorText,
 } from "./data/weeklyAnchors";
 import { ensureProfile } from "./ensureProfile";
+import { getLocalISODate } from "./lib/date";
+import { reorderByIds } from "./lib/reorder";
+import { runInitStep } from "./lib/initRunner";
 import Today from "./Today";
 import ArchivedSessions from "./ArchivedSessions";
 import Domains from "./Domains";
 import Priorities from "./Priorities";
 import Standards from "./Standards";
 import Settings from "./Settings";
-
-function todayISODate() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
 
 const DOMAINS_DEFAULT = [
   { name: "Health", slug: "health" },
@@ -106,6 +101,9 @@ export default function OPPApp() {
   const [standards, setStandards] = useState([]);
   const [todayTasks, setTodayTasks] = useState([]);
   const [appError, setAppError] = useState("");
+  const [initWarnings, setInitWarnings] = useState([]);
+  const [isInitializing, setIsInitializing] = useState(false);
+  const [initRunId, setInitRunId] = useState(0);
   const [userId, setUserId] = useState(null);
 
   async function loadDomains(userIdValue) {
@@ -148,7 +146,7 @@ export default function OPPApp() {
   }
 
   async function loadTodayTasks(userIdValue) {
-    const data = await fetchTodayTasks(userIdValue, todayISODate());
+    const data = await fetchTodayTasks(userIdValue, getLocalISODate());
     const formatted = data.map(formatTodayTaskRow);
     setTodayTasks(formatted);
     return formatted;
@@ -302,49 +300,72 @@ export default function OPPApp() {
   }
 
   async function reorderStandards(nextStandardIds) {
-    if (!Array.isArray(nextStandardIds) || nextStandardIds.length !== standards.length) {
-      return;
+    const reorderedStandards = reorderByIds(standards, nextStandardIds);
+
+    const previousStandards = standards;
+    try {
+      await syncStandardSortOrders(reorderedStandards);
+    } catch (error) {
+      setStandards(previousStandards);
+      throw error;
     }
-
-    const standardById = new Map(standards.map((standard) => [standard.id, standard]));
-    const reorderedStandards = nextStandardIds
-      .map((id) => standardById.get(id))
-      .filter(Boolean);
-
-    if (reorderedStandards.length !== standards.length) {
-      throw new Error("Standard reorder list was incomplete.");
-    }
-
-    await syncStandardSortOrders(reorderedStandards);
   }
 
   useEffect(() => {
     async function initApp() {
       try {
+        setIsInitializing(true);
         setAppError("");
+        setInitWarnings([]);
 
-        const user = await getCurrentUser();
+        const warnings = [];
+        const user = await runInitStep("User check failed", () => getCurrentUser(), warnings, {
+          critical: true,
+        });
         setUserId(user.id);
 
-        const { error: profileError } = await ensureProfile();
+        const ensureProfileResult = await runInitStep(
+          "Profile setup failed",
+          () => ensureProfile(),
+          warnings,
+          { critical: true }
+        );
+        const { error: profileError } = ensureProfileResult || {};
         if (profileError) {
           throw new Error(`Profile setup failed: ${profileError.message}`);
         }
 
-        await seedDefaultDomains(user.id);
-        const loadedDomains = await loadDomains(user.id);
-        await loadPriorities(user.id, loadedDomains);
-        await loadWeeklyAnchors(user.id);
-        await loadStandards(user.id);
-        await loadTodayTasks(user.id);
+        await runInitStep("Domain seed failed", () => seedDefaultDomains(user.id), warnings);
+
+        const loadedDomains =
+          (await runInitStep("Domains load failed", () => loadDomains(user.id), warnings)) || [];
+
+        await Promise.all([
+          runInitStep(
+            "Priorities load failed",
+            () => loadPriorities(user.id, loadedDomains),
+            warnings
+          ),
+          runInitStep("Weekly anchors load failed", () => loadWeeklyAnchors(user.id), warnings),
+          runInitStep("Standards load failed", () => loadStandards(user.id), warnings),
+          runInitStep("Today tasks load failed", () => loadTodayTasks(user.id), warnings),
+        ]);
+
+        setInitWarnings(warnings);
       } catch (error) {
         console.error("App init error:", error);
         setAppError(error.message || "Failed to initialize app.");
+      } finally {
+        setIsInitializing(false);
       }
     }
 
     initApp();
-  }, []);
+  }, [initRunId]);
+
+  function retryInit() {
+    setInitRunId((value) => value + 1);
+  }
 
   let content;
 
@@ -367,6 +388,26 @@ export default function OPPApp() {
       >
         <div style={{ fontSize: 18, color: "#f0f0f0" }}>App failed to load</div>
         <div style={{ fontSize: 14, color: "#888", maxWidth: 420 }}>{appError}</div>
+        <button
+          type="button"
+          onClick={retryInit}
+          disabled={isInitializing}
+          style={{
+            marginTop: 8,
+            padding: "8px 12px",
+            borderRadius: 8,
+            border: "1px solid #2f2f2f",
+            color: "#bdbdbd",
+            background: "transparent",
+            fontSize: 12,
+            fontFamily: "'IBM Plex Mono', monospace",
+            letterSpacing: "0.04em",
+            cursor: isInitializing ? "default" : "pointer",
+            opacity: isInitializing ? 0.65 : 1,
+          }}
+        >
+          {isInitializing ? "Retrying..." : "Retry"}
+        </button>
       </div>
     );
   } else if (screen === "archived") {
@@ -413,5 +454,50 @@ export default function OPPApp() {
     );
   }
 
-  return <div>{content}</div>;
+  return (
+    <div>
+      {initWarnings.length > 0 ? (
+        <div
+          style={{
+            margin: "0 auto",
+            maxWidth: 560,
+            padding: "10px 14px",
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 12,
+            color: "#8d8d8d",
+            background: "#080808",
+            border: "1px solid #1b1b1b",
+            borderRadius: 10,
+          }}
+        >
+          Some sections could not load:
+          <div style={{ marginTop: 6, lineHeight: 1.4 }}>
+            {initWarnings.slice(0, 2).join(" | ")}
+            {initWarnings.length > 2 ? " | ...more" : ""}
+          </div>
+          <button
+            type="button"
+            onClick={retryInit}
+            disabled={isInitializing}
+            style={{
+              marginTop: 8,
+              padding: "6px 10px",
+              borderRadius: 8,
+              border: "1px solid #2a2a2a",
+              color: "#9f9f9f",
+              background: "transparent",
+              fontSize: 11,
+              fontFamily: "'IBM Plex Mono', monospace",
+              letterSpacing: "0.04em",
+              cursor: isInitializing ? "default" : "pointer",
+              opacity: isInitializing ? 0.65 : 1,
+            }}
+          >
+            {isInitializing ? "Retrying..." : "Retry load"}
+          </button>
+        </div>
+      ) : null}
+      {content}
+    </div>
+  );
 }

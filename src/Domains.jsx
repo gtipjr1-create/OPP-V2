@@ -88,7 +88,7 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
             fontFamily: "'DM Sans', sans-serif",
             fontSize: 13,
             fontWeight: 500,
-            color: "#7a7a7a",
+            color: "#9a9a9a",
             marginBottom: 8,
           }}
         >
@@ -162,7 +162,7 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
             fontFamily: "'DM Sans', sans-serif",
             fontSize: 13,
             fontWeight: 500,
-            color: "#7a7a7a",
+            color: "#9a9a9a",
             marginBottom: 8,
             display: keyboardOpen ? "none" : "block",
           }}
@@ -188,7 +188,7 @@ const EditSheet = ({ domain, onSave, onClose, isSaving, errorMessage, atActiveCa
             fontFamily: "'DM Sans', sans-serif",
             fontSize: 13,
             fontWeight: 500,
-            color: "#7a7a7a",
+            color: "#9a9a9a",
             marginBottom: 6,
           }}
         >
@@ -318,7 +318,7 @@ function ActiveDomainCard({ domain, onTap }) {
           style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: 14,
-            color: "#9a9a9a",
+            color: "#b0b0b0",
             lineHeight: 1.42,
           }}
         >
@@ -510,7 +510,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
               fontFamily: "'DM Sans', sans-serif",
               fontSize: "var(--mobile-screen-subtitle-size)",
               fontWeight: 500,
-              color: "#383838",
+              color: "#8e8e8e",
               lineHeight: 1.35,
             }}
           >
@@ -533,8 +533,8 @@ export default function Domains({ onNavigate, domains, setDomains }) {
               fontSize: 10,
               fontFamily: "'IBM Plex Mono', monospace",
               fontWeight: 500,
-              color: activeDomains.length > 0 ? "#4A9EFF" : "#333",
-              border: `1px solid ${activeDomains.length > 0 ? "rgba(74,158,255,0.3)" : "#1e1e1e"}`,
+              color: activeDomains.length > 0 ? "#4A9EFF" : "#8a8a8a",
+              border: `1px solid ${activeDomains.length > 0 ? "rgba(74,158,255,0.3)" : "#2f2f2f"}`,
               letterSpacing: "0.06em",
             }}
           >
@@ -550,7 +550,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
             fontFamily: "'DM Sans', sans-serif",
             fontSize: "var(--mobile-section-title-size)",
             fontWeight: 600,
-            color: "#9a9a9a",
+            color: "#b3b3b3",
             lineHeight: 1.3,
             marginBottom: 6,
           }}
@@ -561,12 +561,12 @@ export default function Domains({ onNavigate, domains, setDomains }) {
             style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: "var(--mobile-body-size)",
-              color: "#7a7a7a",
+              color: "#9a9a9a",
               lineHeight: 1.42,
             marginBottom: 6,
             }}
           >
-          Active lanes receive deliberate advancement now. Tap focus text to edit quickly.
+          Active lanes receiving deliberate push now.
           </div>
 
         {activeDomains.length === 0 ? (
@@ -575,12 +575,12 @@ export default function Domains({ onNavigate, domains, setDomains }) {
               style={{
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: "var(--mobile-body-size)",
-                color: "#686868",
+                color: "#8a8a8a",
                 fontStyle: "italic",
                 marginBottom: 4,
               }}
             >
-              No active domains set
+              No active lanes set
             </div>
             <div
               style={{
@@ -590,7 +590,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
                 lineHeight: 1.35,
               }}
             >
-              Promote a lane to active when it needs deliberate push
+              Promote a lane when it needs deliberate push
             </div>
           </div>
         ) : (
@@ -668,7 +668,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
               fontFamily: "'DM Sans', sans-serif",
               fontSize: "var(--mobile-section-title-size)",
               fontWeight: 600,
-              color: "#9a9a9a",
+              color: "#b3b3b3",
               lineHeight: 1.3,
               marginBottom: 8,
             }}
@@ -684,7 +684,7 @@ export default function Domains({ onNavigate, domains, setDomains }) {
               marginBottom: 6,
             }}
           >
-            Steady lanes remain maintained and visible.
+            Steady lanes maintained without current push.
           </div>
           <div>
             {steadyDomains.map((domain, i) => (

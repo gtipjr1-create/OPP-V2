@@ -417,7 +417,7 @@ function NotNowRow({ priority, onActivate }) {
           style={{
             fontSize: 13,
             fontWeight: 400,
-            color: "#888",
+            color: "#a2a2a2",
             fontFamily: "'DM Sans', sans-serif",
             marginBottom: 4,
             lineHeight: 1.35,
@@ -488,6 +488,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
   const listRef = useRef(null);
   const holdTimer = useRef(null);
   const dragIdRef = useRef(null);
+  const preDragPrioritiesRef = useRef(null);
   const activeRef = useRef([]);
   const prioritiesRef = useRef(priorities);
 
@@ -695,6 +696,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
     if (!id) return;
 
     holdTimer.current = setTimeout(() => {
+      preDragPrioritiesRef.current = [...prioritiesRef.current];
       dragIdRef.current = id;
       setDragId(id);
       if (navigator.vibrate) navigator.vibrate(30);
@@ -745,9 +747,14 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
       await persistSortOrders(prioritiesRef.current);
     } catch (error) {
       console.error("Failed to persist priority order:", error);
+      if (preDragPrioritiesRef.current) {
+        setPriorities(preDragPrioritiesRef.current);
+      }
       setActionError(error.message || "Could not save priority order.");
+    } finally {
+      preDragPrioritiesRef.current = null;
     }
-  }, [persistSortOrders]);
+  }, [persistSortOrders, setPriorities]);
 
   const onContainerPointerLeave = useCallback(() => {
     clearTimeout(holdTimer.current);
@@ -807,7 +814,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
               lineHeight: 1.35,
             }}
           >
-            Focus management layer
+            Commitment management layer
           </span>
         </div>
 
@@ -827,8 +834,8 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
               fontSize: 10,
               fontFamily: "'IBM Plex Mono', monospace",
               fontWeight: 500,
-              color: active.length === 0 ? "#333" : capacityColor,
-              border: `1px solid ${active.length === 0 ? "#1e1e1e" : capacityBorderColor}`,
+              color: active.length === 0 ? "#8a8a8a" : capacityColor,
+              border: `1px solid ${active.length === 0 ? "#2f2f2f" : capacityBorderColor}`,
               letterSpacing: "0.06em",
               transition: "all 0.3s ease",
             }}
@@ -868,7 +875,7 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
               fontFamily: "'DM Sans', sans-serif",
               fontSize: "var(--mobile-section-title-size)",
               fontWeight: 600,
-              color: "#9a9a9a",
+              color: "#b3b3b3",
               lineHeight: 1.3,
             }}
           >
@@ -879,12 +886,12 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
           style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: "var(--mobile-body-size)",
-            color: "#7d7d7d",
+            color: "#9d9d9d",
             marginBottom: 8,
             lineHeight: 1.4,
           }}
         >
-          Chosen commitments receiving active advancement now.
+          Selected commitments receiving active push now.
         </div>
 
         <div
@@ -916,11 +923,11 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: "var(--mobile-body-size)",
                   fontWeight: 400,
-                  color: "#777",
+                  color: "#989898",
                   lineHeight: 1.4,
                 }}
               >
-                Add one commitment to start this focus window.
+                Add one commitment to open this focus window.
               </div>
               <div
                 style={{
@@ -1015,12 +1022,12 @@ export default function Priorities({ onNavigate, priorities, setPriorities, doma
             style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: "var(--mobile-body-size)",
-              color: "#7a7a7a",
+              color: "#9a9a9a",
               lineHeight: 1.4,
               marginBottom: 6,
             }}
           >
-            Paused commitments that can be reactivated when focus shifts.
+            Paused commitments ready to reactivate when focus shifts.
           </div>
           {notNow.map((p) => (
             <NotNowRow key={p.id} priority={p} onActivate={activatePriority} />

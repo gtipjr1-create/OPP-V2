@@ -226,12 +226,6 @@ Expected Result
 
 The main screen stays focused while still preserving access to deeper actions and system controls.
 
-
-
-
-
-
-
 OPP — UPDATED NEXT PHASES
 Phase 6 — Secondary Legibility Pass
 Objective
